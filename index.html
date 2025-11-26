@@ -227,9 +227,9 @@
         ];
 
         const videoData = [
-            { id: 1, title: "EP1: 那些年，我們一起追的鳳梨", type: "Podcast", category: "農民心聲", length: "25 min", views: "1.2k", date: "2天前", desc: "談鳳梨農採收的辛酸，與腰痛的共處之道。", coverColor: "bg-purple-600" },
-            { id: 2, title: "3分鐘田間伸展操：貓牛式", type: "Video", category: "健康促進", length: "03:50", views: "3.5k", date: "1週前", desc: "台大物理治療師親自示範，舒緩下背痛。", coverColor: "bg-red-500" },
-            { id: 3, title: "農藥防護衣穿脫 SOP 教學", type: "Video", category: "職業安全", length: "05:20", views: "2.1k", date: "3週前", desc: "先脫手套還是先脫衣服？做錯步驟更危險！", coverColor: "bg-red-500" },
+            { id: 1, title: "EP1: 那些年，我們一起追的鳳梨",url: "https://www.youtube.com/watch?v=bL80n414nq0", type: "Podcast", category: "農民心聲", length: "25 min", views: "1.2k", date: "2天前", desc: "談鳳梨農採收的辛酸，與腰痛的共處之道。", coverColor: "bg-purple-600" },
+            { id: 2, title: "3分鐘田間伸展操：貓牛式",url: "https://www.youtube.com/watch?v=nGFe2xwdTB8", type: "Video", category: "健康促進", length: "03:50", views: "3.5k", date: "1週前", desc: "台大物理治療師親自示範，舒緩下背痛。", coverColor: "bg-red-500" },
+            { id: 3, title: "農藥防護衣穿脫 SOP 教學",url: "https://www.youtube.com/watch?v=a6uXnmb_BP0&t=1s", type: "Video", category: "職業安全", length: "05:20", views: "2.1k", date: "3週前", desc: "先脫手套還是先脫衣服？做錯步驟更危險！", coverColor: "bg-red-500" },
         ];
 
         const forumPosts = [
@@ -740,27 +740,33 @@
             </div>
         );
 
-        const VideosPage = () => (
-            <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in">
-                <SectionHeader icon={PlayCircle} title="影音學習專區" subtitle="用看用聽都方便。" />
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {videoData.map((video) => (
-                        <div key={video.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group cursor-pointer">
-                            <div className={`aspect-video ${video.coverColor} relative flex items-center justify-center`}>
-                                {video.type === 'Podcast' ? <Mic size={48} className="text-white/50"/> : <Video size={48} className="text-white/50"/>}
-                                <div className="absolute top-3 left-3"><Badge color="white">{video.type}</Badge></div>
-                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><PlayCircle size={48} className="text-white"/></div>
-                            </div>
-                            <div className="p-6">
-                                <h3 className="font-bold text-lg mb-2 text-slate-800">{video.title}</h3>
-                                <p className="text-sm text-slate-500 mb-4">{video.desc}</p>
-                                <div className="text-xs text-slate-400 flex justify-between"><span>{video.date}</span><span>{video.views} 次觀看</span></div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+      const VideosPage = () => (
+  <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in">
+    <SectionHeader icon={PlayCircle} title="影音學習專區" subtitle="用看用聽都方便。" />
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {videoData.map((video) => (
+        <a 
+          key={video.id} 
+          href={video.url}           // 這裡讀取上面的網址
+          target="_blank"            // 在新視窗開啟
+          rel="noreferrer" 
+          className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group cursor-pointer block" // block讓整個區塊可點
+        >
+          <div className={`aspect-video ${video.coverColor} relative flex items-center justify-center`}>
+             {video.type === 'Podcast' ? <Mic size={48} className="text-white/50"/> : <Video size={48} className="text-white/50"/>}
+             <div className="absolute top-3 left-3"><Badge color="white">{video.type}</Badge></div>
+             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><PlayCircle size={48} className="text-white"/></div>
+          </div>
+          <div className="p-6">
+            <h3 className="font-bold text-lg mb-2 text-slate-800">{video.title}</h3>
+            <p className="text-sm text-slate-500 mb-4">{video.desc}</p>
+            <div className="text-xs text-slate-400 flex justify-between"><span>{video.date}</span><span>{video.views} 次觀看</span></div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+);
 
         const ResourcesPage = () => (
             <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
