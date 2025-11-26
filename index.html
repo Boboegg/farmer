@@ -886,7 +886,11 @@ const VideosPage = () => (
                         <div className="max-w-[1400px] mx-auto px-4">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center cursor-pointer gap-2 shrink-0" onClick={() => setPage('home')}>
-                                    <div className={`p-2 rounded-lg ${scrolled ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-900'}`}><Sprout size={24}/></div>
+                                    <img 
+    src="Logo_final.ai"       // 請確認這裡的檔名跟您上傳的一模一樣
+    alt="Logo" 
+    className="w-10 h-10 object-contain bg-white rounded-lg p-1" // w-10 h-10 是控制大小
+  />
                                     <span className={`font-extrabold text-xl tracking-tight hidden sm:block ${scrolled ? 'text-emerald-900' : 'text-white'}`}>{t.title}</span>
                                 </div>
                                 
@@ -948,14 +952,18 @@ const VideosPage = () => (
                     <footer className="bg-slate-900 text-slate-400 py-16">
                         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
                             <div className="col-span-1 md:col-span-2">
-                                <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6"><Sprout /> {t.title}</div>
+                              <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6">
+        <img src="Logo_final.ai" className="w-8 h-8 object-contain bg-white rounded-md p-0.5" /> 
+        {t.title}
+      </div>
                                 <p className="text-sm leading-relaxed max-w-sm">共構雲嘉農業工作者職業健康的社會安全網。</p>
                             </div>
                             <div>
                                 <h4 className="text-white font-bold mb-6">聯絡我們</h4>
                                 <ul className="space-y-3 text-sm">
-                                    <li>計畫主持：國立中正大學</li>
-                                    <li>合作夥伴：臺大醫院雲林分院、民雄鄉農會</li>
+                                    <li>指導單位：國家科學委員會</li>
+                                    <li>計畫主持單位：國立中正大學</li>
+                                    <li>合作夥伴：臺大醫院雲分院-農業環境與職業健康中心、民雄鄉農會</li>
                                 </ul>
                             </div>
                         </div>
