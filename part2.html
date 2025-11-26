@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
 
     <!-- 6. 引入 Recharts (圖表庫) -->
-    <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.min.js"></script>
 
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -306,17 +306,17 @@
             return <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${colors[color] || colors.gray}`}>{children}</span>;
         };
 
-        const SOSButton = ({ onClick, label }) => (
-            <button 
-                onClick={onClick}
-                className="fixed bottom-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 border-4 border-white animate-bounce-slow"
-                title="Emergency / Darurat"
-            >
-                <AlertTriangle size={24}/>
-                <span className="font-bold pr-1">{label}</span>
-            </button>
-        );
-
+        // --- 請補上這段 SOSButton 元件 ---
+const SOSButton = ({ onClick, label }) => (
+    <button 
+        onClick={onClick}
+        className="fixed bottom-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 border-4 border-white animate-bounce-slow"
+        title="Emergency / Darurat"
+    >
+        <AlertTriangle size={24}/>
+        <span className="font-bold pr-1">{label}</span>
+    </button>
+);
         const SectionHeader = ({ icon: Icon, title, subtitle }) => (
             <div className="mb-10 text-center animate-fade-in">
                 <div className="inline-flex p-3 bg-emerald-100 rounded-xl mb-4">
