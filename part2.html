@@ -18,7 +18,10 @@
     <!-- 4. 引入 Lucide Icons (圖示庫) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 5. 引入 Recharts (新增：為了退休試算機的圖表) -->
+    <!-- 5. [修正關鍵] 引入 Prop-types (Recharts 需要這個才能運作) -->
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+
+    <!-- 6. 引入 Recharts (圖表庫) -->
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.min.js"></script>
 
     <style>
@@ -29,7 +32,7 @@
         @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .animate-bounce-slow { animation: bounce-slow 3s infinite; }
         
-        /* 新增：試算機專用樣式 */
+        /* 試算機專用樣式 */
         .label-text { display: block; font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem; }
         .input-field { width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: all 0.2s; }
         .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
@@ -40,23 +43,27 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // --- 錯誤偵測 (如果畫面空白，會跳出視窗告知原因) ---
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert('網頁發生錯誤 (請截圖給工程師):\n' + message);
+        };
+
+        // 確認 Recharts 是否成功載入
+        if (!window.Recharts) {
+            console.error("Recharts 載入失敗");
+            alert("圖表工具載入失敗，請檢查網路連線或重新整理");
+        }
+
         const { useState, useEffect } = React;
         // 取得 Recharts 元件
-        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = window.Recharts || {};
 
         // --- 修正圖示載入問題 (ICON FIX) ---
         const createLucideComponent = (name) => ({ size = 24, className = "", ...props }) => {
             const icon = lucide.icons[name];
-            if (!icon) return <span className="text-xs">?</span>; // 如果找不到圖示，顯示問號
-            
+            if (!icon) return <span className="text-xs">?</span>;
             return (
-                <svg 
-                    {...icon.attrs}
-                    width={size} 
-                    height={size} 
-                    className={className}
-                    {...props}
-                >
+                <svg {...icon.attrs} width={size} height={size} className={className} {...props}>
                     {icon.children && icon.children.map(([tag, attrs], index) => {
                         const Tag = tag;
                         return <Tag key={index} {...attrs} />;
@@ -78,13 +85,9 @@
             'AlertCircle', 'ExternalLink', 'Settings', 'PiggyBank', 'Coins'
         ];
 
-        // 產生 React 可用的圖示組件
         const Icons = {};
-        iconList.forEach(name => {
-            Icons[name] = createLucideComponent(name);
-        });
+        iconList.forEach(name => { Icons[name] = createLucideComponent(name); });
         
-        // 解構出來使用
         const { 
             Shield, Sun, AlertTriangle, Activity, Sprout, 
             Users, BookOpen, Phone, Download, ChevronDown, 
@@ -92,11 +95,9 @@
             Tractor, HelpCircle, Video, MessageCircle, PlayCircle, 
             Calendar, Hammer, MapPin, ThumbsUp, Share2, Search,
             Wind, Droplets, Mic, Globe, Clock,
-            // 新增的圖示
             Calculator, TrendingUp, Briefcase, ArrowRightLeft, Info, 
             AlertCircle, ExternalLink, Settings, PiggyBank, Coins
         } = Icons;
-        // ------------------------------------
 
         // --- 1. 多語言字典 ---
         const translations = {
@@ -113,7 +114,7 @@
                     safety: "急救紅牌",
                     health: "健康促進",
                     insurance: "保險經濟",
-                    calculator: "退休試算", // 新增
+                    calculator: "退休試算", 
                     forum: "交流園地",
                     video: "影音學習",
                     resources: "資源下載"
@@ -210,7 +211,39 @@
             }
         };
 
-        // --- 2. 資料庫 ---
+        // --- 2. 資料庫 (保留您的修改：圖片與連結) ---
+        const videoData = [
+          { 
+            id: 1, 
+            title: "EP1: 那些年，我們一起追的鳳梨", 
+            youtubeId: "bL80n414nq0", 
+            type: "Podcast", 
+            views: "1.2k", 
+            date: "2天前", 
+            desc: "談鳳梨農採收的辛酸，與腰痛的共處之道。",
+            coverColor: "bg-purple-600"
+          },
+          { 
+            id: 2, 
+            title: "3分鐘田間伸展操：貓牛式", 
+            youtubeId: "nGFe2xwdTB8", 
+            type: "Video", 
+            views: "3.5k", 
+            date: "1週前", 
+            desc: "台大物理治療師親自示範，舒緩下背痛。",
+            coverColor: "bg-red-500"
+          },
+          { 
+            id: 3, 
+            title: "農藥防護衣穿脫 SOP 教學", 
+            youtubeId: "a6uXnmb_BP0", // 修正: 去掉了 &t=1s，避免縮圖抓取錯誤
+            type: "Video", 
+            views: "2.1k", 
+            date: "3週前", 
+            desc: "先脫手套還是先脫衣服？做錯步驟更危險！", 
+            coverColor: "bg-red-500" 
+          },
+        ];
 
         const safetyData = {
             heat: {
@@ -246,13 +279,6 @@
         const qaData = [
             { category: "保險迷思", q: "我有農保了，還需要健保嗎？", a: "要！健保是看醫生用的，農保是職業身分保險。強烈建議加保「農民職災保險」，每月只要一杯飲料錢，工作受傷保障多更多。" },
             { category: "職災認定", q: "我在田裡暈倒，算是職業災害嗎？", a: "算！但要有證據。就醫時一定要跟醫生說「我是在幾點幾分、在哪個田裡工作時暈倒的」，留下紀錄才能申請給付。" },
-        ];
-
-        // 保留您最新的 Video Data 設定
-        const videoData = [
-            { id: 1, title: "EP1: 那些年，我們一起追的鳳梨",youtubeId: "bL80n414nq0", type: "Podcast", category: "農民心聲", length: "25 min", views: "1.2k", date: "2天前", desc: "談鳳梨農採收的辛酸，與腰痛的共處之道。", coverColor: "bg-purple-600" },
-            { id: 2, title: "3分鐘田間伸展操：貓牛式",youtubeId: "nGFe2xwdTB8", type: "Video", category: "健康促進", length: "03:50", views: "3.5k", date: "1週前", desc: "台大物理治療師親自示範，舒緩下背痛。", coverColor: "bg-red-500" },
-            { id: 3, title: "農藥防護衣穿脫 SOP 教學",youtubeId: "a6uXnmb_BP0&t=1s", type: "Video", category: "職業安全", length: "05:20", views: "2.1k", date: "3週前", desc: "先脫手套還是先脫衣服？做錯步驟更危險！", coverColor: "bg-red-500" },
         ];
 
         const forumPosts = [
