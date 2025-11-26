@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尊嚴農業 - 知識中心</title>
+    
+    <!-- 1. 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 引入 React 和 ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 3. 引入 Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 4. 引入 Lucide Icons (圖示庫) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 5. 引入 Recharts (新增：為了退休試算機的圖表) -->
+    <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.min.js"></script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite; }
+        
+        /* 新增：試算機專用樣式 */
+        .label-text { display: block; font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem; }
+        .input-field { width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: all 0.2s; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-50">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        // 取得 Recharts 元件
+        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+
+        // --- 修正圖示載入問題 (ICON FIX) ---
+        const createLucideComponent = (name) => ({ size = 24, className = "", ...props }) => {
+            const icon = lucide.icons[name];
+            if (!icon) return <span className="text-xs">?</span>; // 如果找不到圖示，顯示問號
+            
+            return (
+                <svg 
+                    {...icon.attrs}
+                    width={size} 
+                    height={size} 
+                    className={className}
+                    {...props}
+                >
+                    {icon.children && icon.children.map(([tag, attrs], index) => {
+                        const Tag = tag;
+                        return <Tag key={index} {...attrs} />;
+                    })}
+                </svg>
+            );
+        };
+
+        // 註冊所有用到的圖示 (包含原本的 + 試算機新增的)
+        const iconList = [
+            'Shield', 'Sun', 'AlertTriangle', 'Activity', 'Sprout', 
+            'Users', 'BookOpen', 'Phone', 'Download', 'ChevronDown', 
+            'ChevronUp', 'Menu', 'X', 'ArrowRight', 'Heart', 'DollarSign',
+            'Tractor', 'HelpCircle', 'Video', 'MessageCircle', 'PlayCircle', 
+            'Calendar', 'Hammer', 'MapPin', 'ThumbsUp', 'Share2', 'Search',
+            'Wind', 'Droplets', 'Mic', 'Globe', 'Clock',
+            // 新增的圖示
+            'Calculator', 'TrendingUp', 'Briefcase', 'ArrowRightLeft', 'Info', 
+            'AlertCircle', 'ExternalLink', 'Settings', 'PiggyBank', 'Coins'
+        ];
+
+        // 產生 React 可用的圖示組件
+        const Icons = {};
+        iconList.forEach(name => {
+            Icons[name] = createLucideComponent(name);
+        });
+        
+        // 解構出來使用
+        const { 
+            Shield, Sun, AlertTriangle, Activity, Sprout, 
+            Users, BookOpen, Phone, Download, ChevronDown, 
+            ChevronUp, Menu, X, ArrowRight, Heart, DollarSign,
+            Tractor, HelpCircle, Video, MessageCircle, PlayCircle, 
+            Calendar, Hammer, MapPin, ThumbsUp, Share2, Search,
+            Wind, Droplets, Mic, Globe, Clock,
+            // 新增的圖示
+            Calculator, TrendingUp, Briefcase, ArrowRightLeft, Info, 
+            AlertCircle, ExternalLink, Settings, PiggyBank, Coins
+        } = Icons;
+        // ------------------------------------
+
+        // --- 1. 多語言字典 ---
+        const translations = {
+            zh: {
+                title: "尊嚴農業",
+                subtitle: "知識中心",
+                heroDesc: "連結政府資源、醫療專業與在地經驗，讓農業成為一份有尊嚴、可永續的志業。",
+                todayRisk: "今日熱危害風險",
+                high: "高危險",
+                nav: {
+                    home: "首頁",
+                    start: "從事農業",
+                    greenhouse: "溫室機具",
+                    safety: "急救紅牌",
+                    health: "健康促進",
+                    insurance: "保險經濟",
+                    calculator: "退休試算", // 新增
+                    forum: "交流園地",
+                    video: "影音學習",
+                    resources: "資源下載"
+                },
+                identity: {
+                    new: "我想務農 (新手)",
+                    young: "我是青農 / 在職",
+                    senior: "我是資深農友",
+                    enter: "進入專區"
+                },
+                section: {
+                    forum: "最新交流動態",
+                    video: "熱門影音推薦",
+                    more: "查看更多"
+                },
+                redCard: {
+                    heatTitle: "紅牌 1：熱到受不了 (中暑)",
+                    pestTitle: "紅牌 2：農藥中毒",
+                    heatSub: "注意！流不出汗是最危險的訊號",
+                    pestSub: "別硬撐！這會傷到神經"
+                }
+            },
+            en: {
+                title: "Dignified Agri",
+                subtitle: "Knowledge Hub",
+                heroDesc: "Connecting resources, medical expertise, and local experience for sustainable agriculture.",
+                todayRisk: "Today's Heat Risk",
+                high: "High",
+                nav: {
+                    home: "Home",
+                    start: "Start Farming",
+                    greenhouse: "Greenhouse",
+                    safety: "Emergency SOS",
+                    health: "Health Promo",
+                    insurance: "Insurance",
+                    calculator: "Calculator",
+                    forum: "Community",
+                    video: "Videos",
+                    resources: "Downloads"
+                },
+                identity: {
+                    new: "New Farmer",
+                    young: "Professional",
+                    senior: "Senior Farmer",
+                    enter: "Enter"
+                },
+                section: {
+                    forum: "Latest Discussions",
+                    video: "Featured Videos",
+                    more: "View More"
+                },
+                redCard: {
+                    heatTitle: "Red Card 1: Heat Stroke",
+                    pestTitle: "Red Card 2: Pesticide Poisoning",
+                    heatSub: "Warning! No sweating is a danger sign.",
+                    pestSub: "Don't endure it! Seek help immediately."
+                }
+            },
+            id: {
+                title: "Pertanian Bermartabat",
+                subtitle: "Pusat Pengetahuan",
+                heroDesc: "Menghubungkan sumber daya pemerintah dan medis untuk pertanian berkelanjutan.",
+                todayRisk: "Risiko Panas Hari Ini",
+                high: "Tinggi",
+                nav: {
+                    home: "Beranda",
+                    start: "Mulai Bertani",
+                    greenhouse: "Rumah Kaca",
+                    safety: "SOS Darurat",
+                    health: "Kesehatan",
+                    insurance: "Asuransi",
+                    calculator: "Kalkulator",
+                    forum: "Komunitas",
+                    video: "Video",
+                    resources: "Unduhan"
+                },
+                identity: {
+                    new: "Petani Baru",
+                    young: "Profesional",
+                    senior: "Petani Senior",
+                    enter: "Masuk"
+                },
+                section: {
+                    forum: "Diskusi Terbaru",
+                    video: "Video Pilihan",
+                    more: "Lihat Lebih"
+                },
+                redCard: {
+                    heatTitle: "Kartu Merah 1: Sengatan Panas",
+                    pestTitle: "Kartu Merah 2: Keracunan Pestisida",
+                    heatSub: "Peringatan! Tidak berkeringat adalah tanda bahaya.",
+                    pestSub: "Segera cari pertolongan medis!"
+                }
+            }
+        };
+
+        // --- 2. 資料庫 ---
+
+        const safetyData = {
+            heat: {
+                level: "High Risk",
+                symptoms: [
+                    { text: "頭暈、想吐、頭很痛", icon: "😵" },
+                    { text: "皮膚乾乾燙燙 (沒流汗)", icon: "🔥" },
+                    { text: "說話不清楚、昏倒", icon: "💤" }
+                ],
+                actions: [
+                    { step: "1. 找陰涼", desc: "趕快去樹下或陰影處", icon: <Wind size={20}/> },
+                    { step: "2. 脫衣服", desc: "衣服鬆開、皮帶解開", icon: <Users size={20}/> },
+                    { step: "3. 潑冷水", desc: "身體潑水降溫", icon: <Droplets size={20}/> },
+                    { step: "4. 打119", desc: "人昏倒了立刻叫救護車", icon: <Phone size={20}/> }
+                ]
+            },
+            pesticide: {
+                level: "Critical",
+                symptoms: [
+                    { text: "瞳孔縮到很小", icon: "👀" },
+                    { text: "一直流口水、流眼淚", icon: "💦" },
+                    { text: "手腳一直抖、吸不到氣", icon: "💪" }
+                ],
+                actions: [
+                    { step: "禁催吐", desc: "千萬不要催吐！會灼傷", icon: <X size={20}/> },
+                    { step: "沖乾淨", desc: "脫掉髒衣服，沖水洗澡", icon: <Droplets size={20}/> },
+                    { step: "帶瓶子", desc: "把農藥瓶子帶著給醫生看", icon: <BookOpen size={20}/> },
+                    { step: "快送醫", desc: "打119 或 毒物中心", icon: <Phone size={20}/> }
+                ]
+            }
+        };
+
+        const qaData = [
+            { category: "保險迷思", q: "我有農保了，還需要健保嗎？", a: "要！健保是看醫生用的，農保是職業身分保險。強烈建議加保「農民職災保險」，每月只要一杯飲料錢，工作受傷保障多更多。" },
+            { category: "職災認定", q: "我在田裡暈倒，算是職業災害嗎？", a: "算！但要有證據。就醫時一定要跟醫生說「我是在幾點幾分、在哪個田裡工作時暈倒的」，留下紀錄才能申請給付。" },
+        ];
+
+        // 保留您最新的 Video Data 設定
+        const videoData = [
+            { id: 1, title: "EP1: 那些年，我們一起追的鳳梨",youtubeId: "bL80n414nq0", type: "Podcast", category: "農民心聲", length: "25 min", views: "1.2k", date: "2天前", desc: "談鳳梨農採收的辛酸，與腰痛的共處之道。", coverColor: "bg-purple-600" },
+            { id: 2, title: "3分鐘田間伸展操：貓牛式",youtubeId: "nGFe2xwdTB8", type: "Video", category: "健康促進", length: "03:50", views: "3.5k", date: "1週前", desc: "台大物理治療師親自示範，舒緩下背痛。", coverColor: "bg-red-500" },
+            { id: 3, title: "農藥防護衣穿脫 SOP 教學",youtubeId: "a6uXnmb_BP0&t=1s", type: "Video", category: "職業安全", length: "05:20", views: "2.1k", date: "3週前", desc: "先脫手套還是先脫衣服？做錯步驟更危險！", coverColor: "bg-red-500" },
+        ];
+
+        const forumPosts = [
+            { id: 1, author: "新手青農_阿豪", avatar: "豪", title: "急！請問民雄哪裡有修割草機的師傅？", tag: "維修互助", content: "我的背負式割草機突然發不動了，好像是化油器的問題，有沒有推薦的師傅？", likes: 12, comments: 5, time: "2小時前" },
+            { id: 2, author: "旺來伯", avatar: "旺", title: "最近鳳梨價格波動大，大家有保收入保險嗎？", tag: "經濟討論", content: "聽說那個奧林匹克平均法計算比較公平，有人理賠過嗎？想請教經驗。", likes: 34, comments: 12, time: "5小時前" },
+            { id: 3, author: "溫室小陳", avatar: "陳", title: "[贈送] 這裡有多餘的 60% 遮陽網", tag: "物資交流", content: "更換新網子，舊的還堪用，約 10 米長，有需要的農友可以自取。", likes: 8, comments: 3, time: "1天前" },
+        ];
+
+        const exerciseData = [
+            { title: "貓牛式 (救救你的腰)", target: "長時間彎腰拔草的人", steps: ["手扶田埂，身體微彎", "吸氣時抬頭挺胸 (像牛)", "吐氣時低頭看肚臍 (像貓)", "重複 10 次"] },
+            { title: "抱膝伸展 (放鬆下背)", target: "搬重物腰痠的人", steps: ["平躺下來", "雙手抱膝往胸口拉", "停留 30 秒", "感覺下背放鬆"] },
+            { title: "毛巾轉肩 (放鬆肩膀)", target: "噴藥、手舉高的人", steps: ["拿毛巾兩端伸直", "慢慢往上舉高", "感覺胸口拉開", "維持 10 秒"] }
+        ];
+
+        // --- 3. UI 模組 (Components) ---
+
+        const Badge = ({ children, color = "green" }) => {
+            const colors = {
+                green: "bg-emerald-100 text-emerald-700",
+                blue: "bg-blue-100 text-blue-700",
+                purple: "bg-purple-100 text-purple-700",
+                red: "bg-red-100 text-red-700",
+                orange: "bg-orange-100 text-orange-700",
+                gray: "bg-gray-100 text-gray-700",
+                white: "bg-white/90 text-slate-800"
+            };
+            return <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${colors[color] || colors.gray}`}>{children}</span>;
+        };
+
+        const SOSButton = ({ onClick, label }) => (
+            <button 
+                onClick={onClick}
+                className="fixed bottom-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 border-4 border-white animate-bounce-slow"
+                title="Emergency / Darurat"
+            >
+                <AlertTriangle size={24}/>
+                <span className="font-bold pr-1">{label}</span>
+            </button>
+        );
+
+        const SectionHeader = ({ icon: Icon, title, subtitle }) => (
+            <div className="mb-10 text-center animate-fade-in">
+                <div className="inline-flex p-3 bg-emerald-100 rounded-xl mb-4">
+                    <Icon className="w-8 h-8 text-emerald-700" />
+                </div>
+                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">{title}</h2>
+                <p className="text-slate-500 text-lg max-w-2xl mx-auto">{subtitle}</p>
+            </div>
+        );
+
+        const ActionButton = ({ children, onClick, variant = "primary", className = "" }) => {
+            const variants = {
+                primary: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md",
+                secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm",
+                outline: "border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+            };
+            return (
+                <button className={`px-6 py-3 rounded-xl font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 ${variants[variant]} ${className}`} onClick={onClick}>
+                    {children}
+                </button>
+            );
+        };
+
+        const EmergencyCard = ({ data, type, lang }) => {
+            const isHeat = type === 'heat';
+            const theme = isHeat ? { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-600', sub: 'text-orange-800' } : { bg: 'bg-red-50', border: 'border-red-600', text: 'text-red-600', sub: 'text-red-800' };
+            
+            const title = isHeat ? lang.redCard.heatTitle : lang.redCard.pestTitle;
+            const subtitle = isHeat ? lang.redCard.heatSub : lang.redCard.pestSub;
+
+            return (
+                <div className={`rounded-2xl bg-white border-l-8 ${theme.border} shadow-lg overflow-hidden`}>
+                    <div className={`${theme.bg} p-6 border-b border-white/50 flex justify-between items-start`}>
+                        <div>
+                            <div className={`flex items-center gap-2 mb-1 font-bold ${theme.text} uppercase text-sm tracking-wider`}>
+                                <AlertTriangle size={18}/> {data.level}
+                            </div>
+                            <h3 className="text-2xl font-extrabold text-slate-800">{title}</h3>
+                            <p className={`${theme.sub} mt-1 font-medium`}>{subtitle}</p>
+                        </div>
+                        <Phone className={`${theme.text} opacity-20`} size={40} />
+                    </div>
+                    
+                    <div className="p-6 grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                                <Activity size={18} className="text-slate-400"/> 危險徵兆 (Symptoms)
+                            </h4>
+                            <ul className="space-y-3">
+                                {data.symptoms.map((sym, i) => (
+                                    <li key={i} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <span className="text-2xl">{sym.icon}</span>
+                                        <span className="font-bold text-slate-700">{sym.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                                <Shield size={18} className="text-slate-400"/> 馬上這樣做！(Action)
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                {data.actions.map((act, i) => (
+                                    <div key={i} className={`${theme.bg} p-3 rounded-xl flex flex-col items-center text-center border border-white/50`}>
+                                        <div className={`mb-2 p-2 bg-white rounded-full ${theme.text} shadow-sm`}>{act.icon}</div>
+                                        <span className="font-bold text-slate-900 block mb-1">{act.step}</span>
+                                        <span className="text-xs text-slate-600 leading-tight">{act.desc}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Accordion = ({ category, question, answer }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            return (
+                <div className="border border-slate-100 bg-white rounded-xl mb-3 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <button 
+                        className="w-full py-4 px-6 flex justify-between items-center text-left focus:outline-none hover:bg-slate-50"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div>
+                            <Badge color="blue">{category}</Badge>
+                            <div className="font-bold text-lg text-slate-800 mt-2">{question}</div>
+                        </div>
+                        {isOpen ? <ChevronUp className="text-emerald-600" /> : <ChevronDown className="text-slate-400" />}
+                    </button>
+                    {isOpen && (
+                        <div className="px-6 pb-6 text-slate-600 leading-relaxed border-t border-slate-50 pt-4 bg-slate-50/50">
+                            {answer}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- 4. 退休試算機與輔助元件 (New Components) ---
+
+        const InputGroup = ({ label, name, value, onChange, color = "emerald" }) => (
+            <div>
+                <label className={`label-text text-${color}-700`}>{label}</label>
+                <input type="number" name={name} value={value} onChange={onChange} className={`input-field focus:ring-${color}-500 focus:border-${color}-500`} />
+            </div>
+        );
+
+        const ResultCard = ({ title, icon, total, children, isWinner, colorClass, viewMode }) => (
+            <div className={`bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition-all relative overflow-hidden group ${colorClass}`}>
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 origin-top-right">{icon}</div>
+                <div className="flex justify-between items-start mb-2 relative z-10">
+                    <h4 className="text-slate-500 text-sm font-bold flex items-center gap-2">{icon} {title}</h4>
+                    {isWinner && <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full">推薦方案</span>}
+                </div>
+                <div className="text-3xl font-extrabold text-slate-800 relative z-10">
+                    ${Math.round(total).toLocaleString()} <span className="text-sm font-normal text-slate-400">/{viewMode === 'monthly' ? '月' : '總額'}</span>
+                </div>
+                <div className="relative z-10">{children}</div>
+            </div>
+        );
+
+        const ResultRow = ({ label, value, color = "text-slate-700", bold = false, subLabel }) => (
+            <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500 flex items-center gap-1">
+                    {label}
+                    {subLabel && <span className="text-[10px] bg-slate-100 text-slate-500 px-1 rounded">{subLabel}</span>}
+                </span>
+                <span className={`font-medium ${color} ${bold ? 'font-bold' : ''}`}>${Math.round(value).toLocaleString()}</span>
+            </div>
+        );
+
+        const DetailCard = ({ title, children }) => (
+            <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-full">
+                <div className="font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">{title}</div>
+                {children}
+            </div>
+        );
+
+        const BreakdownCard = ({ title, monthly, totalFund, items, divisor, cappedInfo, info }) => (
+            <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-full">
+                <div className="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
+                    <div className="font-bold text-slate-700">{title}</div>
+                    <div className="text-right">
+                        <div className="text-lg font-bold text-slate-800">${Math.round(monthly).toLocaleString()}</div>
+                        <div className="text-[10px] text-slate-400">/月</div>
+                    </div>
+                </div>
+                <div className="space-y-2 text-xs mb-3">
+                    {items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between">
+                            <span className="text-slate-500">{item.label}</span>
+                            <span className={`font-medium ${item.color}`}>${item.value.toLocaleString()}</span>
+                        </div>
+                    ))}
+                    <div className="flex justify-between border-t border-slate-100 pt-2 mt-2">
+                        <span className="font-bold text-slate-700">累積總額</span>
+                        <span className="font-bold text-slate-800">${totalFund.toLocaleString()}</span>
+                    </div>
+                    {cappedInfo && <div className="mt-2 text-[10px] text-orange-600 bg-orange-50 p-1 rounded">{cappedInfo}</div>}
+                    {info && <div className="mt-2 text-[10px] text-blue-600 bg-blue-50 p-1 rounded">{info}</div>}
+                </div>
+                <div className="bg-slate-50 p-2 rounded text-[10px] text-slate-400 text-center">總額 ÷ {divisor} 個月 = 月領金額</div>
+            </div>
+        );
+
+        const CalculatorPage = () => {
+             const CONSTANTS = {
+                BASIC_WAGE_2025: 28590, OLD_FARMER_ALLOWANCE: 8110, LABOR_INS_MAX: 45800, LABOR_PENSION_MAX: 150000,
+                LABOR_INS_RATE: 0.0155, LIFE_EXPECTANCY: 20, OLD_FARMER_AGE_LIMIT: 65, OLD_FARMER_YEARS_LIMIT: 15, NORMAL_RETIRE_AGE: 65,
+            };
+
+            const LEGAL_REFS = [
+                { category: "勞工保險 (年金 vs 一次領)", icon: <Briefcase className="w-4 h-4 text-blue-600" />, items: [
+                    { title: "老年年金給付 (月領)", desc: "依《勞工保險條例》第58-1條，採第二式：平均月投保薪資 × 年資 × 1.55%。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=58-1" },
+                    { title: "一次請領老年給付 (舊制算法)", desc: "依第59條：保險年資合計每滿1年，按平均月投保薪資發給1個月；超過15年者，超過部分每滿1年發給2個月，最高以45個月為限。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=59" },
+                    { title: "展延與減給 (提早/延後)", desc: "依第58-2條：每延後/提前1年，增給/減給4% (最多20%)。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=58-2" }
+                ]},
+                { category: "勞工退休金 (個人專戶)", icon: <PiggyBank className="w-4 h-4 text-purple-600" />, items: [
+                    { title: "請領方式 (月領/一次領)", desc: "依《勞工退休金條例》第24條：年資滿15年以上者，得請領月退休金；未滿15年者，應請領一次退休金。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL030634&flno=24" }
+                ]},
+                { category: "農民福利與儲金", icon: <Sprout className="w-4 h-4 text-emerald-600" />, items: [
+                    { title: "農民退休儲金 (月領)", desc: "依《農民退休儲金條例》第15條：計算方式為專戶本金及累積收益，依據年金生命表計算月發給金額。", link: "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=M0090050&flno=15" }
+                ]}
+            ];
+
+            const [inputs, setInputs] = useState({ currentAge: 35, laborStartAge: 25, laborRetireAge: 65, switchAge: 45, farmerRetireAge: 65, currentSalary: 55000, laborSelfRate: 0, farmerRate: 10, roiEstimate: 3.0, salaryGrowth: 1.5 });
+            const [results, setResults] = useState(null);
+            const [showDetails, setShowDetails] = useState(false);
+            const [showLaws, setShowLaws] = useState(false);
+            const [viewMode, setViewMode] = useState('monthly');
+            const [validationErrors, setValidationErrors] = useState([]);
+
+            const getNum = (val) => val === '' || val === undefined || val === null ? 0 : Number(val);
+
+            const calculateRetirement = () => {
+                const currentAge = getNum(inputs.currentAge);
+                const laborRetireAge = getNum(inputs.laborRetireAge);
+                const farmerRetireAge = getNum(inputs.farmerRetireAge);
+                const switchAge = getNum(inputs.switchAge);
+                const currentSalary = getNum(inputs.currentSalary);
+                const laborStartAge = getNum(inputs.laborStartAge);
+                const laborSelfRate = getNum(inputs.laborSelfRate);
+                const farmerRate = getNum(inputs.farmerRate);
+                const roiEstimate = getNum(inputs.roiEstimate);
+                const salaryGrowth = getNum(inputs.salaryGrowth);
+                
+                const roi = roiEstimate / 100;
+                const growth = salaryGrowth / 100;
+
+                const errors = [];
+                if (laborStartAge >= currentAge) errors.push("「開始工作年齡」必須小於「目前年齡」");
+                if (switchAge <= currentAge) errors.push("「轉職年齡」必須大於「目前年齡」(若已轉職，請將轉職年齡設為目前年齡)");
+                if (switchAge < laborStartAge) errors.push("「轉職年齡」不能早於「開始工作年齡」");
+                if (laborRetireAge <= currentAge) errors.push("勞工「預計退休年齡」必須大於「目前年齡」");
+                if (farmerRetireAge <= switchAge) errors.push("農民「預計退休年齡」必須大於「轉職年齡」");
+                if (laborRetireAge < 60) errors.push("勞保年金法定請領年齡最低為 60 歲 (減給 20%)");
+                
+                setValidationErrors(errors);
+                if (errors.length > 0) { setResults(null); return; }
+
+                const monthsToDistribute = CONSTANTS.LIFE_EXPECTANCY * 12;
+
+                // A. 勞工路徑
+                let laborPath = { laborInsAnnuity: 0, laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, totalMonthly: 0, totalAsset_LaborIns: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, lumpSum_LaborIns: 0, details: {} };
+                const yearsToLaborRetire = Math.max(0, laborRetireAge - currentAge);
+                const totalLaborYears = laborRetireAge - laborStartAge;
+                
+                let projectedFinalSalary = currentSalary * Math.pow(1 + growth, yearsToLaborRetire);
+                let laborInsSalary = Math.min(projectedFinalSalary, CONSTANTS.LABOR_INS_MAX);
+                if (currentSalary >= CONSTANTS.LABOR_INS_MAX) laborInsSalary = CONSTANTS.LABOR_INS_MAX;
+
+                let laborInsRateAdjustment = 1;
+                let rateAdjText = "標準";
+                const ageDiff = laborRetireAge - CONSTANTS.NORMAL_RETIRE_AGE;
+                if (ageDiff < 0) { laborInsRateAdjustment = 1 - (Math.min(Math.abs(ageDiff), 5) * 0.04); rateAdjText = `提早 ${Math.min(Math.abs(ageDiff), 5)} 年，減給`; } 
+                else if (ageDiff > 0) { laborInsRateAdjustment = 1 + (Math.min(ageDiff, 5) * 0.04); rateAdjText = `延後 ${Math.min(ageDiff, 5)} 年，增給`; }
+
+                laborPath.laborInsAnnuity = laborInsSalary * totalLaborYears * CONSTANTS.LABOR_INS_RATE * laborInsRateAdjustment;
+                laborPath.totalAsset_LaborIns = laborPath.laborInsAnnuity * monthsToDistribute;
+
+                let lumpSumUnits = totalLaborYears <= 15 ? totalLaborYears : 15 + (totalLaborYears - 15) * 2;
+                if (lumpSumUnits > 45) lumpSumUnits = 45;
+                laborPath.lumpSum_LaborIns = laborInsSalary * lumpSumUnits;
+
+                laborPath.details.laborIns = { baseCalc: `$${Math.round(laborInsSalary).toLocaleString()} × ${totalLaborYears}年 × 1.55%`, adjustment: rateAdjText, cappedInfo: currentSalary > CONSTANTS.LABOR_INS_MAX ? `(受 $45,800 上限限制)` : null, lumpSumUnits };
+
+                let lpAcc_Emp = 0, lpAcc_Self = 0, lpPrincipal_Emp = 0, lpPrincipal_Self = 0, currentSalarySim = currentSalary;
+                for (let i = 0; i < yearsToLaborRetire; i++) {
+                    let pensionSalary = Math.min(currentSalarySim, CONSTANTS.LABOR_PENSION_MAX);
+                    lpPrincipal_Emp += pensionSalary * 0.06 * 12; lpAcc_Emp = (lpAcc_Emp + pensionSalary * 0.06 * 12) * (1 + roi);
+                    lpPrincipal_Self += pensionSalary * (laborSelfRate / 100) * 12; lpAcc_Self = (lpAcc_Self + pensionSalary * (laborSelfRate / 100) * 12) * (1 + roi);
+                    currentSalarySim *= (1 + growth);
+                }
+                laborPath.laborPensionMonthly_Emp = lpAcc_Emp / monthsToDistribute;
+                laborPath.laborPensionMonthly_Self = lpAcc_Self / monthsToDistribute;
+                laborPath.totalAsset_LaborPension_Emp = lpAcc_Emp; laborPath.totalAsset_LaborPension_Self = lpAcc_Self;
+                laborPath.totalMonthly = laborPath.laborInsAnnuity + laborPath.laborPensionMonthly_Emp + laborPath.laborPensionMonthly_Self;
+                laborPath.details.laborPension = { emp: { principal: lpPrincipal_Emp, total: lpAcc_Emp }, self: { principal: lpPrincipal_Self, total: lpAcc_Self }, monthlyDivisor: monthsToDistribute };
+
+                // B. 農民路徑
+                let farmerPath = { baseLayer: 0, baseLayerName: '', laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, farmerPensionMonthly: 0, totalMonthly: 0, totalAsset_BaseLayer: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, totalAsset_FarmerPension: 0, lumpSum_LaborIns: 0, messages: [], details: {} };
+                const yearsUntilSwitch = Math.max(0, switchAge - currentAge);
+                const yearsAsFarmer = Math.max(0, farmerRetireAge - switchAge);
+                const laborYearsAtSwitch = switchAge - laborStartAge;
+                const yearsToCompoundOldLP = Math.max(0, farmerRetireAge - switchAge);
+
+                let oldLpAcc_Emp = 0, oldLpAcc_Self = 0, oldLpPrin_Emp = 0, oldLpPrin_Self = 0, tempSalary = currentSalary;
+                for (let i = 0; i < yearsUntilSwitch; i++) {
+                    let pensionSalary = Math.min(tempSalary, CONSTANTS.LABOR_PENSION_MAX);
+                    oldLpPrin_Emp += pensionSalary * 0.06 * 12; oldLpAcc_Emp = (oldLpAcc_Emp + pensionSalary * 0.06 * 12) * (1 + roi);
+                    oldLpPrin_Self += pensionSalary * (laborSelfRate / 100) * 12; oldLpAcc_Self = (oldLpAcc_Self + pensionSalary * (laborSelfRate / 100) * 12) * (1 + roi);
+                    tempSalary *= (1 + growth);
+                }
+                oldLpAcc_Emp *= Math.pow(1 + roi, yearsToCompoundOldLP); oldLpAcc_Self *= Math.pow(1 + roi, yearsToCompoundOldLP);
+                farmerPath.laborPensionMonthly_Emp = oldLpAcc_Emp / monthsToDistribute;
+                farmerPath.laborPensionMonthly_Self = oldLpAcc_Self / monthsToDistribute;
+                farmerPath.totalAsset_LaborPension_Emp = oldLpAcc_Emp; farmerPath.totalAsset_LaborPension_Self = oldLpAcc_Self;
+
+                let farmerPensionAccumulated = 0, farmerPrincipalUser = 0, farmerPrincipalGov = 0, basicWageSim = CONSTANTS.BASIC_WAGE_2025;
+                for (let i = 0; i < yearsAsFarmer; i++) {
+                    const monthlyContributionUser = basicWageSim * (farmerRate / 100);
+                    farmerPrincipalUser += monthlyContributionUser * 12; farmerPrincipalGov += monthlyContributionUser * 12;
+                    farmerPensionAccumulated = (farmerPensionAccumulated + monthlyContributionUser * 24) * (1 + roi);
+                    basicWageSim *= (1 + growth);
+                }
+                let yearsWaiting = 0;
+                if (farmerRetireAge < 65) { yearsWaiting = 65 - farmerRetireAge; farmerPensionAccumulated *= Math.pow(1 + roi, yearsWaiting); farmerPath.messages.push(`【農退規定】農退儲金須滿 65 歲始得請領，資金已滾存 ${yearsWaiting} 年。`); }
+                farmerPath.farmerPensionMonthly = farmerPensionAccumulated / monthsToDistribute;
+                farmerPath.totalAsset_FarmerPension = farmerPensionAccumulated;
+                farmerPath.details.farmerPension = { totalFund: Math.round(farmerPensionAccumulated), principalUser: Math.round(farmerPrincipalUser), principalGov: Math.round(farmerPrincipalGov), totalInterest: Math.round(farmerPensionAccumulated - (farmerPrincipalUser + farmerPrincipalGov)), monthlyDivisor: monthsToDistribute, waitInfo: yearsWaiting > 0 ? `(含 ${yearsWaiting} 年等待期複利)` : null };
+
+                let laborInsSalaryAtSwitch = Math.min(tempSalary, CONSTANTS.LABOR_INS_MAX);
+                if (currentSalary >= CONSTANTS.LABOR_INS_MAX) laborInsSalaryAtSwitch = CONSTANTS.LABOR_INS_MAX;
+                let switchLaborRateAdj = 1, switchLaborAdjText = "標準";
+                const ageDiffSwitch = farmerRetireAge - CONSTANTS.NORMAL_RETIRE_AGE;
+                if (ageDiffSwitch < 0) { switchLaborRateAdj = 1 - (Math.min(Math.abs(ageDiffSwitch), 5) * 0.04); switchLaborAdjText = `提早減給`; }
+                else if (ageDiffSwitch > 0) { switchLaborRateAdj = 1 + (Math.min(ageDiffSwitch, 5) * 0.04); switchLaborAdjText = `延後增給`; }
+                
+                const laborAnnuityAtSwitch = laborYearsAtSwitch >= 15 ? laborInsSalaryAtSwitch * laborYearsAtSwitch * CONSTANTS.LABOR_INS_RATE * switchLaborRateAdj : 0;
+                let lumpSumUnitsSwitch = laborYearsAtSwitch <= 15 ? laborYearsAtSwitch : 15 + (laborYearsAtSwitch - 15) * 2;
+                if (lumpSumUnitsSwitch > 45) lumpSumUnitsSwitch = 45;
+                farmerPath.lumpSum_LaborIns = laborInsSalaryAtSwitch * lumpSumUnitsSwitch;
+
+                let finalOldFarmerAmount = 0, oldFarmerStatus = "ok";
+                if (farmerRetireAge < CONSTANTS.OLD_FARMER_AGE_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "age_issue"; farmerPath.messages.push(`【老農津貼】未滿 65 歲無法請領。`); }
+                else if (yearsAsFarmer < CONSTANTS.OLD_FARMER_YEARS_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "year_issue"; farmerPath.messages.push(`【老農津貼】農務年資未滿 15 年。`); }
+                else finalOldFarmerAmount = CONSTANTS.OLD_FARMER_ALLOWANCE;
+
+                if (laborAnnuityAtSwitch > finalOldFarmerAmount) {
+                    farmerPath.baseLayer = laborAnnuityAtSwitch; farmerPath.baseLayerName = `勞保年金 (保留年資)`; farmerPath.totalAsset_BaseLayer = laborAnnuityAtSwitch * monthsToDistribute;
+                    farmerPath.details.baseLayer = { calc: `勞保 $${Math.round(laborAnnuityAtSwitch)} > 老農 $${finalOldFarmerAmount}`, note: laborInsSalaryAtSwitch === CONSTANTS.LABOR_INS_MAX ? "(達上限)" : "" };
+                } else {
+                    farmerPath.baseLayer = finalOldFarmerAmount; farmerPath.baseLayerName = "老農津貼"; farmerPath.totalAsset_BaseLayer = finalOldFarmerAmount * monthsToDistribute;
+                    farmerPath.details.baseLayer = { calc: oldFarmerStatus === 'ok' ? `固定 $${CONSTANTS.OLD_FARMER_ALLOWANCE}` : `$0 (${oldFarmerStatus})`, note: "" };
+                }
+                farmerPath.totalMonthly = farmerPath.baseLayer + farmerPath.laborPensionMonthly_Emp + farmerPath.laborPensionMonthly_Self + farmerPath.farmerPensionMonthly;
+                setResults({ laborPath, farmerPath });
+            };
+
+            useEffect(() => { calculateRetirement(); }, [inputs]);
+            const handleInputChange = (e) => { const { name, value } = e.target; setInputs(prev => ({ ...prev, [name]: value === '' ? '' : value })); };
+            const getChartData = () => {
+                if (!results) return [];
+                const r = results;
+                if (viewMode === 'monthly') return [
+                    { name: '續當勞工', '勞保年金/老農津貼': Math.round(r.laborPath.laborInsAnnuity), '勞退(雇主)': Math.round(r.laborPath.laborPensionMonthly_Emp), '勞退(自提)': Math.round(r.laborPath.laborPensionMonthly_Self), '農民儲金': 0 },
+                    { name: '轉職務農', '勞保年金/老農津貼': Math.round(r.farmerPath.baseLayer), '勞退(雇主)': Math.round(r.farmerPath.laborPensionMonthly_Emp), '勞退(自提)': Math.round(r.farmerPath.laborPensionMonthly_Self), '農民儲金': Math.round(r.farmerPath.farmerPensionMonthly) }
+                ];
+                else return [
+                    { name: '續當勞工 (總資產)', '勞保年金/老農津貼': Math.round(r.laborPath.totalAsset_LaborIns), '勞退(雇主)': Math.round(r.laborPath.totalAsset_LaborPension_Emp), '勞退(自提)': Math.round(r.laborPath.totalAsset_LaborPension_Self), '農民儲金': 0 },
+                    { name: '轉職務農 (總資產)', '勞保年金/老農津貼': Math.round(r.farmerPath.totalAsset_BaseLayer), '勞退(雇主)': Math.round(r.farmerPath.totalAsset_LaborPension_Emp), '勞退(自提)': Math.round(r.farmerPath.totalAsset_LaborPension_Self), '農民儲金': Math.round(r.farmerPath.totalAsset_FarmerPension) }
+                ];
+            };
+            const chartData = getChartData();
+
+            return (
+                <div className="min-h-screen bg-gray-50 font-sans text-gray-800 pb-12 animate-fade-in">
+                    <div className="bg-slate-900 text-white pb-12 pt-8 px-4 shadow-lg">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+                            <div>
+                                <h1 className="text-3xl md:text-4xl font-extrabold flex items-center gap-3 tracking-tight">
+                                    <Calculator className="w-10 h-10 text-emerald-400" />
+                                    勞農職涯轉換 <span className="text-emerald-400">退休金精算 4.0</span>
+                                </h1>
+                                <p className="mt-3 text-slate-300 text-lg font-medium max-w-2xl">一次領 vs 月領、總資產預估、勞退自提分流</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="max-w-6xl mx-auto -mt-8 px-4">
+                        {validationErrors.length > 0 && (
+                            <div className="bg-white p-4 border-l-4 border-red-500 shadow-md rounded-r-lg mb-6 animate-pulse">
+                                <h3 className="font-bold text-red-700 flex items-center gap-2 mb-2"><AlertTriangle className="w-5 h-5" /> 參數檢核錯誤：</h3>
+                                <ul className="list-disc list-inside text-sm text-red-600 space-y-1">{validationErrors.map((err, i) => <li key={i}>{err}</li>)}</ul>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            <div className="lg:col-span-4 space-y-6">
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2"><Settings className="w-4 h-4 text-slate-500" /><h3 className="font-bold text-slate-700 text-sm">投資與成長參數</h3></div>
+                                    <div className="p-5 space-y-4">
+                                        <div><label className="label-text flex justify-between"><span>預估年化報酬率 (ROI)</span><span className="text-indigo-600 font-bold">{inputs.roiEstimate}%</span></label><input type="range" min="1" max="8" step="0.5" name="roiEstimate" value={inputs.roiEstimate} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" /></div>
+                                        <div><label className="label-text flex justify-between"><span>預估薪資年成長率</span><span className="text-blue-600 font-bold">{inputs.salaryGrowth}%</span></label><input type="range" min="0" max="5" step="0.5" name="salaryGrowth" value={inputs.salaryGrowth} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" /></div>
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className="bg-blue-50 px-5 py-3 border-b border-blue-100 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-600" /><h3 className="font-bold text-blue-800 text-sm">勞工履歷設定</h3></div>
+                                    <div className="p-5 space-y-4">
+                                        <div className="grid grid-cols-2 gap-4"><InputGroup label="目前年齡" name="currentAge" value={inputs.currentAge} onChange={handleInputChange} /><InputGroup label="開始工作歲數" name="laborStartAge" value={inputs.laborStartAge} onChange={handleInputChange} /></div>
+                                        <div><label className="label-text">目前實際月薪 (元)</label><input type="number" name="currentSalary" value={inputs.currentSalary} onChange={handleInputChange} className="input-field" /></div>
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className="bg-orange-50 px-5 py-3 border-b border-orange-100 flex items-center gap-2"><ArrowRightLeft className="w-4 h-4 text-orange-600" /><h3 className="font-bold text-orange-800 text-sm">退休時間軸</h3></div>
+                                    <div className="p-5 space-y-4">
+                                        <div className="bg-orange-50/50 p-3 rounded-lg border border-orange-200"><label className="label-text text-orange-900">預計幾歲轉職務農？</label><input type="number" name="switchAge" value={inputs.switchAge} onChange={handleInputChange} className="input-field border-orange-300 focus:ring-orange-500" /></div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div><label className="label-text text-blue-700">若續當勞工<br/>幾歲退休？</label><input type="number" name="laborRetireAge" value={inputs.laborRetireAge} onChange={handleInputChange} className="input-field" /></div>
+                                            <div><label className="label-text text-emerald-700">若轉農民<br/>幾歲退休？</label><input type="number" name="farmerRetireAge" value={inputs.farmerRetireAge} onChange={handleInputChange} className="input-field" /></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className="bg-emerald-50 px-5 py-3 border-b border-emerald-100 flex items-center gap-2"><Sprout className="w-4 h-4 text-emerald-600" /><h3 className="font-bold text-emerald-800 text-sm">提繳策略</h3></div>
+                                    <div className="p-5 space-y-5">
+                                        <div><label className="label-text mb-1 flex justify-between"><span>農退提繳率</span><span className="font-bold text-emerald-600 text-lg">{inputs.farmerRate}%</span></label><input type="range" min="1" max="10" step="1" name="farmerRate" value={inputs.farmerRate} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" /></div>
+                                        <div><label className="label-text mb-1 flex justify-between"><span>勞退自提率</span><span className="font-bold text-purple-600 text-lg">{inputs.laborSelfRate}%</span></label><select name="laborSelfRate" value={inputs.laborSelfRate} onChange={handleInputChange} className="input-field">{[0,1,2,3,4,5,6].map(r => <option key={r} value={r}>{r}%</option>)}</select></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-8 space-y-6">
+                                {results ? (
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <ResultCard title="方案 A：續當勞工" icon={<Briefcase className="w-6 h-6 text-blue-600" />} total={viewMode === 'monthly' ? results.laborPath.totalMonthly : (results.laborPath.totalAsset_LaborIns + results.laborPath.totalAsset_LaborPension_Emp + results.laborPath.totalAsset_LaborPension_Self)} viewMode={viewMode} colorClass="border-l-4 border-blue-500">
+                                                <div className="space-y-3 mt-4">
+                                                    <ResultRow label="勞保年金" value={viewMode === 'monthly' ? results.laborPath.laborInsAnnuity : results.laborPath.totalAsset_LaborIns} />
+                                                    <ResultRow label="勞退 (雇主6%)" value={viewMode === 'monthly' ? results.laborPath.laborPensionMonthly_Emp : results.laborPath.totalAsset_LaborPension_Emp} />
+                                                    <ResultRow label="勞退 (自提部分)" value={viewMode === 'monthly' ? results.laborPath.laborPensionMonthly_Self : results.laborPath.totalAsset_LaborPension_Self} color="text-purple-600" />
+                                                </div>
+                                            </ResultCard>
+                                            <ResultCard title="方案 B：轉職務農" icon={<Sprout className="w-6 h-6 text-emerald-600" />} total={viewMode === 'monthly' ? results.farmerPath.totalMonthly : (results.farmerPath.totalAsset_BaseLayer + results.farmerPath.totalAsset_LaborPension_Emp + results.farmerPath.totalAsset_LaborPension_Self + results.farmerPath.totalAsset_FarmerPension)} viewMode={viewMode} isWinner={results.farmerPath.totalMonthly >= results.laborPath.totalMonthly} colorClass="border-l-4 border-emerald-500">
+                                                <div className="space-y-3 mt-4">
+                                                    <div className="flex justify-between items-center text-sm border-b border-dashed border-slate-200 pb-2"><span className="text-slate-500">{results.farmerPath.baseLayerName}</span><span className="font-bold text-slate-700">${Math.round(viewMode === 'monthly' ? results.farmerPath.baseLayer : results.farmerPath.totalAsset_BaseLayer).toLocaleString()}</span></div>
+                                                    <ResultRow label="舊勞退滾存" value={viewMode === 'monthly' ? (results.farmerPath.laborPensionMonthly_Emp + results.farmerPath.laborPensionMonthly_Self) : (results.farmerPath.totalAsset_LaborPension_Emp + results.farmerPath.totalAsset_LaborPension_Self)} />
+                                                    <ResultRow label="農民退休儲金" value={viewMode === 'monthly' ? results.farmerPath.farmerPensionMonthly : results.farmerPath.totalAsset_FarmerPension} bold color="text-emerald-600" />
+                                                </div>
+                                            </ResultCard>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative">
+                                            <div className="flex justify-between items-center mb-4"><h4 className="font-bold text-slate-700 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-slate-500" />退休金結構分析</h4><div className="bg-slate-100 p-1 rounded-lg flex text-sm"><button onClick={() => setViewMode('monthly')} className={`px-3 py-1.5 rounded-md transition-all ${viewMode==='monthly' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-slate-500'}`}>每個月領</button><button onClick={() => setViewMode('total')} className={`px-3 py-1.5 rounded-md transition-all ${viewMode==='total' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-slate-500'}`}>總資產預估</button></div></div>
+                                            <div className="h-80 w-full">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 50, left: 40, bottom: 5 }}>
+                                                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                                                        <XAxis type="number" tickFormatter={(val) => `$${val/1000}k`} />
+                                                        <YAxis dataKey="name" type="category" width={100} tick={{fontSize: 12}} />
+                                                        <Tooltip formatter={(value) => `$${value.toLocaleString()}`} contentStyle={{borderRadius: '12px'}} />
+                                                        <Legend iconType="circle" />
+                                                        <Bar dataKey="勞保年金/老農津貼" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} barSize={32} />
+                                                        <Bar dataKey="勞退(雇主)" stackId="a" fill="#93c5fd" radius={[0, 0, 0, 0]} barSize={32} />
+                                                        <Bar dataKey="勞退(自提)" stackId="a" fill="#8b5cf6" radius={[0, 0, 0, 0]} barSize={32} />
+                                                        <Bar dataKey="農民儲金" stackId="a" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32} />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-xl shadow-sm border border-slate-200">
+                                            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg"><Coins className="w-6 h-6 text-yellow-500" />如果選擇「一次領」 (Lump Sum)？</h4>
+                                            <div className="grid md:grid-cols-2 gap-6">
+                                                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞保老年給付</div><span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">需符合舊制資格</span></div>
+                                                    <div className="text-2xl font-bold text-slate-800 mb-1">${Math.round(results.laborPath.lumpSum_LaborIns).toLocaleString()}</div>
+                                                    <div className="text-xs text-slate-500 mb-3">以舊制最高 45/50 基數估算</div>
+                                                </div>
+                                                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞退專戶結清</div><span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">個人帳戶總額</span></div>
+                                                    <div className="text-2xl font-bold text-slate-800 mb-1">${Math.round(results.laborPath.totalAsset_LaborPension_Emp + results.laborPath.totalAsset_LaborPension_Self).toLocaleString()}</div>
+                                                    <div className="text-xs text-slate-500 mb-3">帳戶實際累積本金加利息</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                                            <button onClick={() => setShowDetails(!showDetails)} className="w-full flex items-center justify-between p-5 bg-slate-50 hover:bg-slate-100 transition-colors"><span className="font-bold text-slate-700 flex items-center gap-2"><Calculator className="w-5 h-5 text-slate-500" />查看詳細計算過程</span>{showDetails ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}</button>
+                                            {showDetails && (
+                                                <div className="p-6 space-y-8 text-sm">
+                                                    <div><SectionHeader title="A. 續當勞工計算細節" color="blue" /><div className="grid md:grid-cols-2 gap-6 mt-4"><DetailCard title="勞保年金 (B式)"><div className="text-2xl font-bold text-blue-700 mb-2">${Math.round(results.laborPath.laborInsAnnuity).toLocaleString()}<span className="text-sm text-slate-400 font-normal">/月</span></div><div className="bg-slate-50 p-3 rounded border border-slate-100 space-y-2 text-xs"><p className="text-slate-500 font-medium">= {results.laborPath.details.laborIns.baseCalc}</p></div></DetailCard><BreakdownCard title="勞工退休金" monthly={results.laborPath.laborPensionMonthly_Emp + results.laborPath.laborPensionMonthly_Self} totalFund={results.laborPath.details.laborPension.emp.total + results.laborPath.details.laborPension.self.total} items={[{ label: "雇主本金", value: results.laborPath.details.laborPension.emp.principal, color: "text-blue-600" }, { label: "自提本金", value: results.laborPath.details.laborPension.self.principal, color: "text-purple-600" }]} divisor={results.laborPath.details.laborPension.monthlyDivisor} /></div></div>
+                                                    <div className="border-t border-slate-100"></div>
+                                                    <div><SectionHeader title="B. 轉職務農計算細節" color="emerald" /><div className="grid md:grid-cols-2 gap-6 mt-4"><div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm"><div className="font-bold text-slate-700 mb-2">基礎保障 PK</div><div className="bg-slate-50 p-3 rounded text-xs space-y-2 border border-slate-100 h-full"><p><span className="font-bold">結果：</span>${Math.round(results.farmerPath.baseLayer).toLocaleString()}</p><p>{results.farmerPath.details.baseLayer.calc}</p></div></div><BreakdownCard title="農民退休儲金" monthly={results.farmerPath.farmerPensionMonthly} totalFund={results.farmerPath.details.farmerPension.totalFund} items={[{ label: "自提本金", value: results.farmerPath.details.farmerPension.principalUser, color: "text-slate-600" }, { label: "對提本金", value: results.farmerPath.details.farmerPension.principalGov, color: "text-emerald-600 font-bold" }]} divisor={results.farmerPath.details.farmerPension.monthlyDivisor} /></div></div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="h-96 flex flex-col items-center justify-center text-slate-300 bg-slate-50 rounded-xl border border-dashed border-slate-200"><Calculator className="w-16 h-16 mb-4 opacity-50" /><p>請在左側輸入資料以開始試算</p></div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 5. 頁面組件 (Pages) ---
+        
+        const HomePage = ({ setPage, lang, currentDate }) => (
+          <div className="animate-fade-in pb-12">
+            <div className="bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+              <div className="max-w-7xl mx-auto relative z-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                   <div>
+                     <div className="inline-flex items-center gap-2 bg-emerald-800/50 backdrop-blur-md px-4 py-1.5 rounded-full text-emerald-100 text-sm font-medium border border-emerald-700/50 mb-4">
+                       <MapPin size={14}/> 嘉義縣民雄鄉 | <Calendar size={14}/> {currentDate}
+                     </div>
+                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+                       {lang.title}<span className="text-emerald-400">{lang.subtitle}</span>
+                     </h1>
+                   </div>
+                   <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-full md:w-auto flex items-center gap-4 text-left shadow-lg">
+                     <div className="bg-orange-500 p-3 rounded-xl text-white shadow-lg animate-pulse"><Sun size={32} /></div>
+                     <div><h3 className="font-bold text-white text-lg">{lang.todayRisk}：{lang.high}</h3><p className="text-emerald-100 text-sm opacity-80">11:00 - 14:00 Avoid outdoor work.</p></div>
+                   </div>
+                </div>
+                <p className="text-lg md:text-xl text-emerald-100/80 max-w-2xl font-light mb-10">{lang.heroDesc}</p>
+              </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-16">
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  { title: lang.identity.new, icon: <Sprout size={32}/>, desc: "看清風險，真實評論揭露。", color: "from-blue-500 to-blue-600", page: "startFarming" },
+                  { title: lang.identity.young, icon: <Tractor size={32}/>, desc: "溫室職安與省工機具對策。", color: "from-emerald-500 to-emerald-600", page: "greenhouse" },
+                  { title: lang.identity.senior, icon: <Heart size={32}/>, desc: "痠痛改善與職災給付申請。", color: "from-orange-500 to-orange-600", page: "healthPromo" }
+                ].map((item, i) => (
+                  <div key={i} onClick={() => setPage(item.page)} className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100">
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform`}>{item.icon}</div>
+                    <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
+                    <p className="text-slate-500 mb-6 leading-relaxed">{item.desc}</p>
+                    <div className="flex items-center text-sm font-bold text-emerald-600 group-hover:text-emerald-700">{lang.identity.enter} <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform"/></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
+              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
+                 <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4"><h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3"><MessageCircle className="text-blue-600 fill-blue-100"/> {lang.section.forum}</h3><button onClick={() => setPage('forum')} className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors">{lang.section.more}</button></div>
+                 <div className="space-y-4">
+                   {forumPosts.map((post) => (
+                     <div key={post.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 group" onClick={() => setPage('forum')}>
+                       <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-blue-600 group-hover:border-blue-200">{post.avatar}</div>
+                       <div className="flex-grow"><div className="flex justify-between items-start"><h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4><span className="text-xs text-slate-400 whitespace-nowrap">{post.time}</span></div><p className="text-sm text-slate-500 line-clamp-1 mt-1 mb-2">{post.content}</p><div className="flex gap-3 text-xs text-slate-400 font-medium"><Badge color="blue">{post.tag}</Badge><span className="flex items-center gap-1 ml-auto"><MessageCircle size={14}/> {post.comments}</span></div></div>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+              <div className="bg-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
+                 <div className="relative z-10">
+                   <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4"><h3 className="text-2xl font-bold flex items-center gap-3"><PlayCircle className="text-emerald-400 fill-emerald-900"/> {lang.section.video}</h3><button onClick={() => setPage('videos')} className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">{lang.section.more}</button></div>
+                   <div className="bg-white/5 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group" onClick={() => setPage('videos')}>
+                     <div className="flex gap-5">
+                       <div className="w-32 h-24 bg-black rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-white/10">
+                         {videoData[0] && videoData[0].youtubeId ? ( <img src={`https://img.youtube.com/vi/${videoData[0].youtubeId}/mqdefault.jpg`} alt="thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"/> ) : ( <div className="w-full h-full bg-purple-900"></div> )}
+                         <PlayCircle size={32} className="text-white absolute z-10 drop-shadow-md group-hover:scale-110 transition-transform"/>
+                       </div>
+                       <div className="flex flex-col justify-center"><div className="mb-2"><Badge color="white">{videoData[0]?.type || 'Video'}</Badge></div><h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors line-clamp-1">{videoData[0]?.title}</h4><p className="text-sm text-slate-400 line-clamp-1">{videoData[0]?.desc}</p></div>
+                     </div>
+                   </div>
+                   <div className="space-y-3">
+                      {videoData.slice(1, 3).map((video) => (
+                        <div key={video.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white transition-colors border border-transparent hover:border-white/5" onClick={() => setPage('videos')}>
+                          <div className="w-10 h-10 rounded-lg bg-black/50 overflow-hidden flex-shrink-0 border border-white/10">
+                             {video.youtubeId ? ( <img src={`https://img.youtube.com/vi/${video.youtubeId}/default.jpg`} className="w-full h-full object-cover" /> ) : ( <div className="flex items-center justify-center h-full"><PlayCircle size={16}/></div> )}
+                          </div>
+                          <span className="font-medium truncate flex-grow text-sm md:text-base">{video.title}</span><span className="text-xs opacity-50 whitespace-nowrap">{video.views}</span>
+                        </div>
+                      ))}
+                   </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        );
+        
+        const SafetyPage = ({ lang }) => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Shield} title={lang.nav.safety} subtitle="SOS Guide / 救命指南"/><div className="space-y-8"><EmergencyCard data={safetyData.heat} type="heat" lang={lang} /><EmergencyCard data={safetyData.pesticide} type="pesticide" lang={lang} /></div><div className="mt-12 text-center"><div className="inline-block bg-slate-100 rounded-xl p-6"><p className="text-slate-600 mb-4 font-bold">Medical Support / 專業諮詢</p><div className="flex flex-wrap gap-4 justify-center"><a href="tel:02-2871-7121" className="flex items-center gap-2 bg-white text-slate-800 px-5 py-3 rounded-lg shadow-sm font-bold border border-slate-200 hover:bg-slate-50"><Phone size={18}/> 毒物中心 (24H): 02-2871-7121</a></div></div></div></div> );
+        
+        const EconomicsPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={DollarSign} title="保險與經濟安全" subtitle="搞懂權益，增加你的財務韌性。"/><div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-12"><h3 className="text-2xl font-bold mb-8 text-center text-slate-800">保險決策樹：我該保什麼？</h3><div className="grid md:grid-cols-2 gap-8"><div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100"><h4 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2"><Users size={24}/> 擔心「人」受傷</h4><ul className="space-y-4"><li className="bg-white p-4 rounded-xl shadow-sm"><span className="font-bold block text-slate-800 mb-1">1. 農民健康保險 (基本)</span><span className="text-sm text-slate-500">生育、身心障礙、喪葬津貼。</span></li><li className="bg-blue-600 text-white p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-blue-100"><span className="font-bold block flex items-center justify-between mb-1">2. 農民職災保險 (必保!) <Heart size={16} className="fill-current"/></span><span className="text-sm opacity-90">每月只要約15元。含受傷給付、就醫津貼。CP值最高！</span></li></ul></div><div className="bg-green-50/50 rounded-2xl p-6 border border-green-100"><h4 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2"><Sprout size={24}/> 擔心「作物」沒收成</h4><ul className="space-y-4"><li className="bg-white p-4 rounded-xl shadow-sm"><span className="font-bold block text-slate-800 mb-1">1. 天然災害救助</span><span className="text-sm text-slate-500">需達損害標準 (如20%)，補貼成本用。</span></li><li className="bg-green-100 p-4 rounded-xl shadow-sm border border-green-200"><span className="font-bold block text-green-800 mb-1">2. 作物收入保險</span><span className="text-sm text-green-700">保障收入！若低於基準就理賠。<br/><span className="text-xs bg-white px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">關鍵字：奧林匹克平均法</span></span></li></ul></div></div></div></div> );
+        
+        const StartFarmingPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Sprout} title="從事農業：真實面揭露" subtitle="前輩的真心話。看清風險，才能走得長遠。"/><div className="space-y-6 mb-12"><div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400"><div className="flex items-center gap-2 mb-3"><div className="flex text-yellow-400"><span className="text-xl">★★</span><span className="text-slate-200 text-xl">★★★</span></div><span className="font-bold text-slate-800 text-lg">收入真的不穩定</span></div><p className="text-slate-600 italic text-lg leading-relaxed">"大家都說青農返鄉很棒，但前三年真的要有『吃老本』的心理準備。建議新手一定要準備好預備金，或者先從兼業（斜槓）開始，不要一次全壓身家。"</p><p className="text-right text-sm text-slate-400 mt-4 font-bold">- 嘉義青農的心聲</p></div><div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-red-400"><div className="flex items-center gap-2 mb-3"><div className="flex text-yellow-400"><span className="text-xl">★</span><span className="text-slate-200 text-xl">★★★★</span></div><span className="font-bold text-slate-800 text-lg">身體壞得比想像快</span></div><p className="text-slate-600 italic text-lg leading-relaxed">"我以為我年輕力壯，搬鳳梨都自己來。結果五年腰就壞了。不要以為年輕就是本錢，護具和姿勢最重要，不然賺的錢都拿去看醫生。"</p><p className="text-right text-sm text-slate-400 mt-4 font-bold">- 鳳梨農 吳先生</p></div></div><div className="bg-emerald-50 p-8 rounded-3xl"><h3 className="text-2xl font-bold mb-6 text-center text-emerald-900">官方資源導航</h3><div className="grid md:grid-cols-2 gap-4"><a href="https://www.moa.gov.tw/" target="_blank" rel="noreferrer" className="bg-white p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group"><div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors"><Users/></div><div><div className="font-bold text-emerald-900 text-lg">百大青農計畫</div><div className="text-sm text-slate-500">找陪伴師教技術與行銷</div></div></a><a href="https://www.boaf.gov.tw/" target="_blank" rel="noreferrer" className="bg-white p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group"><div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors"><DollarSign/></div><div><div className="font-bold text-emerald-900 text-lg">青年從農貸款</div><div className="text-sm text-slate-500">前5年免息，減輕壓力</div></div></a></div></div></div> );
+        
+        const GreenhousePage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Tractor} title="溫室與省工機具" subtitle="讓科技幫你流汗，預防職業傷害。"/><div className="grid md:grid-cols-2 gap-8 mb-12"><div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100"><h3 className="text-xl font-bold mb-4 text-emerald-800 flex items-center gap-2"><Sun/> 溫室熱危害對策</h3><ul className="space-y-4 text-slate-600"><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">1.</span> <span><b>裝風扇：</b>一定要裝在「人站的高度」。</span></li><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">2.</span> <span><b>躲太陽：</b>善用黑網遮陽。</span></li><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">3.</span> <span><b>強制補水：</b>設鬧鐘每20分鐘喝水。</span></li></ul></div><div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100"><h3 className="text-xl font-bold mb-4 text-blue-800 flex items-center gap-2"><Tractor/> 省工機具推薦</h3><ul className="space-y-4 text-slate-600"><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">1.</span> <span><b>無人機噴藥：</b>遠離中毒風險。</span></li><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">2.</span> <span><b>採收搬運機：</b>救救你的腰。</span></li><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">3.</span> <span><b>坐駕式割草機：</b>減少體力消耗。</span></li></ul></div></div></div> );
+        
+        const HealthPromoPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Activity} title="健康促進與伸展" subtitle="每天 3 分鐘，預防腰酸背痛。"/><div className="grid md:grid-cols-3 gap-6 mb-12">{exerciseData.map((ex, i) => ( <div key={i} className="bg-white p-6 rounded-2xl shadow-md border-t-4 border-emerald-500"><h3 className="text-xl font-bold mb-2 text-slate-800">{ex.title}</h3><Badge color="green">適合：{ex.target}</Badge><ol className="list-decimal list-inside space-y-2 text-slate-600 mt-4 bg-slate-50 p-4 rounded-xl">{ex.steps.map((s, j) => ( <li key={j}>{s}</li> ))}</ol></div> ))}</div><div className="bg-orange-50 p-8 rounded-3xl text-center"><h3 className="text-2xl font-bold text-orange-900 mb-4">資深農友專區</h3><p className="text-orange-800 mb-6 max-w-2xl mx-auto">如果痛太久，請不要只貼藥布，建議至<b>「職業醫學科」</b>就診。</p><ActionButton variant="secondary" onClick={() => window.open('https://www.ylh.gov.tw/', '_blank')}>尋找台大雲林分院職業醫學科</ActionButton></div></div> );
+        
+        const ForumPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={MessageCircle} title="農民交流園地" subtitle="互助合作，做彼此的後盾。"/><div className="mb-12"><h3 className="font-bold text-xl mb-4 text-slate-700">常見迷思 QA</h3>{qaData.map((item, i) => ( <Accordion key={i} category={item.category} question={item.q} answer={item.a} /> ))}</div><div className="bg-white rounded-3xl border border-slate-100 shadow-md overflow-hidden"><div className="p-6 bg-slate-50 border-b border-slate-100"><h3 className="font-bold text-slate-700">最新討論文章</h3></div><div>{forumPosts.map((post) => ( <div key={post.id} className="p-6 border-b border-slate-50 hover:bg-blue-50/30 transition-colors"><h4 className="font-bold text-lg text-slate-800 mb-2">{post.title}</h4><p className="text-slate-600 mb-4">{post.content}</p><div className="flex gap-4 text-sm text-slate-400"><span>{post.author}</span><span>{post.time}</span><span className="text-blue-500 font-bold">{post.tag}</span></div></div> ))}</div></div></div> );
+        
+        const VideosPage = () => ( <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={PlayCircle} title="影音學習專區" subtitle="用看用聽都方便。"/><div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{videoData.map((video) => ( <div key={video.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group"><div className="aspect-video w-full bg-black relative"><iframe className="absolute top-0 left-0 w-full h-full" src={`https://www.youtube.com/embed/${video.youtubeId}`} title={video.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe></div><div className="p-6"><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-slate-800 line-clamp-2">{video.title}</h3><Badge color="blue">{video.type}</Badge></div><p className="text-sm text-slate-500 mb-4 line-clamp-2">{video.desc}</p><div className="text-xs text-slate-400 flex justify-between border-t border-slate-50 pt-3"><span>{video.date}</span><span>{video.views} 次觀看</span></div></div></div> ))}</div></div> );
+        
+        const ResourcesPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Download} title="資源下載" subtitle="帶得走的工具包。"/><div className="grid gap-4">{[{name: "田間護身操海報", size: "PDF"}, {name: "農藥防護 SOP 小卡", size: "PDF"}, {name: "記帳 Excel 表", size: "XLS"}].map((item, i) => ( <div key={i} className="bg-white p-6 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100 hover:border-emerald-500 transition-colors cursor-pointer group"><div className="flex items-center gap-4"><div className="bg-slate-100 p-3 rounded-lg text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-600"><BookOpen size={24}/></div><span className="font-bold text-lg text-slate-700">{item.name}</span></div><span className="text-sm font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">{item.size}</span></div> ))}</div></div> );
+
+        // --- 6. 主程式 (Main App) ---
+        function App() {
+            const [page, setPage] = useState('home');
+            const [menuOpen, setMenuOpen] = useState(false);
+            const [scrolled, setScrolled] = useState(false);
+            
+            const [currentLang, setCurrentLang] = useState('zh');
+            const [showLangMenu, setShowLangMenu] = useState(false);
+            const t = translations[currentLang];
+
+            const [currentDate, setCurrentDate] = useState('');
+
+            useEffect(() => { window.scrollTo(0, 0); setMenuOpen(false); }, [page]);
+            
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 20);
+                window.addEventListener('scroll', handleScroll);
+                
+                const date = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+                setCurrentDate(date.toLocaleDateString('zh-TW', options));
+
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const changeLang = (lang) => {
+                setCurrentLang(lang);
+                setShowLangMenu(false);
+            };
+
+            const navItems = [
+                { id: 'home', label: t.nav.home },
+                { id: 'startFarming', label: t.nav.start },
+                { id: 'greenhouse', label: t.nav.greenhouse },
+                { id: 'safety', label: t.nav.safety },
+                { id: 'healthPromo', label: t.nav.health },
+                { id: 'economics', label: t.nav.insurance },
+                { id: 'calculator', label: t.nav.calculator }, // 新增的導覽按鈕
+                { id: 'forum', label: t.nav.forum },
+                { id: 'videos', label: t.nav.video },
+                { id: 'resources', label: t.nav.resources },
+            ];
+
+            const renderPage = () => {
+                switch (page) {
+                    case 'home': return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                    case 'startFarming': return <StartFarmingPage />;
+                    case 'greenhouse': return <GreenhousePage />;
+                    case 'safety': return <SafetyPage lang={t} />;
+                    case 'healthPromo': return <HealthPromoPage />;
+                    case 'economics': return <EconomicsPage />;
+                    case 'calculator': return <CalculatorPage />; // 新增的頁面路由
+                    case 'forum': return <ForumPage />;
+                    case 'videos': return <VideosPage />;
+                    case 'resources': return <ResourcesPage />;
+                    default: return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-emerald-200">
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-2' : 'bg-emerald-900 text-white py-3'}`}>
+                        <div className="max-w-[1400px] mx-auto px-4">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center cursor-pointer gap-2 shrink-0" onClick={() => setPage('home')}>
+                                    <img 
+                                      src="Logo.PNG"       
+                                      alt="Logo" 
+                                      className="w-10 h-10 object-contain bg-white rounded-lg p-1" 
+                                    />
+                                    <span className={`font-extrabold text-xl tracking-tight hidden sm:block ${scrolled ? 'text-emerald-900' : 'text-white'}`}>{t.title}</span>
+                                </div>
+                                
+                                <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar mx-4">
+                                    {navItems.map(item => (
+                                        <button 
+                                            key={item.id} 
+                                            onClick={() => setPage(item.id)} 
+                                            className={`px-3 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+                                                page === item.id 
+                                                    ? (scrolled ? 'bg-emerald-100 text-emerald-700' : 'bg-white/20 text-white') 
+                                                    : (scrolled ? 'text-slate-500 hover:bg-slate-100' : 'text-emerald-100 hover:text-white hover:bg-white/10')
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <div className="relative">
+                                        <button 
+                                            onClick={() => setShowLangMenu(!showLangMenu)}
+                                            className={`flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs transition-colors ${scrolled ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                                        >
+                                            <Globe size={16}/> {currentLang.toUpperCase()}
+                                        </button>
+                                        {showLangMenu && (
+                                            <div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in text-slate-800">
+                                                <button onClick={() => changeLang('zh')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">繁體中文</button>
+                                                <button onClick={() => changeLang('en')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">English</button>
+                                                <button onClick={() => changeLang('id')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">Indonesia</button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <button onClick={() => setMenuOpen(!menuOpen)} className={`lg:hidden p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}>{menuOpen ? <X size={24}/> : <Menu size={24}/>}</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {menuOpen && (
+                            <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl animate-fade-in">
+                                <div className="p-4 space-y-2">
+                                    {navItems.map(item => (
+                                        <button key={item.id} onClick={() => setPage(item.id)} className={`block w-full text-left px-4 py-3 rounded-xl text-base font-bold ${page === item.id ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50'}`}>{item.label}</button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </nav>
+
+                    <main className="min-h-screen pt-16">
+                        {renderPage()}
+                    </main>
+                    
+                    <SOSButton onClick={() => setPage('safety')} label={t.nav.safety} />
+
+                    <footer className="bg-slate-900 text-slate-400 py-16">
+                        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
+                            <div className="col-span-1 md:col-span-2">
+                                <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6">
+                                    <img src="Logo.PNG" className="w-8 h-8 object-contain bg-white rounded-md p-0.5" /> 
+                                    {t.title}
+                                </div>
+                                <p className="text-sm leading-relaxed max-w-sm">共構雲嘉農業工作者職業健康的社會安全網。</p>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-bold mb-6">聯絡我們</h4>
+                                <ul className="space-y-3 text-sm">
+                                    <li>指導單位：國家科學委員會</li>
+                                    <li>計畫主持單位：國立中正大學</li>
+                                    <li>合作夥伴：臺大醫院雲分院-農業環境與職業健康中心、民雄鄉農會</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="max-w-6xl mx-auto px-4 pt-8 border-t border-slate-800 text-center text-xs">© 2025 Dignified Agriculture Project.</div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // 渲染 App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
