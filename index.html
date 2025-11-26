@@ -15,29 +15,12 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* 隱藏滾動條但保持功能 */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        /* 自定義動畫 */
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
-        }
-        @keyframes bounce-slow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .animate-bounce-slow {
-            animation: bounce-slow 3s infinite;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite; }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -45,10 +28,47 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // 取得 React 工具
         const { useState, useEffect } = React;
+
+        // --- 修正圖示載入問題 (ICON FIX) ---
+        // 瀏覽器無法直接讀取 React Icon，我们需要一個轉換器
+        const createLucideComponent = (name) => ({ size = 24, className = "", ...props }) => {
+            const icon = lucide.icons[name];
+            if (!icon) return <span className="text-xs">?</span>; // 如果找不到圖示，顯示問號
+            
+            return (
+                <svg 
+                    {...icon.attrs}
+                    width={size} 
+                    height={size} 
+                    className={className}
+                    {...props}
+                >
+                    {icon.children && icon.children.map(([tag, attrs], index) => {
+                        const Tag = tag;
+                        return <Tag key={index} {...attrs} />;
+                    })}
+                </svg>
+            );
+        };
+
+        // 註冊所有用到的圖示
+        const iconList = [
+            'Shield', 'Sun', 'AlertTriangle', 'Activity', 'Sprout', 
+            'Users', 'BookOpen', 'Phone', 'Download', 'ChevronDown', 
+            'ChevronUp', 'Menu', 'X', 'ArrowRight', 'Heart', 'DollarSign',
+            'Tractor', 'HelpCircle', 'Video', 'MessageCircle', 'PlayCircle', 
+            'Calendar', 'Hammer', 'MapPin', 'ThumbsUp', 'Share2', 'Search',
+            'Wind', 'Droplets', 'Mic', 'Globe', 'Clock'
+        ];
+
+        // 產生 React 可用的圖示組件
+        const Icons = {};
+        iconList.forEach(name => {
+            Icons[name] = createLucideComponent(name);
+        });
         
-        // 取得圖示 (原本是 import，現在改成從全域變數拿)
+        // 解構出來使用
         const { 
             Shield, Sun, AlertTriangle, Activity, Sprout, 
             Users, BookOpen, Phone, Download, ChevronDown, 
@@ -56,9 +76,10 @@
             Tractor, HelpCircle, Video, MessageCircle, PlayCircle, 
             Calendar, Hammer, MapPin, ThumbsUp, Share2, Search,
             Wind, Droplets, Mic, Globe, Clock
-        } = lucide.icons;
+        } = Icons;
+        // ------------------------------------
 
-        // --- 1. 多語言字典 (i18n Translations) ---
+        // --- 1. 多語言字典 ---
         const translations = {
             zh: {
                 title: "尊嚴農業",
@@ -167,7 +188,7 @@
             }
         };
 
-        // --- 2. 資料庫 (Data) ---
+        // --- 2. 資料庫 ---
 
         const safetyData = {
             heat: {
