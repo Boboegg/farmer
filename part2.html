@@ -20,9 +20,12 @@
 
     <!-- 5. [關鍵修正] 引入 Prop-types (圖表工具必需) -->
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    
+    <!-- 5.1 [新增] 引入 React Is (Recharts 依賴) -->
+    <script src="https://unpkg.com/react-is@18/umd/react-is.production.min.js"></script>
 
-    <!-- 6. 引入 Recharts (圖表庫) -->
-    <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.min.js"></script>
+    <!-- 6. 引入 Recharts (圖表庫) - 更新至 2.12.7 以確保 UMD 支援 -->
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
 
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -275,14 +278,14 @@
         };
 
         const qaData = [
-            { category: "保險迷思", q: "我有農保了，還需要健保嗎？", a: "要！健保是看醫生用的，農保是職業身分保險。強烈建議加保「農民職災保險」，每月只要一杯飲料錢，工作受傷保障多更多。" },
-            { category: "職災認定", q: "我在田裡暈倒，算是職業災害嗎？", a: "算！但要有證據。就醫時一定要跟醫生說「我是在幾點幾分、在哪個田裡工作時暈倒的」，留下紀錄才能申請給付。" },
+            { category: "保險迷思", q: "我有農保了，還需要健保嗎？", a: "要！健保是看醫生用的，農保是職業身分保險。強烈建議加保「農民職災保險」，CP 值極高，一個月只要幾十塊，受傷有保障。" },
+            { category: "職災認定", q: "我在田裡暈倒，算是職業災害嗎？", a: "算！但要有證據。就醫時一定要跟醫生說「我是在幾點幾分、在哪個田裡工作時發生狀況」，並且請醫生開立診斷證明，註明「與工作相關」。" }
         ];
 
         const forumPosts = [
-            { id: 1, author: "新手青農_阿豪", avatar: "豪", title: "急！請問民雄哪裡有修割草機的師傅？", tag: "維修互助", content: "我的背負式割草機突然發不動了，好像是化油器的問題，有沒有推薦的師傅？", likes: 12, comments: 5, time: "2小時前" },
-            { id: 2, author: "旺來伯", avatar: "旺", title: "最近鳳梨價格波動大，大家有保收入保險嗎？", tag: "經濟討論", content: "聽說那個奧林匹克平均法計算比較公平，有人理賠過嗎？想請教經驗。", likes: 34, comments: 12, time: "5小時前" },
-            { id: 3, author: "溫室小陳", avatar: "陳", title: "[贈送] 這裡有多餘的 60% 遮陽網", tag: "物資交流", content: "更換新網子，舊的還堪用，約 10 米長，有需要的農友可以自取。", likes: 8, comments: 3, time: "1天前" },
+            { id: 1, author: "新手青農_阿豪", avatar: "豪", title: "急！請問民雄哪裡有修割草機的師傅？", tag: "維修互助", content: "我的背負式割草機突然發不動，火星塞換過了也沒用，急著要除草，求推薦！" },
+            { id: 2, author: "旺來伯", avatar: "旺", title: "最近鳳梨價格波動大，大家有保收入保險嗎？", tag: "經濟討論", content: "聽說那個奧林匹克平均法計算的保障價格好像不錯，有人有實際理賠經驗嗎？" },
+            { id: 3, author: "溫室小陳", avatar: "陳", title: "[贈送] 這裡有多餘的 60% 遮陽網", tag: "物資交流", content: "更換新網子，舊的還堪用，約 10 米長，有需要的農友可以自取，在三興村附近。" }
         ];
 
         const exerciseData = [
@@ -307,16 +310,17 @@
         };
 
         // --- 請補上這段 SOSButton 元件 ---
-const SOSButton = ({ onClick, label }) => (
-    <button 
-        onClick={onClick}
-        className="fixed bottom-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 border-4 border-white animate-bounce-slow"
-        title="Emergency / Darurat"
-    >
-        <AlertTriangle size={24}/>
-        <span className="font-bold pr-1">{label}</span>
-    </button>
-);
+        const SOSButton = ({ onClick, label }) => (
+            <button 
+                onClick={onClick}
+                className="fixed bottom-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 border-4 border-white"
+                title="Emergency / Darurat"
+            >
+                <AlertTriangle size={24}/>
+                <span className="font-bold pr-1">{label}</span>
+            </button>
+        );
+
         const SectionHeader = ({ icon: Icon, title, subtitle }) => (
             <div className="mb-10 text-center animate-fade-in">
                 <div className="inline-flex p-3 bg-emerald-100 rounded-xl mb-4">
@@ -492,19 +496,19 @@ const SOSButton = ({ onClick, label }) => (
 
             const LEGAL_REFS = [
                 { category: "勞工保險 (年金 vs 一次領)", icon: <Briefcase className="w-4 h-4 text-blue-600" />, items: [
-                    { title: "老年年金給付 (月領)", desc: "依《勞工保險條例》第58-1條，採第二式：平均月投保薪資 × 年資 × 1.55%。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=58-1" },
-                    { title: "一次請領老年給付 (舊制算法)", desc: "依第59條：保險年資合計每滿1年，按平均月投保薪資發給1個月；超過15年者，超過部分每滿1年發給2個月，最高以45個月為限。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=59" },
-                    { title: "展延與減給 (提早/延後)", desc: "依第58-2條：每延後/提前1年，增給/減給4% (最多20%)。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014980&flno=58-2" }
+                    { title: "老年年金給付 (月領)", desc: "依《勞工保險條例》第58-1條，採第二式：平均月投保薪資 × 年資 × 1.55%。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014930" },
+                    { title: "一次請領老年給付 (舊制算法)", desc: "依第59條：保險年資合計每滿1年，按平均月投保薪資發給1個月；超過15年者，超過部分每滿1年發給2個月，最高以45個月為限。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014930" },
+                    { title: "展延與減給 (提早/延後)", desc: "依第58-2條：每延後/提前1年，增給/減給4% (最多20%)。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL014930" }
                 ]},
                 { category: "勞工退休金 (個人專戶)", icon: <PiggyBank className="w-4 h-4 text-purple-600" />, items: [
-                    { title: "請領方式 (月領/一次領)", desc: "依《勞工退休金條例》第24條：年資滿15年以上者，得請領月退休金；未滿15年者，應請領一次退休金。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL030634&flno=24" }
+                    { title: "請領方式 (月領/一次領)", desc: "依《勞工退休金條例》第24條：年資滿15年以上者，得請領月退休金；未滿15年者，應請領一次退休金。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL028091" }
                 ]},
                 { category: "農民福利與儲金", icon: <Sprout className="w-4 h-4 text-emerald-600" />, items: [
-                    { title: "農民退休儲金 (月領)", desc: "依《農民退休儲金條例》第15條：計算方式為專戶本金及累積收益，依據年金生命表計算月發給金額。", link: "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=M0090050&flno=15" }
+                    { title: "農民退休儲金 (月領)", desc: "依《農民退休儲金條例》第15條：計算方式為專戶本金及累積收益，依據年金生命表計算月發給金額。", link: "https://laws.mol.gov.tw/FLAW/FLAWDOC01.aspx?id=FL092049" }
                 ]}
             ];
 
-            const [inputs, setInputs] = useState({ currentAge: 35, laborStartAge: 25, laborRetireAge: 65, switchAge: 45, farmerRetireAge: 65, currentSalary: 55000, laborSelfRate: 0, farmerRate: 10, roiEstimate: 3.0, salaryGrowth: 1.5 });
+            const [inputs, setInputs] = useState({ currentAge: 35, laborStartAge: 25, laborRetireAge: 65, switchAge: 45, farmerRetireAge: 65, currentSalary: 55000, laborSelfRate: 0, farmerRate: 10, roiEstimate: 3, salaryGrowth: 2 });
             const [results, setResults] = useState(null);
             const [showDetails, setShowDetails] = useState(false);
             const [showLaws, setShowLaws] = useState(false);
@@ -542,7 +546,7 @@ const SOSButton = ({ onClick, label }) => (
                 const monthsToDistribute = CONSTANTS.LIFE_EXPECTANCY * 12;
 
                 // A. 勞工路徑
-                let laborPath = { laborInsAnnuity: 0, laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, totalMonthly: 0, totalAsset_LaborIns: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, lumpSum_LaborIns: 0, details: {} };
+                let laborPath = { laborInsAnnuity: 0, laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, totalMonthly: 0, totalAsset_LaborIns: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, lumpSum_LaborIns: 0, details: {}, messages: [] };
                 const yearsToLaborRetire = Math.max(0, laborRetireAge - currentAge);
                 const totalLaborYears = laborRetireAge - laborStartAge;
                 
@@ -563,7 +567,7 @@ const SOSButton = ({ onClick, label }) => (
                 if (lumpSumUnits > 45) lumpSumUnits = 45;
                 laborPath.lumpSum_LaborIns = laborInsSalary * lumpSumUnits;
 
-                laborPath.details.laborIns = { baseCalc: `$${Math.round(laborInsSalary).toLocaleString()} × ${totalLaborYears}年 × 1.55%`, adjustment: rateAdjText, cappedInfo: currentSalary > CONSTANTS.LABOR_INS_MAX ? `(受 $45,800 上限限制)` : null, lumpSumUnits };
+                laborPath.details.laborIns = { baseCalc: `$${Math.round(laborInsSalary).toLocaleString()} × ${totalLaborYears}年 × 1.55%`, adjustment: rateAdjText, cappedInfo: currentSalary > CONSTANTS.LABOR_INS_MAX ? "已達投保上限" : "" };
 
                 let lpAcc_Emp = 0, lpAcc_Self = 0, lpPrincipal_Emp = 0, lpPrincipal_Self = 0, currentSalarySim = currentSalary;
                 for (let i = 0; i < yearsToLaborRetire; i++) {
@@ -579,7 +583,7 @@ const SOSButton = ({ onClick, label }) => (
                 laborPath.details.laborPension = { emp: { principal: lpPrincipal_Emp, total: lpAcc_Emp }, self: { principal: lpPrincipal_Self, total: lpAcc_Self }, monthlyDivisor: monthsToDistribute };
 
                 // B. 農民路徑
-                let farmerPath = { baseLayer: 0, baseLayerName: '', laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, farmerPensionMonthly: 0, totalMonthly: 0, totalAsset_BaseLayer: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, totalAsset_FarmerPension: 0, lumpSum_LaborIns: 0, messages: [], details: {} };
+                let farmerPath = { baseLayer: 0, baseLayerName: '', laborPensionMonthly_Emp: 0, laborPensionMonthly_Self: 0, farmerPensionMonthly: 0, totalMonthly: 0, totalAsset_BaseLayer: 0, totalAsset_LaborPension_Emp: 0, totalAsset_LaborPension_Self: 0, totalAsset_FarmerPension: 0, lumpSum_LaborIns: 0, details: {}, messages: [] };
                 const yearsUntilSwitch = Math.max(0, switchAge - currentAge);
                 const yearsAsFarmer = Math.max(0, farmerRetireAge - switchAge);
                 const laborYearsAtSwitch = switchAge - laborStartAge;
@@ -605,10 +609,10 @@ const SOSButton = ({ onClick, label }) => (
                     basicWageSim *= (1 + growth);
                 }
                 let yearsWaiting = 0;
-                if (farmerRetireAge < 65) { yearsWaiting = 65 - farmerRetireAge; farmerPensionAccumulated *= Math.pow(1 + roi, yearsWaiting); farmerPath.messages.push(`【農退規定】農退儲金須滿 65 歲始得請領，資金已滾存 ${yearsWaiting} 年。`); }
+                if (farmerRetireAge < 65) { yearsWaiting = 65 - farmerRetireAge; farmerPensionAccumulated *= Math.pow(1 + roi, yearsWaiting); farmerPath.messages.push(`【農退規定】農退儲金需滿65歲才可請領，已為您計算 ${yearsWaiting} 年複利滾存。`); }
                 farmerPath.farmerPensionMonthly = farmerPensionAccumulated / monthsToDistribute;
                 farmerPath.totalAsset_FarmerPension = farmerPensionAccumulated;
-                farmerPath.details.farmerPension = { totalFund: Math.round(farmerPensionAccumulated), principalUser: Math.round(farmerPrincipalUser), principalGov: Math.round(farmerPrincipalGov), totalInterest: Math.round(farmerPensionAccumulated - (farmerPrincipalUser + farmerPrincipalGov)), monthlyDivisor: monthsToDistribute, waitInfo: yearsWaiting > 0 ? `(含 ${yearsWaiting} 年等待期複利)` : null };
+                farmerPath.details.farmerPension = { totalFund: Math.round(farmerPensionAccumulated), principalUser: Math.round(farmerPrincipalUser), principalGov: Math.round(farmerPrincipalGov), totalYears: yearsAsFarmer, monthlyDivisor: monthsToDistribute };
 
                 let laborInsSalaryAtSwitch = Math.min(tempSalary, CONSTANTS.LABOR_INS_MAX);
                 if (currentSalary >= CONSTANTS.LABOR_INS_MAX) laborInsSalaryAtSwitch = CONSTANTS.LABOR_INS_MAX;
@@ -623,13 +627,13 @@ const SOSButton = ({ onClick, label }) => (
                 farmerPath.lumpSum_LaborIns = laborInsSalaryAtSwitch * lumpSumUnitsSwitch;
 
                 let finalOldFarmerAmount = 0, oldFarmerStatus = "ok";
-                if (farmerRetireAge < CONSTANTS.OLD_FARMER_AGE_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "age_issue"; farmerPath.messages.push(`【老農津貼】未滿 65 歲無法請領。`); }
-                else if (yearsAsFarmer < CONSTANTS.OLD_FARMER_YEARS_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "year_issue"; farmerPath.messages.push(`【老農津貼】農務年資未滿 15 年。`); }
+                if (farmerRetireAge < CONSTANTS.OLD_FARMER_AGE_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "age_issue"; farmerPath.messages.push(`【老農津貼】未滿 65 歲無法請領，故老農津貼暫為 0。`); }
+                else if (yearsAsFarmer < CONSTANTS.OLD_FARMER_YEARS_LIMIT) { finalOldFarmerAmount = 0; oldFarmerStatus = "year_issue"; farmerPath.messages.push(`【老農津貼】農務年資未滿 15 年，無法請領全額老農津貼(或只能領半額，此處保守估 0)。`); }
                 else finalOldFarmerAmount = CONSTANTS.OLD_FARMER_ALLOWANCE;
 
                 if (laborAnnuityAtSwitch > finalOldFarmerAmount) {
                     farmerPath.baseLayer = laborAnnuityAtSwitch; farmerPath.baseLayerName = `勞保年金 (保留年資)`; farmerPath.totalAsset_BaseLayer = laborAnnuityAtSwitch * monthsToDistribute;
-                    farmerPath.details.baseLayer = { calc: `勞保 $${Math.round(laborAnnuityAtSwitch)} > 老農 $${finalOldFarmerAmount}`, note: laborInsSalaryAtSwitch === CONSTANTS.LABOR_INS_MAX ? "(達上限)" : "" };
+                    farmerPath.details.baseLayer = { calc: `勞保 $${Math.round(laborAnnuityAtSwitch)} > 老農 $${finalOldFarmerAmount}`, note: laborInsSalaryAtSwitch === CONSTANTS.LABOR_INS_MAX ? "勞保投保薪資已達上限" : "" };
                 } else {
                     farmerPath.baseLayer = finalOldFarmerAmount; farmerPath.baseLayerName = "老農津貼"; farmerPath.totalAsset_BaseLayer = finalOldFarmerAmount * monthsToDistribute;
                     farmerPath.details.baseLayer = { calc: oldFarmerStatus === 'ok' ? `固定 $${CONSTANTS.OLD_FARMER_ALLOWANCE}` : `$0 (${oldFarmerStatus})`, note: "" };
@@ -677,21 +681,21 @@ const SOSButton = ({ onClick, label }) => (
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                             <div className="lg:col-span-4 space-y-6">
                                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2"><Settings className="w-4 h-4 text-slate-500" /><h3 className="font-bold text-slate-700 text-sm">投資與成長參數</h3></div>
+                                    <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2"><Settings className="w-4 h-4 text-slate-500" /><h3 className="font-bold text-slate-700">基本設定</h3></div>
                                     <div className="p-5 space-y-4">
-                                        <div><label className="label-text flex justify-between"><span>預估年化報酬率 (ROI)</span><span className="text-indigo-600 font-bold">{inputs.roiEstimate}%</span></label><input type="range" min="1" max="8" step="0.5" name="roiEstimate" value={inputs.roiEstimate} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" /></div>
-                                        <div><label className="label-text flex justify-between"><span>預估薪資年成長率</span><span className="text-blue-600 font-bold">{inputs.salaryGrowth}%</span></label><input type="range" min="0" max="5" step="0.5" name="salaryGrowth" value={inputs.salaryGrowth} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" /></div>
+                                        <div><label className="label-text flex justify-between"><span>預估年化報酬率 (ROI)</span><span className="text-indigo-600 font-bold">{inputs.roiEstimate}%</span></label><input type="range" name="roiEstimate" min="1" max="10" value={inputs.roiEstimate} onChange={handleInputChange} className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer" /></div>
+                                        <div><label className="label-text flex justify-between"><span>預估薪資年成長率</span><span className="text-blue-600 font-bold">{inputs.salaryGrowth}%</span></label><input type="range" name="salaryGrowth" min="0" max="5" value={inputs.salaryGrowth} onChange={handleInputChange} className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer" /></div>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-blue-50 px-5 py-3 border-b border-blue-100 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-600" /><h3 className="font-bold text-blue-800 text-sm">勞工履歷設定</h3></div>
+                                    <div className="bg-blue-50 px-5 py-3 border-b border-blue-100 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-600" /><h3 className="font-bold text-blue-800">勞工階段參數</h3></div>
                                     <div className="p-5 space-y-4">
-                                        <div className="grid grid-cols-2 gap-4"><InputGroup label="目前年齡" name="currentAge" value={inputs.currentAge} onChange={handleInputChange} /><InputGroup label="開始工作歲數" name="laborStartAge" value={inputs.laborStartAge} onChange={handleInputChange} /></div>
+                                        <div className="grid grid-cols-2 gap-4"><InputGroup label="目前年齡" name="currentAge" value={inputs.currentAge} onChange={handleInputChange} /><InputGroup label="幾歲開始工作？" name="laborStartAge" value={inputs.laborStartAge} onChange={handleInputChange} /></div>
                                         <div><label className="label-text">目前實際月薪 (元)</label><input type="number" name="currentSalary" value={inputs.currentSalary} onChange={handleInputChange} className="input-field" /></div>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-orange-50 px-5 py-3 border-b border-orange-100 flex items-center gap-2"><ArrowRightLeft className="w-4 h-4 text-orange-600" /><h3 className="font-bold text-orange-800 text-sm">退休時間軸</h3></div>
+                                    <div className="bg-orange-50 px-5 py-3 border-b border-orange-100 flex items-center gap-2"><ArrowRightLeft className="w-4 h-4 text-orange-600" /><h3 className="font-bold text-orange-800">職涯轉換點</h3></div>
                                     <div className="p-5 space-y-4">
                                         <div className="bg-orange-50/50 p-3 rounded-lg border border-orange-200"><label className="label-text text-orange-900">預計幾歲轉職務農？</label><input type="number" name="switchAge" value={inputs.switchAge} onChange={handleInputChange} className="input-field border-orange-300 focus:ring-orange-500" /></div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -701,10 +705,10 @@ const SOSButton = ({ onClick, label }) => (
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-emerald-50 px-5 py-3 border-b border-emerald-100 flex items-center gap-2"><Sprout className="w-4 h-4 text-emerald-600" /><h3 className="font-bold text-emerald-800 text-sm">提繳策略</h3></div>
+                                    <div className="bg-emerald-50 px-5 py-3 border-b border-emerald-100 flex items-center gap-2"><Sprout className="w-4 h-4 text-emerald-600" /><h3 className="font-bold text-emerald-800">提撥率設定</h3></div>
                                     <div className="p-5 space-y-5">
-                                        <div><label className="label-text mb-1 flex justify-between"><span>農退提繳率</span><span className="font-bold text-emerald-600 text-lg">{inputs.farmerRate}%</span></label><input type="range" min="1" max="10" step="1" name="farmerRate" value={inputs.farmerRate} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" /></div>
-                                        <div><label className="label-text mb-1 flex justify-between"><span>勞退自提率</span><span className="font-bold text-purple-600 text-lg">{inputs.laborSelfRate}%</span></label><select name="laborSelfRate" value={inputs.laborSelfRate} onChange={handleInputChange} className="input-field">{[0,1,2,3,4,5,6].map(r => <option key={r} value={r}>{r}%</option>)}</select></div>
+                                        <div><label className="label-text mb-1 flex justify-between"><span>農退提繳率</span><span className="font-bold text-emerald-600 text-lg">{inputs.farmerRate}%</span></label><div className="flex gap-2">{[1, 5, 10].map(r => <button key={r} onClick={() => setInputs(p => ({ ...p, farmerRate: r }))} className={`flex-1 py-1 text-xs rounded border ${inputs.farmerRate === r ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-600 border-emerald-200'}`}>{r}%</button>)}</div></div>
+                                        <div><label className="label-text mb-1 flex justify-between"><span>勞退自提率</span><span className="font-bold text-purple-600 text-lg">{inputs.laborSelfRate}%</span></label><div className="flex gap-2">{[0, 3, 6].map(r => <button key={r} onClick={() => setInputs(p => ({ ...p, laborSelfRate: r }))} className={`flex-1 py-1 text-xs rounded border ${inputs.laborSelfRate === r ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-purple-600 border-purple-200'}`}>{r}%</button>)}</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -712,23 +716,23 @@ const SOSButton = ({ onClick, label }) => (
                                 {results ? (
                                     <>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <ResultCard title="方案 A：續當勞工" icon={<Briefcase className="w-6 h-6 text-blue-600" />} total={viewMode === 'monthly' ? results.laborPath.totalMonthly : (results.laborPath.totalAsset_LaborIns + results.laborPath.totalAsset_LaborPension_Emp + results.laborPath.totalAsset_LaborPension_Self)} viewMode={viewMode} colorClass="border-l-4 border-blue-500">
+                                            <ResultCard title="方案 A：續當勞工" icon={<Briefcase className="w-6 h-6 text-blue-600" />} total={viewMode === 'monthly' ? results.laborPath.totalMonthly : results.laborPath.totalAsset_LaborIns + results.laborPath.totalAsset_LaborPension_Emp + results.laborPath.totalAsset_LaborPension_Self} isWinner={results.laborPath.totalMonthly > results.farmerPath.totalMonthly} colorClass="border-blue-100" viewMode={viewMode}>
                                                 <div className="space-y-3 mt-4">
                                                     <ResultRow label="勞保年金" value={viewMode === 'monthly' ? results.laborPath.laborInsAnnuity : results.laborPath.totalAsset_LaborIns} />
                                                     <ResultRow label="勞退 (雇主6%)" value={viewMode === 'monthly' ? results.laborPath.laborPensionMonthly_Emp : results.laborPath.totalAsset_LaborPension_Emp} />
-                                                    <ResultRow label="勞退 (自提部分)" value={viewMode === 'monthly' ? results.laborPath.laborPensionMonthly_Self : results.laborPath.totalAsset_LaborPension_Self} color="text-purple-600" />
+                                                    <ResultRow label="勞退 (自提部分)" value={viewMode === 'monthly' ? results.laborPath.laborPensionMonthly_Self : results.laborPath.totalAsset_LaborPension_Self} />
                                                 </div>
                                             </ResultCard>
-                                            <ResultCard title="方案 B：轉職務農" icon={<Sprout className="w-6 h-6 text-emerald-600" />} total={viewMode === 'monthly' ? results.farmerPath.totalMonthly : (results.farmerPath.totalAsset_BaseLayer + results.farmerPath.totalAsset_LaborPension_Emp + results.farmerPath.totalAsset_LaborPension_Self + results.farmerPath.totalAsset_FarmerPension)} viewMode={viewMode} isWinner={results.farmerPath.totalMonthly >= results.laborPath.totalMonthly} colorClass="border-l-4 border-emerald-500">
+                                            <ResultCard title="方案 B：轉職務農" icon={<Sprout className="w-6 h-6 text-emerald-600" />} total={viewMode === 'monthly' ? results.farmerPath.totalMonthly : results.farmerPath.totalAsset_BaseLayer + results.farmerPath.totalAsset_LaborPension_Emp + results.farmerPath.totalAsset_LaborPension_Self + results.farmerPath.totalAsset_FarmerPension} isWinner={results.farmerPath.totalMonthly > results.laborPath.totalMonthly} colorClass="border-emerald-100" viewMode={viewMode}>
                                                 <div className="space-y-3 mt-4">
                                                     <div className="flex justify-between items-center text-sm border-b border-dashed border-slate-200 pb-2"><span className="text-slate-500">{results.farmerPath.baseLayerName}</span><span className="font-bold text-slate-700">${Math.round(viewMode === 'monthly' ? results.farmerPath.baseLayer : results.farmerPath.totalAsset_BaseLayer).toLocaleString()}</span></div>
                                                     <ResultRow label="舊勞退滾存" value={viewMode === 'monthly' ? (results.farmerPath.laborPensionMonthly_Emp + results.farmerPath.laborPensionMonthly_Self) : (results.farmerPath.totalAsset_LaborPension_Emp + results.farmerPath.totalAsset_LaborPension_Self)} />
-                                                    <ResultRow label="農民退休儲金" value={viewMode === 'monthly' ? results.farmerPath.farmerPensionMonthly : results.farmerPath.totalAsset_FarmerPension} bold color="text-emerald-600" />
+                                                    <ResultRow label="農民退休儲金" value={viewMode === 'monthly' ? results.farmerPath.farmerPensionMonthly : results.farmerPath.totalAsset_FarmerPension} />
                                                 </div>
                                             </ResultCard>
                                         </div>
                                         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative">
-                                            <div className="flex justify-between items-center mb-4"><h4 className="font-bold text-slate-700 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-slate-500" />退休金結構分析</h4><div className="bg-slate-100 p-1 rounded-lg flex text-sm"><button onClick={() => setViewMode('monthly')} className={`px-3 py-1.5 rounded-md transition-all ${viewMode==='monthly' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-slate-500'}`}>每個月領</button><button onClick={() => setViewMode('total')} className={`px-3 py-1.5 rounded-md transition-all ${viewMode==='total' ? 'bg-white text-blue-600 shadow-sm font-bold' : 'text-slate-500'}`}>總資產預估</button></div></div>
+                                            <div className="flex justify-between items-center mb-4"><h4 className="font-bold text-slate-700 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-slate-500" /> 退休金結構分析</h4><div className="bg-slate-100 p-1 rounded-lg flex text-xs font-bold"><button onClick={() => setViewMode('monthly')} className={`px-3 py-1 rounded-md transition-all ${viewMode === 'monthly' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>月領模式</button><button onClick={() => setViewMode('total')} className={`px-3 py-1 rounded-md transition-all ${viewMode === 'total' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>總資產模式</button></div></div>
                                             <div className="h-80 w-full">
                                                 <ResponsiveContainer width="100%" height="100%">
                                                     <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 50, left: 40, bottom: 5 }}>
@@ -746,33 +750,33 @@ const SOSButton = ({ onClick, label }) => (
                                             </div>
                                         </div>
                                         <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-xl shadow-sm border border-slate-200">
-                                            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg"><Coins className="w-6 h-6 text-yellow-500" />如果選擇「一次領」 (Lump Sum)？</h4>
+                                            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg"><Coins className="w-6 h-6 text-yellow-500" />如果選擇「一次領」 (Lump Sum)</h4>
                                             <div className="grid md:grid-cols-2 gap-6">
                                                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞保老年給付</div><span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">需符合舊制資格</span></div>
+                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞保老年給付</div><span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">續當勞工時</span></div>
                                                     <div className="text-2xl font-bold text-slate-800 mb-1">${Math.round(results.laborPath.lumpSum_LaborIns).toLocaleString()}</div>
                                                     <div className="text-xs text-slate-500 mb-3">以舊制最高 45/50 基數估算</div>
                                                 </div>
                                                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞退專戶結清</div><span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">個人帳戶總額</span></div>
+                                                    <div className="flex justify-between items-start mb-2"><div className="font-bold text-slate-700">勞退專戶結清</div><span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">兩者皆同</span></div>
                                                     <div className="text-2xl font-bold text-slate-800 mb-1">${Math.round(results.laborPath.totalAsset_LaborPension_Emp + results.laborPath.totalAsset_LaborPension_Self).toLocaleString()}</div>
                                                     <div className="text-xs text-slate-500 mb-3">帳戶實際累積本金加利息</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                                            <button onClick={() => setShowDetails(!showDetails)} className="w-full flex items-center justify-between p-5 bg-slate-50 hover:bg-slate-100 transition-colors"><span className="font-bold text-slate-700 flex items-center gap-2"><Calculator className="w-5 h-5 text-slate-500" />查看詳細計算過程</span>{showDetails ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}</button>
+                                            <button onClick={() => setShowDetails(!showDetails)} className="w-full flex items-center justify-between p-5 bg-slate-50 hover:bg-slate-100 transition-colors"><span className="font-bold text-slate-700">查看詳細計算過程</span>{showDetails ? <ChevronUp className="w-5 h-5 text-slate-500" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}</button>
                                             {showDetails && (
                                                 <div className="p-6 space-y-8 text-sm">
-                                                    <div><SectionHeader title="A. 續當勞工計算細節" color="blue" /><div className="grid md:grid-cols-2 gap-6 mt-4"><DetailCard title="勞保年金 (B式)"><div className="text-2xl font-bold text-blue-700 mb-2">${Math.round(results.laborPath.laborInsAnnuity).toLocaleString()}<span className="text-sm text-slate-400 font-normal">/月</span></div><div className="bg-slate-50 p-3 rounded border border-slate-100 space-y-2 text-xs"><p className="text-slate-500 font-medium">= {results.laborPath.details.laborIns.baseCalc}</p></div></DetailCard><BreakdownCard title="勞工退休金" monthly={results.laborPath.laborPensionMonthly_Emp + results.laborPath.laborPensionMonthly_Self} totalFund={results.laborPath.details.laborPension.emp.total + results.laborPath.details.laborPension.self.total} items={[{ label: "雇主本金", value: results.laborPath.details.laborPension.emp.principal, color: "text-blue-600" }, { label: "自提本金", value: results.laborPath.details.laborPension.self.principal, color: "text-purple-600" }]} divisor={results.laborPath.details.laborPension.monthlyDivisor} /></div></div>
+                                                    <div><SectionHeader title="A. 續當勞工計算細節" color="blue" /><div className="grid md:grid-cols-2 gap-6 mt-4"><DetailCard title="勞保年金"><div className="space-y-2"><div className="flex justify-between"><span>計算式</span><span>{results.laborPath.details.laborIns.baseCalc}</span></div><div className="flex justify-between text-slate-500"><span>增減給調整</span><span>{results.laborPath.details.laborIns.adjustment}</span></div>{results.laborPath.details.laborIns.cappedInfo && <div className="text-orange-600 bg-orange-50 p-1 rounded text-xs mt-2">{results.laborPath.details.laborIns.cappedInfo}</div>}</div></DetailCard><BreakdownCard title="勞工退休金 (6%雇主 + 自提)" monthly={results.laborPath.laborPensionMonthly_Emp + results.laborPath.laborPensionMonthly_Self} totalFund={Math.round(results.laborPath.details.laborPension.emp.total + results.laborPath.details.laborPension.self.total)} items={[{ label: '雇主提撥本金 (6%)', value: Math.round(results.laborPath.details.laborPension.emp.principal), color: 'text-slate-600' }, { label: '自提本金', value: Math.round(results.laborPath.details.laborPension.self.principal), color: 'text-slate-600' }]} divisor={results.laborPath.details.laborPension.monthlyDivisor} info="包含預估投資收益" /></div></div>
                                                     <div className="border-t border-slate-100"></div>
-                                                    <div><SectionHeader title="B. 轉職務農計算細節" color="emerald" /><div className="grid md:grid-cols-2 gap-6 mt-4"><div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm"><div className="font-bold text-slate-700 mb-2">基礎保障 PK</div><div className="bg-slate-50 p-3 rounded text-xs space-y-2 border border-slate-100 h-full"><p><span className="font-bold">結果：</span>${Math.round(results.farmerPath.baseLayer).toLocaleString()}</p><p>{results.farmerPath.details.baseLayer.calc}</p></div></div><BreakdownCard title="農民退休儲金" monthly={results.farmerPath.farmerPensionMonthly} totalFund={results.farmerPath.details.farmerPension.totalFund} items={[{ label: "自提本金", value: results.farmerPath.details.farmerPension.principalUser, color: "text-slate-600" }, { label: "對提本金", value: results.farmerPath.details.farmerPension.principalGov, color: "text-emerald-600 font-bold" }]} divisor={results.farmerPath.details.farmerPension.monthlyDivisor} /></div></div>
+                                                    <div><SectionHeader title="B. 轉職務農計算細節" color="emerald" /><div className="grid md:grid-cols-2 gap-6 mt-4"><div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-full"><div className="font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">第一層保障 (勞保/老農擇優)</div><div className="space-y-2"><div className="flex justify-between"><span>結果</span><span className="font-bold text-emerald-600">{results.farmerPath.baseLayerName}</span></div><div className="flex justify-between text-slate-500"><span>判定</span><span>{results.farmerPath.details.baseLayer.calc}</span></div>{results.farmerPath.details.baseLayer.note && <div className="text-xs bg-slate-50 p-2 rounded mt-2 text-slate-500">{results.farmerPath.details.baseLayer.note}</div>}</div></div><BreakdownCard title="農民退休儲金" monthly={results.farmerPath.farmerPensionMonthly} totalFund={results.farmerPath.details.farmerPension.totalFund} items={[{ label: '農民自提本金', value: results.farmerPath.details.farmerPension.principalUser, color: 'text-emerald-600' }, { label: '政府提繳本金', value: results.farmerPath.details.farmerPension.principalGov, color: 'text-emerald-600' }]} divisor={results.farmerPath.details.farmerPension.monthlyDivisor} cappedInfo={`累積 ${results.farmerPath.details.farmerPension.totalYears} 年`} /></div></div>
                                                 </div>
                                             )}
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="h-96 flex flex-col items-center justify-center text-slate-300 bg-slate-50 rounded-xl border border-dashed border-slate-200"><Calculator className="w-16 h-16 mb-4 opacity-50" /><p>請在左側輸入資料以開始試算</p></div>
+                                    <div className="h-96 flex flex-col items-center justify-center text-slate-300 bg-slate-50 rounded-xl border border-dashed border-slate-200"><Calculator className="w-16 h-16 mb-4 text-slate-200" /><p>請輸入左側參數以進行試算</p></div>
                                 )}
                             </div>
                         </div>
@@ -813,7 +817,7 @@ const SOSButton = ({ onClick, label }) => (
                   { title: lang.identity.young, icon: <Tractor size={32}/>, desc: "溫室職安與省工機具對策。", color: "from-emerald-500 to-emerald-600", page: "greenhouse" },
                   { title: lang.identity.senior, icon: <Heart size={32}/>, desc: "痠痛改善與職災給付申請。", color: "from-orange-500 to-orange-600", page: "healthPromo" }
                 ].map((item, i) => (
-                  <div key={i} onClick={() => setPage(item.page)} className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100">
+                  <div key={i} onClick={() => setPage(item.page)} className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100 relative overflow-hidden">
                     <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform`}>{item.icon}</div>
                     <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
                     <p className="text-slate-500 mb-6 leading-relaxed">{item.desc}</p>
@@ -824,12 +828,12 @@ const SOSButton = ({ onClick, label }) => (
             </div>
             <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
               <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
-                 <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4"><h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3"><MessageCircle className="text-blue-600 fill-blue-100"/> {lang.section.forum}</h3><button onClick={() => setPage('forum')} className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors">{lang.section.more}</button></div>
+                 <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4"><h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3"><MessageCircle className="text-blue-500"/> {lang.section.forum}</h3><button onClick={() => setPage('forum')} className="text-sm font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1">{lang.section.more} <ArrowRight size={14}/></button></div>
                  <div className="space-y-4">
                    {forumPosts.map((post) => (
                      <div key={post.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 group" onClick={() => setPage('forum')}>
                        <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-blue-600 group-hover:border-blue-200">{post.avatar}</div>
-                       <div className="flex-grow"><div className="flex justify-between items-start"><h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4><span className="text-xs text-slate-400 whitespace-nowrap">{post.time}</span></div><p className="text-sm text-slate-500 line-clamp-1 mt-1 mb-2">{post.content}</p><div className="flex gap-3 text-xs text-slate-400 font-medium"><Badge color="blue">{post.tag}</Badge><span className="flex items-center gap-1 ml-auto"><MessageCircle size={14}/> {post.comments}</span></div></div>
+                       <div className="flex-grow"><div className="flex justify-between items-start"><h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4><span className="text-xs bg-white px-2 py-0.5 rounded-full text-slate-400 border border-slate-100">{post.tag}</span></div><p className="text-sm text-slate-500 line-clamp-2 mt-1">{post.content}</p></div>
                      </div>
                    ))}
                  </div>
@@ -837,14 +841,14 @@ const SOSButton = ({ onClick, label }) => (
               <div className="bg-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
                  <div className="relative z-10">
-                   <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4"><h3 className="text-2xl font-bold flex items-center gap-3"><PlayCircle className="text-emerald-400 fill-emerald-900"/> {lang.section.video}</h3><button onClick={() => setPage('videos')} className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">{lang.section.more}</button></div>
+                   <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4"><h3 className="text-2xl font-bold flex items-center gap-3"><PlayCircle className="text-emerald-400"/> {lang.section.video}</h3><button onClick={() => setPage('videos')} className="text-sm font-bold text-slate-400 hover:text-white flex items-center gap-1">{lang.section.more} <ArrowRight size={14}/></button></div>
                    <div className="bg-white/5 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group" onClick={() => setPage('videos')}>
                      <div className="flex gap-5">
                        <div className="w-32 h-24 bg-black rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-white/10">
-                         {videoData[0] && videoData[0].youtubeId ? ( <img src={`https://img.youtube.com/vi/${videoData[0].youtubeId}/mqdefault.jpg`} alt="thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"/> ) : ( <div className="w-full h-full bg-purple-900"></div> )}
+                         {videoData[0] && videoData[0].youtubeId ? ( <img src={`https://img.youtube.com/vi/${videoData[0].youtubeId}/mqdefault.jpg`} alt="thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" /> ) : ( <div className="w-full h-full bg-slate-800" /> )}
                          <PlayCircle size={32} className="text-white absolute z-10 drop-shadow-md group-hover:scale-110 transition-transform"/>
                        </div>
-                       <div className="flex flex-col justify-center"><div className="mb-2"><Badge color="white">{videoData[0]?.type || 'Video'}</Badge></div><h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors line-clamp-1">{videoData[0]?.title}</h4><p className="text-sm text-slate-400 line-clamp-1">{videoData[0]?.desc}</p></div>
+                       <div className="flex flex-col justify-center"><div className="mb-2"><Badge color="white">{videoData[0]?.type || 'Video'}</Badge></div><h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors line-clamp-1">{videoData[0]?.title}</h4><p className="text-xs text-slate-400 line-clamp-2">{videoData[0]?.desc}</p></div>
                      </div>
                    </div>
                    <div className="space-y-3">
@@ -863,21 +867,21 @@ const SOSButton = ({ onClick, label }) => (
           </div>
         );
         
-        const SafetyPage = ({ lang }) => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Shield} title={lang.nav.safety} subtitle="SOS Guide / 救命指南"/><div className="space-y-8"><EmergencyCard data={safetyData.heat} type="heat" lang={lang} /><EmergencyCard data={safetyData.pesticide} type="pesticide" lang={lang} /></div><div className="mt-12 text-center"><div className="inline-block bg-slate-100 rounded-xl p-6"><p className="text-slate-600 mb-4 font-bold">Medical Support / 專業諮詢</p><div className="flex flex-wrap gap-4 justify-center"><a href="tel:02-2871-7121" className="flex items-center gap-2 bg-white text-slate-800 px-5 py-3 rounded-lg shadow-sm font-bold border border-slate-200 hover:bg-slate-50"><Phone size={18}/> 毒物中心 (24H): 02-2871-7121</a></div></div></div></div> );
+        const SafetyPage = ({ lang }) => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Shield} title={lang.nav.safety} subtitle="SOS Guide / 救命指南"/><div className="space-y-12"><EmergencyCard data={safetyData.heat} type="heat" lang={lang} /><EmergencyCard data={safetyData.pesticide} type="pesticide" lang={lang} /></div></div> );
         
-        const EconomicsPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={DollarSign} title="保險與經濟安全" subtitle="搞懂權益，增加你的財務韌性。"/><div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-12"><h3 className="text-2xl font-bold mb-8 text-center text-slate-800">保險決策樹：我該保什麼？</h3><div className="grid md:grid-cols-2 gap-8"><div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100"><h4 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2"><Users size={24}/> 擔心「人」受傷</h4><ul className="space-y-4"><li className="bg-white p-4 rounded-xl shadow-sm"><span className="font-bold block text-slate-800 mb-1">1. 農民健康保險 (基本)</span><span className="text-sm text-slate-500">生育、身心障礙、喪葬津貼。</span></li><li className="bg-blue-600 text-white p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-blue-100"><span className="font-bold block flex items-center justify-between mb-1">2. 農民職災保險 (必保!) <Heart size={16} className="fill-current"/></span><span className="text-sm opacity-90">每月只要約15元。含受傷給付、就醫津貼。CP值最高！</span></li></ul></div><div className="bg-green-50/50 rounded-2xl p-6 border border-green-100"><h4 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2"><Sprout size={24}/> 擔心「作物」沒收成</h4><ul className="space-y-4"><li className="bg-white p-4 rounded-xl shadow-sm"><span className="font-bold block text-slate-800 mb-1">1. 天然災害救助</span><span className="text-sm text-slate-500">需達損害標準 (如20%)，補貼成本用。</span></li><li className="bg-green-100 p-4 rounded-xl shadow-sm border border-green-200"><span className="font-bold block text-green-800 mb-1">2. 作物收入保險</span><span className="text-sm text-green-700">保障收入！若低於基準就理賠。<br/><span className="text-xs bg-white px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">關鍵字：奧林匹克平均法</span></span></li></ul></div></div></div></div> );
+        const EconomicsPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={DollarSign} title="保險與經濟安全" subtitle="搞懂權益，增加你的務農收入"/><div className="space-y-4">{qaData.map((qa, i) => ( <Accordion key={i} category={qa.category} question={qa.q} answer={qa.a} /> ))}</div></div> );
         
-        const StartFarmingPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Sprout} title="從事農業：真實面揭露" subtitle="前輩的真心話。看清風險，才能走得長遠。"/><div className="space-y-6 mb-12"><div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400"><div className="flex items-center gap-2 mb-3"><div className="flex text-yellow-400"><span className="text-xl">★★</span><span className="text-slate-200 text-xl">★★★</span></div><span className="font-bold text-slate-800 text-lg">收入真的不穩定</span></div><p className="text-slate-600 italic text-lg leading-relaxed">"大家都說青農返鄉很棒，但前三年真的要有『吃老本』的心理準備。建議新手一定要準備好預備金，或者先從兼業（斜槓）開始，不要一次全壓身家。"</p><p className="text-right text-sm text-slate-400 mt-4 font-bold">- 嘉義青農的心聲</p></div><div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-red-400"><div className="flex items-center gap-2 mb-3"><div className="flex text-yellow-400"><span className="text-xl">★</span><span className="text-slate-200 text-xl">★★★★</span></div><span className="font-bold text-slate-800 text-lg">身體壞得比想像快</span></div><p className="text-slate-600 italic text-lg leading-relaxed">"我以為我年輕力壯，搬鳳梨都自己來。結果五年腰就壞了。不要以為年輕就是本錢，護具和姿勢最重要，不然賺的錢都拿去看醫生。"</p><p className="text-right text-sm text-slate-400 mt-4 font-bold">- 鳳梨農 吳先生</p></div></div><div className="bg-emerald-50 p-8 rounded-3xl"><h3 className="text-2xl font-bold mb-6 text-center text-emerald-900">官方資源導航</h3><div className="grid md:grid-cols-2 gap-4"><a href="https://www.moa.gov.tw/" target="_blank" rel="noreferrer" className="bg-white p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group"><div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors"><Users/></div><div><div className="font-bold text-emerald-900 text-lg">百大青農計畫</div><div className="text-sm text-slate-500">找陪伴師教技術與行銷</div></div></a><a href="https://www.boaf.gov.tw/" target="_blank" rel="noreferrer" className="bg-white p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group"><div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors"><DollarSign/></div><div><div className="font-bold text-emerald-900 text-lg">青年從農貸款</div><div className="text-sm text-slate-500">前5年免息，減輕壓力</div></div></a></div></div></div> );
+        const StartFarmingPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Sprout} title="從事農業：真實面揭露" subtitle="前輩的真心話，聽聽再決定"/><div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 text-center"><h3 className="text-2xl font-bold text-slate-800 mb-4">🚧 內容建置中</h3><p className="text-slate-500">我們正在採訪 10 位不同作物的農友，整理他們的真實經驗與損益表，敬請期待！</p></div></div> );
         
-        const GreenhousePage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Tractor} title="溫室與省工機具" subtitle="讓科技幫你流汗，預防職業傷害。"/><div className="grid md:grid-cols-2 gap-8 mb-12"><div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100"><h3 className="text-xl font-bold mb-4 text-emerald-800 flex items-center gap-2"><Sun/> 溫室熱危害對策</h3><ul className="space-y-4 text-slate-600"><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">1.</span> <span><b>裝風扇：</b>一定要裝在「人站的高度」。</span></li><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">2.</span> <span><b>躲太陽：</b>善用黑網遮陽。</span></li><li className="flex gap-3 items-start"><span className="text-orange-500 font-bold">3.</span> <span><b>強制補水：</b>設鬧鐘每20分鐘喝水。</span></li></ul></div><div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100"><h3 className="text-xl font-bold mb-4 text-blue-800 flex items-center gap-2"><Tractor/> 省工機具推薦</h3><ul className="space-y-4 text-slate-600"><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">1.</span> <span><b>無人機噴藥：</b>遠離中毒風險。</span></li><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">2.</span> <span><b>採收搬運機：</b>救救你的腰。</span></li><li className="flex gap-3 items-start"><span className="text-blue-500 font-bold">3.</span> <span><b>坐駕式割草機：</b>減少體力消耗。</span></li></ul></div></div></div> );
+        const GreenhousePage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Tractor} title="溫室與省工機具" subtitle="讓科技幫你流汗，預防職業傷害"/><div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 text-center"><h3 className="text-2xl font-bold text-slate-800 mb-4">🚧 內容建置中</h3><p className="text-slate-500">正在彙整適合小農的省工機具清單與補助資訊。</p></div></div> );
         
-        const HealthPromoPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Activity} title="健康促進與伸展" subtitle="每天 3 分鐘，預防腰酸背痛。"/><div className="grid md:grid-cols-3 gap-6 mb-12">{exerciseData.map((ex, i) => ( <div key={i} className="bg-white p-6 rounded-2xl shadow-md border-t-4 border-emerald-500"><h3 className="text-xl font-bold mb-2 text-slate-800">{ex.title}</h3><Badge color="green">適合：{ex.target}</Badge><ol className="list-decimal list-inside space-y-2 text-slate-600 mt-4 bg-slate-50 p-4 rounded-xl">{ex.steps.map((s, j) => ( <li key={j}>{s}</li> ))}</ol></div> ))}</div><div className="bg-orange-50 p-8 rounded-3xl text-center"><h3 className="text-2xl font-bold text-orange-900 mb-4">資深農友專區</h3><p className="text-orange-800 mb-6 max-w-2xl mx-auto">如果痛太久，請不要只貼藥布，建議至<b>「職業醫學科」</b>就診。</p><ActionButton variant="secondary" onClick={() => window.open('https://www.ylh.gov.tw/', '_blank')}>尋找台大雲林分院職業醫學科</ActionButton></div></div> );
+        const HealthPromoPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Activity} title="健康促進與伸展" subtitle="每天 3 分鐘，預防腰痠背痛"/><div className="grid md:grid-cols-2 gap-6">{exerciseData.map((ex, i) => ( <div key={i} className="bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-lg transition-all"><div className="flex items-center gap-3 mb-4"><span className="bg-emerald-100 text-emerald-700 font-bold w-8 h-8 rounded-full flex items-center justify-center">{i+1}</span><h3 className="font-bold text-lg text-slate-800">{ex.title}</h3></div><p className="text-sm text-slate-500 mb-4 bg-slate-50 p-2 rounded">適合：{ex.target}</p><ul className="space-y-2 text-slate-600 text-sm">{ex.steps.map((step, j) => ( <li key={j} className="flex items-start gap-2"><ArrowRight size={14} className="mt-1 text-emerald-400 flex-shrink-0"/> {step}</li> ))}</ul></div> ))}</div></div> );
         
-        const ForumPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={MessageCircle} title="農民交流園地" subtitle="互助合作，做彼此的後盾。"/><div className="mb-12"><h3 className="font-bold text-xl mb-4 text-slate-700">常見迷思 QA</h3>{qaData.map((item, i) => ( <Accordion key={i} category={item.category} question={item.q} answer={item.a} /> ))}</div><div className="bg-white rounded-3xl border border-slate-100 shadow-md overflow-hidden"><div className="p-6 bg-slate-50 border-b border-slate-100"><h3 className="font-bold text-slate-700">最新討論文章</h3></div><div>{forumPosts.map((post) => ( <div key={post.id} className="p-6 border-b border-slate-50 hover:bg-blue-50/30 transition-colors"><h4 className="font-bold text-lg text-slate-800 mb-2">{post.title}</h4><p className="text-slate-600 mb-4">{post.content}</p><div className="flex gap-4 text-sm text-slate-400"><span>{post.author}</span><span>{post.time}</span><span className="text-blue-500 font-bold">{post.tag}</span></div></div> ))}</div></div></div> );
+        const ForumPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={MessageCircle} title="農民交流園地" subtitle="互助合作，做彼此的後盾"/><div className="space-y-4">{forumPosts.map((post) => ( <div key={post.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow"><div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">{post.avatar}</div><div><div className="font-bold text-slate-800">{post.author}</div><div className="text-xs text-slate-400">2小時前</div></div><Badge>{post.tag}</Badge></div><h3 className="font-bold text-xl text-slate-800 mb-2">{post.title}</h3><p className="text-slate-600 mb-4">{post.content}</p><div className="flex gap-4 border-t border-slate-50 pt-4 text-slate-400 text-sm"><button className="flex items-center gap-1 hover:text-emerald-600"><ThumbsUp size={16}/> 12</button><button className="flex items-center gap-1 hover:text-blue-600"><MessageCircle size={16}/> 5</button><button className="flex items-center gap-1 hover:text-slate-600 ml-auto"><Share2 size={16}/> 分享</button></div></div> ))}</div></div> );
         
-        const VideosPage = () => ( <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={PlayCircle} title="影音學習專區" subtitle="用看用聽都方便。"/><div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{videoData.map((video) => ( <div key={video.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group"><div className="aspect-video w-full bg-black relative"><iframe className="absolute top-0 left-0 w-full h-full" src={`https://www.youtube.com/embed/${video.youtubeId}`} title={video.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe></div><div className="p-6"><div className="flex justify-between items-start mb-2"><h3 className="font-bold text-lg text-slate-800 line-clamp-2">{video.title}</h3><Badge color="blue">{video.type}</Badge></div><p className="text-sm text-slate-500 mb-4 line-clamp-2">{video.desc}</p><div className="text-xs text-slate-400 flex justify-between border-t border-slate-50 pt-3"><span>{video.date}</span><span>{video.views} 次觀看</span></div></div></div> ))}</div></div> );
+        const VideosPage = () => ( <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={PlayCircle} title="影音學習專區" subtitle="用看用聽都方便。"/><div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{videoData.map((video) => ( <div key={video.id} className="bg-white rounded-2xl shadow-lg overflow-hidden group cursor-pointer"><div className="aspect-video bg-slate-900 relative overflow-hidden">{video.youtubeId ? <img src={`https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"/> : <div className={`w-full h-full ${video.coverColor}`}/>}<div className="absolute inset-0 flex items-center justify-center"><div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform"><PlayCircle size={32} className="text-white"/></div></div><div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">12:30</div></div><div className="p-5"><div className="flex justify-between items-start mb-2"><Badge>{video.type}</Badge><span className="text-xs text-slate-400">{video.date}</span></div><h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors">{video.title}</h3><p className="text-slate-500 text-sm line-clamp-2 mb-4">{video.desc}</p><div className="flex items-center gap-2 text-xs text-slate-400"><Users size={14}/> {video.views} views</div></div></div> ))}</div></div> );
         
-        const ResourcesPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Download} title="資源下載" subtitle="帶得走的工具包。"/><div className="grid gap-4">{[{name: "田間護身操海報", size: "PDF"}, {name: "農藥防護 SOP 小卡", size: "PDF"}, {name: "記帳 Excel 表", size: "XLS"}].map((item, i) => ( <div key={i} className="bg-white p-6 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100 hover:border-emerald-500 transition-colors cursor-pointer group"><div className="flex items-center gap-4"><div className="bg-slate-100 p-3 rounded-lg text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-600"><BookOpen size={24}/></div><span className="font-bold text-lg text-slate-700">{item.name}</span></div><span className="text-sm font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">{item.size}</span></div> ))}</div></div> );
+        const ResourcesPage = () => ( <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><SectionHeader icon={Download} title="資源下載" subtitle="帶得走的工具包。"/><div className="grid md:grid-cols-2 gap-6">{['職災給付申請書範本.pdf', '溫室設備補助懶人包.pdf', '農民健康體操海報.jpg'].map((file, i) => ( <div key={i} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50"><div className="flex items-center gap-3"><div className="bg-slate-100 p-2 rounded-lg"><BookOpen className="text-slate-500" size={20}/></div><span className="font-bold text-slate-700">{file}</span></div><button className="text-emerald-600 hover:text-emerald-700 p-2"><Download size={20}/></button></div> ))}</div></div> );
 
         // --- 6. 主程式 (Main App) ---
         function App() {
@@ -943,23 +947,27 @@ const SOSButton = ({ onClick, label }) => (
                                 </div>
                                 <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar mx-4">
                                     {navItems.map(item => (
-                                        <button key={item.id} onClick={() => setPage(item.id)} className={`px-3 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${page === item.id ? (scrolled ? 'bg-emerald-100 text-emerald-700' : 'bg-white/20 text-white') : (scrolled ? 'text-slate-500 hover:bg-slate-100' : 'text-emerald-100 hover:text-white hover:bg-white/10')}`}>{item.label}</button>
+                                        <button key={item.id} onClick={() => setPage(item.id)} className={`px-3 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${page === item.id ? (scrolled ? 'bg-emerald-100 text-emerald-800' : 'bg-white/20 text-white') : (scrolled ? 'text-slate-600 hover:bg-slate-100' : 'text-emerald-100 hover:bg-white/10')}`}>
+                                            {item.label}
+                                        </button>
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="relative">
-                                        <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs transition-colors ${scrolled ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'}`}><Globe size={16}/> {currentLang.toUpperCase()}</button>
-                                        {showLangMenu && (<div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in text-slate-800"><button onClick={() => changeLang('zh')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">繁體中文</button><button onClick={() => changeLang('en')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">English</button><button onClick={() => changeLang('id')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">Indonesia</button></div>)}
+                                        <button onClick={() => setShowLangMenu(!showLangMenu)} className={`flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs transition-colors ${scrolled ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                                            <Globe size={14} /> {currentLang.toUpperCase()}
+                                        </button>
+                                        {showLangMenu && (<div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in text-slate-800"><button onClick={() => changeLang('zh')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-medium">中文</button><button onClick={() => changeLang('en')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-medium">English</button><button onClick={() => changeLang('id')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-medium">Bahasa</button></div>)}
                                     </div>
                                     <button onClick={() => setMenuOpen(!menuOpen)} className={`lg:hidden p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}>{menuOpen ? <X size={24}/> : <Menu size={24}/>}</button>
                                 </div>
                             </div>
                         </div>
-                        {menuOpen && (<div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl animate-fade-in"><div className="p-4 space-y-2">{navItems.map(item => (<button key={item.id} onClick={() => setPage(item.id)} className={`block w-full text-left px-4 py-3 rounded-xl text-base font-bold ${page === item.id ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50'}`}>{item.label}</button>))}</div></div>)}
+                        {menuOpen && (<div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl animate-fade-in"><div className="p-4 space-y-2">{navItems.map(item => (<button key={item.id} onClick={() => setPage(item.id)} className={`block w-full text-left px-4 py-3 rounded-xl font-bold ${page === item.id ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600'}`}>{item.label}</button>))}</div></div>)}
                     </nav>
                     <main className="min-h-screen pt-16">{renderPage()}</main>
                     <SOSButton onClick={() => setPage('safety')} label={t.nav.safety} />
-                    <footer className="bg-slate-900 text-slate-400 py-16"><div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12"><div className="col-span-1 md:col-span-2"><div className="flex items-center gap-2 text-white font-bold text-2xl mb-6"><img src="Logo.PNG" className="h-12 w-auto object-contain bg-white rounded-md" /> {t.title}</div><p className="text-sm leading-relaxed max-w-sm">共構雲嘉農業工作者職業健康的社會安全網。</p></div><div><h4 className="text-white font-bold mb-6">聯絡我們</h4><ul className="space-y-3 text-sm"><li>指導單位：國家科學委員會</li><li>計畫主持單位：國立中正大學</li><li>合作夥伴：臺大醫院雲分院-農業環境與職業健康中心、民雄鄉農會</li></ul></div></div><div className="max-w-6xl mx-auto px-4 pt-8 border-t border-slate-800 text-center text-xs">© 2025 Dignified Agriculture Project.</div></footer>
+                    <footer className="bg-slate-900 text-slate-400 py-16"><div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12"><div className="col-span-1 md:col-span-2"><div className="flex items-center gap-3 mb-6"><img src="Logo.PNG" alt="Logo" className="h-12 w-auto bg-white rounded-lg" /><span className="text-2xl font-bold text-white">尊嚴農業</span></div><p className="text-lg leading-relaxed mb-6">我們致力於打造一個資訊透明、資源共享的農業支持體系，結合醫療專業、科技工具與社會保險，守護每一位為土地付出的農民。</p><div className="flex gap-4"><a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors"><Facebook size={20}/></a><a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors"><Youtube size={20}/></a><a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors"><Instagram size={20}/></a></div></div><div><h4 className="text-white font-bold text-lg mb-6">快速連結</h4><ul className="space-y-4"><li><a href="#" onClick={(e) => { e.preventDefault(); setPage('startFarming'); }} className="hover:text-emerald-400 transition-colors">新手入門指南</a></li><li><a href="#" onClick={(e) => { e.preventDefault(); setPage('calculator'); }} className="hover:text-emerald-400 transition-colors">退休金試算</a></li><li><a href="#" onClick={(e) => { e.preventDefault(); setPage('safety'); }} className="hover:text-emerald-400 transition-colors">急救 SOS</a></li><li><a href="#" onClick={(e) => { e.preventDefault(); setPage('resources'); }} className="hover:text-emerald-400 transition-colors">資源下載</a></li></ul></div><div><h4 className="text-white font-bold text-lg mb-6">聯絡我們</h4><ul className="space-y-4"><li className="flex items-start gap-3"><MapPin className="mt-1 flex-shrink-0 text-emerald-500"/><span className="leading-relaxed">621 嘉義縣民雄鄉<br/>大學路一段 168 號</span></li><li className="flex items-center gap-3"><Phone className="flex-shrink-0 text-emerald-500"/><span>05-272-0411</span></li><li className="flex items-center gap-3"><Mail className="flex-shrink-0 text-emerald-500"/><span>contact@dignified-agri.tw</span></li></ul></div></div><div className="max-w-6xl mx-auto px-4 pt-8 border-t border-slate-800 text-center text-sm"><p>&copy; 2024 Dignified Agriculture. All rights reserved. | <a href="#" className="hover:text-white">隱私權政策</a> | <a href="#" className="hover:text-white">使用條款</a></p></div></footer>
                 </div>
             );
         }
