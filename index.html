@@ -372,150 +372,176 @@
 
         // --- 4. 頁面組件 (Pages) ---
 
-        const HomePage = ({ setPage, lang, currentDate }) => (
-            <div className="animate-fade-in pb-12">
-                <div className="bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                            <div>
-                                <div className="inline-flex items-center gap-2 bg-emerald-800/50 backdrop-blur-md px-4 py-1.5 rounded-full text-emerald-100 text-sm font-medium border border-emerald-700/50 mb-4">
-                                    <MapPin size={14}/> 嘉義縣民雄鄉 | <Calendar size={14}/> {currentDate}
-                                </div>
-                                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-                                    {lang.title}<span className="text-emerald-400">{lang.subtitle}</span>
-                                </h1>
-                            </div>
-                            
-                            <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-full md:w-auto flex items-center gap-4 text-left shadow-lg">
-                                <div className="bg-orange-500 p-3 rounded-xl text-white shadow-lg animate-pulse">
-                                    <Sun size={32} />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-white text-lg">{lang.todayRisk}：{lang.high}</h3>
-                                    <p className="text-emerald-100 text-sm opacity-80">11:00 - 14:00 Avoid outdoor work.</p>
-                                </div>
-                            </div>
-                        </div>
+       // --- 修改後的 HomePage (首頁現在也會顯示 YouTube 縮圖) ---
+const HomePage = ({ setPage, lang, currentDate }) => (
+  <div className="animate-fade-in pb-12">
+    {/* Daily Dashboard */}
+    <div className="bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+           <div>
+             <div className="inline-flex items-center gap-2 bg-emerald-800/50 backdrop-blur-md px-4 py-1.5 rounded-full text-emerald-100 text-sm font-medium border border-emerald-700/50 mb-4">
+               <MapPin size={14}/> 嘉義縣民雄鄉 | <Calendar size={14}/> {currentDate}
+             </div>
+             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+               {lang.title}<span className="text-emerald-400">{lang.subtitle}</span>
+             </h1>
+           </div>
+           
+           {/* Alert Widget */}
+           <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-full md:w-auto flex items-center gap-4 text-left shadow-lg">
+             <div className="bg-orange-500 p-3 rounded-xl text-white shadow-lg animate-pulse">
+               <Sun size={32} />
+             </div>
+             <div>
+               <h3 className="font-bold text-white text-lg">{lang.todayRisk}：{lang.high}</h3>
+               <p className="text-emerald-100 text-sm opacity-80">11:00 - 14:00 Avoid outdoor work.</p>
+             </div>
+           </div>
+        </div>
 
-                        <p className="text-lg md:text-xl text-emerald-100/80 max-w-2xl font-light mb-10">
-                            {lang.heroDesc}
-                        </p>
-                    </div>
-                </div>
+        <p className="text-lg md:text-xl text-emerald-100/80 max-w-2xl font-light mb-10">
+          {lang.heroDesc}
+        </p>
+      </div>
+    </div>
 
-                <div className="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-16">
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {[
-                            { 
-                                title: lang.identity.new, 
-                                icon: <Sprout size={32}/>, 
-                                desc: "看清風險，真實評論揭露。", 
-                                color: "from-blue-500 to-blue-600", 
-                                page: "startFarming" 
-                            },
-                            { 
-                                title: lang.identity.young, 
-                                icon: <Tractor size={32}/>, 
-                                desc: "溫室職安與省工機具對策。", 
-                                color: "from-emerald-500 to-emerald-600", 
-                                page: "greenhouse" 
-                            },
-                            { 
-                                title: lang.identity.senior, 
-                                icon: <Heart size={32}/>, 
-                                desc: "痠痛改善與職災給付申請。", 
-                                color: "from-orange-500 to-orange-600", 
-                                page: "healthPromo" 
-                            }
-                        ].map((item, i) => (
-                            <div 
-                                key={i}
-                                onClick={() => setPage(item.page)} 
-                                className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100"
-                            >
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
-                                <p className="text-slate-500 mb-6 leading-relaxed">{item.desc}</p>
-                                <div className="flex items-center text-sm font-bold text-emerald-600 group-hover:text-emerald-700">
-                                    {lang.identity.enter} <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform"/>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
-                    <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
-                        <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
-                            <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                                <MessageCircle className="text-blue-600 fill-blue-100"/> {lang.section.forum}
-                            </h3>
-                            <button onClick={() => setPage('forum')} className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors">{lang.section.more}</button>
-                        </div>
-                        <div className="space-y-4">
-                            {forumPosts.map((post) => (
-                                <div key={post.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 group" onClick={() => setPage('forum')}>
-                                    <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-blue-600 group-hover:border-blue-200">
-                                        {post.avatar}
-                                    </div>
-                                    <div className="flex-grow">
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4>
-                                            <span className="text-xs text-slate-400 whitespace-nowrap">{post.time}</span>
-                                        </div>
-                                        <p className="text-sm text-slate-500 line-clamp-1 mt-1 mb-2">{post.content}</p>
-                                        <div className="flex gap-3 text-xs text-slate-400 font-medium">
-                                            <Badge color="blue">{post.tag}</Badge>
-                                            <span className="flex items-center gap-1 ml-auto"><MessageCircle size={14}/> {post.comments}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-                                <h3 className="text-2xl font-bold flex items-center gap-3">
-                                    <PlayCircle className="text-emerald-400 fill-emerald-900"/> {lang.section.video}
-                                </h3>
-                                <button onClick={() => setPage('videos')} className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">{lang.section.more}</button>
-                            </div>
-                            
-                            <div className="bg-white/5 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group" onClick={() => setPage('videos')}>
-                                <div className="flex gap-5">
-                                    <div className="w-32 h-24 bg-emerald-800/50 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-900 opacity-80"></div>
-                                        <Mic size={32} className="text-white relative z-10"/>
-                                    </div>
-                                    <div className="flex flex-col justify-center">
-                                        <div className="mb-2"><Badge color="white">Podcast EP1</Badge></div>
-                                        <h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors">那些年，我們一起追的鳳梨</h4>
-                                        <p className="text-sm text-slate-400 line-clamp-1">談採收辛酸與腰痛共處之道。</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                {videoData.slice(1, 3).map((video) => (
-                                    <div key={video.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white transition-colors border border-transparent hover:border-white/5" onClick={() => setPage('videos')}>
-                                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 text-emerald-500">
-                                            <PlayCircle size={16} className="fill-current"/>
-                                        </div>
-                                        <span className="font-medium truncate flex-grow">{video.title}</span>
-                                        <span className="text-xs opacity-50">{video.length}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    {/* Identity Cards (身分入口) */}
+    <div className="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-16">
+      <div className="grid md:grid-cols-3 gap-6">
+        {[
+          { 
+            title: lang.identity.new, 
+            icon: <Sprout size={32}/>, 
+            desc: "看清風險，真實評論揭露。", 
+            color: "from-blue-500 to-blue-600", 
+            page: "startFarming" 
+          },
+          { 
+            title: lang.identity.young, 
+            icon: <Tractor size={32}/>, 
+            desc: "溫室職安與省工機具對策。", 
+            color: "from-emerald-500 to-emerald-600", 
+            page: "greenhouse" 
+          },
+          { 
+            title: lang.identity.senior, 
+            icon: <Heart size={32}/>, 
+            desc: "痠痛改善與職災給付申請。", 
+            color: "from-orange-500 to-orange-600", 
+            page: "healthPromo" 
+          }
+        ].map((item, i) => (
+          <div 
+            key={i}
+            onClick={() => setPage(item.page)} 
+            className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100"
+          >
+            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform`}>
+              {item.icon}
             </div>
-        );
+            <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
+            <p className="text-slate-500 mb-6 leading-relaxed">{item.desc}</p>
+            <div className="flex items-center text-sm font-bold text-emerald-600 group-hover:text-emerald-700">
+              {lang.identity.enter} <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform"/>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* 雙欄資訊流：交流園地 + 影音專區 */}
+    <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
+      {/* 左欄：交流園地 */}
+      <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
+         <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
+           <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+             <MessageCircle className="text-blue-600 fill-blue-100"/> {lang.section.forum}
+           </h3>
+           <button onClick={() => setPage('forum')} className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors">{lang.section.more}</button>
+         </div>
+         <div className="space-y-4">
+           {forumPosts.map((post) => (
+             <div key={post.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 group" onClick={() => setPage('forum')}>
+               <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-blue-600 group-hover:border-blue-200">
+                 {post.avatar}
+               </div>
+               <div className="flex-grow">
+                 <div className="flex justify-between items-start">
+                   <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4>
+                   <span className="text-xs text-slate-400 whitespace-nowrap">{post.time}</span>
+                 </div>
+                 <p className="text-sm text-slate-500 line-clamp-1 mt-1 mb-2">{post.content}</p>
+                 <div className="flex gap-3 text-xs text-slate-400 font-medium">
+                   <Badge color="blue">{post.tag}</Badge>
+                   <span className="flex items-center gap-1 ml-auto"><MessageCircle size={14}/> {post.comments}</span>
+                 </div>
+               </div>
+             </div>
+           ))}
+         </div>
+      </div>
+
+      {/* 右欄：影音專區 (這裡更新了！會抓取 videoData 的圖片) */}
+      <div className="bg-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
+         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
+         <div className="relative z-10">
+           <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+             <h3 className="text-2xl font-bold flex items-center gap-3">
+               <PlayCircle className="text-emerald-400 fill-emerald-900"/> {lang.section.video}
+             </h3>
+             <button onClick={() => setPage('videos')} className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">{lang.section.more}</button>
+           </div>
+           
+           {/* 首頁推薦影片 (Featured Video) */}
+           {/* 自動抓取 videoData 的第一筆資料顯示 */}
+           <div className="bg-white/5 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group" onClick={() => setPage('videos')}>
+             <div className="flex gap-5">
+               {/* 縮圖區域 */}
+               <div className="w-32 h-24 bg-black rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-white/10">
+                 {videoData[0] && videoData[0].youtubeId ? (
+                   <img 
+                     src={`https://img.youtube.com/vi/${videoData[0].youtubeId}/mqdefault.jpg`} 
+                     alt="thumbnail" 
+                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                   />
+                 ) : (
+                   <div className="w-full h-full bg-purple-900"></div>
+                 )}
+                 <PlayCircle size={32} className="text-white absolute z-10 drop-shadow-md group-hover:scale-110 transition-transform"/>
+               </div>
+               
+               {/* 文字區域 */}
+               <div className="flex flex-col justify-center">
+                 <div className="mb-2"><Badge color="white">{videoData[0]?.type || 'Video'}</Badge></div>
+                 <h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors line-clamp-1">{videoData[0]?.title}</h4>
+                 <p className="text-sm text-slate-400 line-clamp-1">{videoData[0]?.desc}</p>
+               </div>
+             </div>
+           </div>
+
+           {/* 其他影片列表 (Video List) */}
+           <div className="space-y-3">
+              {videoData.slice(1, 3).map((video) => (
+                <div key={video.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white transition-colors border border-transparent hover:border-white/5" onClick={() => setPage('videos')}>
+                  {/* 小縮圖 */}
+                  <div className="w-10 h-10 rounded-lg bg-black/50 overflow-hidden flex-shrink-0 border border-white/10">
+                     {video.youtubeId ? (
+                        <img src={`https://img.youtube.com/vi/${video.youtubeId}/default.jpg`} className="w-full h-full object-cover" />
+                     ) : (
+                        <div className="flex items-center justify-center h-full"><PlayCircle size={16}/></div>
+                     )}
+                  </div>
+                  <span className="font-medium truncate flex-grow text-sm md:text-base">{video.title}</span>
+                  <span className="text-xs opacity-50 whitespace-nowrap">{video.views}</span>
+                </div>
+              ))}
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+);
 
         const SafetyPage = ({ lang }) => (
             <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
