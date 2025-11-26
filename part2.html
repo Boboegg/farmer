@@ -18,10 +18,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Recharts 相關依賴 -->
-    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
-    <script src="https://unpkg.com/react-is@18/umd/react-is.production.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
+    <!-- 已移除 Recharts / PropTypes / React-Is：改用自己畫圖 -->
 
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -58,27 +55,6 @@
 <div id="root"></div>
 
 <script type="text/babel">
-    // --- Recharts 防呆：若載入失敗，用安全預設元件 ---
-    const RechartsObj = window.Recharts || {};
-    const {
-        BarChart = (props) => (
-            <div className="p-4 text-red-500 bg-red-50 rounded text-sm">
-                圖表模組載入中或載入失敗（Recharts）。
-            </div>
-        ),
-        Bar = () => null,
-        XAxis = () => null,
-        YAxis = () => null,
-        CartesianGrid = () => null,
-        Tooltip = () => null,
-        Legend = () => null,
-        ResponsiveContainer = ({ children }) => (
-            <div className="w-full h-64 bg-slate-100 flex items-center justify-center">
-                {children}
-            </div>
-        )
-    } = RechartsObj;
-
     const { useState, useEffect } = React;
 
     // --- Lucide Icon helper ---
@@ -107,9 +83,7 @@
     ];
 
     const Icons = {};
-    iconList.forEach(name => {
-        Icons[name] = createLucideComponent(name);
-    });
+    iconList.forEach(name => { Icons[name] = createLucideComponent(name); });
 
     const {
         Shield, Sun, AlertTriangle, Activity, Sprout,
@@ -122,7 +96,7 @@
         AlertCircle, ExternalLink, Settings, PiggyBank, Coins
     } = Icons;
 
-    // --- 多語系（目前主要用 zh，其他語系保留結構） ---
+    // --- 多語系（主要用 zh） ---
     const translations = {
         zh: {
             title: "尊嚴農業",
@@ -234,7 +208,7 @@
         }
     };
 
-    // --- 假資料（簡化版，避免語法錯誤） ---
+    // --- 假資料（簡化版） ---
     const videoData = [
         {
             id: 1,
@@ -441,7 +415,7 @@
             <div className={`rounded-2xl bg-white border-l-8 ${theme.border} shadow-lg overflow-hidden`}>
                 <div className={`${theme.bg} p-6 border-b border-white/50 flex justify-between items-start`}>
                     <div>
-                        <div className={`flex items-center gap-2 mb-1 font-bold ${theme.text} uppercase text-sm tracking-wider`}>
+                        <div className={`flex items中心 gap-2 mb-1 font-bold ${theme.text} uppercase text-sm tracking-wider`}>
                             <AlertTriangle size={18}/> {data.level}
                         </div>
                         <h3 className="text-2xl font-extrabold text-slate-800">{title}</h3>
@@ -605,7 +579,7 @@
     );
 
     const CalculatorPage = () => {
-        // 一些簡化後的常數（不是法條精算，只是示意）
+        // 一些簡化後的常數（非正式法條精算）
         const CONSTANTS = {
             BASIC_WAGE_2025: 28590,
             OLD_FARMER_ALLOWANCE: 8110,
@@ -684,7 +658,6 @@
             const yearsToLaborRetire = Math.max(0, laborRetireAge - currentAge);
             const totalLaborYears = Math.max(0, laborRetireAge - laborStartAge);
 
-            // 預估退休當下投保薪資（成長率非常簡化）
             let projectedFinalSalary =
                 currentSalary * Math.pow(1 + growth, yearsToLaborRetire);
             let laborInsSalary = Math.min(
@@ -695,7 +668,6 @@
                 laborInsSalary = CONSTANTS.LABOR_INS_MAX;
             }
 
-            // 提早 / 延後退休調整（非常簡化）
             let laborInsRateAdjustment = 1;
             const ageDiff = laborRetireAge - CONSTANTS.NORMAL_RETIRE_AGE;
             if (ageDiff < 0) {
@@ -776,7 +748,6 @@
 
                 tempSalary *= 1 + growth;
             }
-            // 從轉職到農民退休之間持續滾利息
             const yearsToCompoundOldLP = Math.max(
                 0,
                 farmerRetireAge - switchAge
@@ -787,14 +758,13 @@
             const farmer_LP_Monthly_Emp = oldLpAcc_Emp / monthsToDistribute;
             const farmer_LP_Monthly_Self = oldLpAcc_Self / monthsToDistribute;
 
-            // 農民退休儲金（超簡化模型：按基本工資×提繳率×政府同額）
+            // 農民退休儲金（超簡化）
             let farmerPensionAccumulated = 0;
             let farmerPrincipalUser = 0;
             let farmerPrincipalGov = 0;
             let basicWageSim = CONSTANTS.BASIC_WAGE_2025;
             for (let i = 0; i < yearsAsFarmer; i++) {
                 const monthlyContributionUser = basicWageSim * (farmerRate / 100);
-                // 一年12個月
                 const yearUser = monthlyContributionUser * 12;
                 const yearGov = monthlyContributionUser * 12;
                 farmerPrincipalUser += yearUser;
@@ -806,7 +776,7 @@
             const farmerPensionMonthly =
                 farmerPensionAccumulated / monthsToDistribute;
 
-            // 底層保障：簡化成「老農津貼 or 勞保年金其一較高」
+            // 底層保障：老農津貼 or 勞保年金其一較高（非常粗略）
             const yearsAsFarmerForAllowance = yearsAsFarmer;
             const eligibleForOldFarmer =
                 farmerRetireAge >= 65 && yearsAsFarmerForAllowance >= 15;
@@ -841,7 +811,6 @@
                       switchLaborRateAdj
                     : 0;
 
-            // 底層以較高者為準
             let baseLayer = 0;
             let baseLayerName = "";
             if (laborAnnuityAtSwitch > oldFarmerAmount) {
@@ -1220,7 +1189,7 @@
                             </div>
                         </div>
 
-                        {/* 右側：結果與圖表 */}
+                        {/* 右側：結果與條圖 */}
                         <div className="lg:col-span-8 space-y-6">
                             {results ? (
                                 <>
@@ -1326,7 +1295,7 @@
                                         </ResultCard>
                                     </div>
 
-                                    {/* 圖表區 */}
+                                    {/* 條圖區：自畫水平堆疊條 */}
                                     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="font-bold text-slate-700 flex items-center gap-2">
@@ -1364,69 +1333,80 @@
                                             </div>
                                         </div>
 
-                                        <div className="h-80 w-full">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart
-                                                    data={chartData}
-                                                    layout="vertical"
-                                                    margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                                                >
-                                                    <CartesianGrid
-                                                        strokeDasharray="3 3"
-                                                        horizontal={true}
-                                                        vertical={false}
-                                                    />
-                                                    <XAxis
-                                                        type="number"
-                                                        tickFormatter={(val) =>
-                                                            viewMode === 'monthly'
-                                                                ? `$${val}`
-                                                                : `$${(val / 1000000).toFixed(
-                                                                      1
-                                                                  )}M`
-                                                        }
-                                                    />
-                                                    <YAxis
-                                                        dataKey="name"
-                                                        type="category"
-                                                        width={130}
-                                                        tick={{ fontSize: 12 }}
-                                                    />
-                                                    <Tooltip
-                                                        formatter={(value) =>
-                                                            `$${value.toLocaleString()}`
-                                                        }
-                                                        contentStyle={{
-                                                            borderRadius: '12px'
-                                                        }}
-                                                    />
-                                                    <Legend iconType="circle" />
-                                                    <Bar
-                                                        dataKey="勞保年金/老農津貼"
-                                                        stackId="a"
-                                                        fill="#3b82f6"
-                                                        barSize={32}
-                                                    />
-                                                    <Bar
-                                                        dataKey="勞退(雇主)"
-                                                        stackId="a"
-                                                        fill="#93c5fd"
-                                                        barSize={32}
-                                                    />
-                                                    <Bar
-                                                        dataKey="勞退(自提)"
-                                                        stackId="a"
-                                                        fill="#8b5cf6"
-                                                        barSize={32}
-                                                    />
-                                                    <Bar
-                                                        dataKey="農民儲金"
-                                                        stackId="a"
-                                                        fill="#10b981"
-                                                        barSize={32}
-                                                    />
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                        <div className="space-y-4">
+                                            {chartData.map(row => {
+                                                const total =
+                                                    (row['勞保年金/老農津貼'] || 0) +
+                                                    (row['勞退(雇主)'] || 0) +
+                                                    (row['勞退(自提)'] || 0) +
+                                                    (row['農民儲金'] || 0);
+
+                                                const safeTotal = total || 1;
+
+                                                const seg = {
+                                                    base: (row['勞保年金/老農津貼'] || 0) / safeTotal * 100,
+                                                    emp: (row['勞退(雇主)'] || 0) / safeTotal * 100,
+                                                    self: (row['勞退(自提)'] || 0) / safeTotal * 100,
+                                                    farmer: (row['農民儲金'] || 0) / safeTotal * 100,
+                                                };
+
+                                                return (
+                                                    <div key={row.name} className="space-y-1">
+                                                        <div className="flex justify-between text-xs text-slate-600">
+                                                            <span>{row.name}</span>
+                                                            <span className="font-mono">
+                                                                {viewMode === 'monthly'
+                                                                    ? `約 $${total.toLocaleString()}/月`
+                                                                    : `約 $${(total / 1000000).toFixed(2)} 百萬`}
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-full h-6 rounded-full bg-slate-100 overflow-hidden flex">
+                                                            {row['勞保年金/老農津貼'] > 0 && (
+                                                                <div
+                                                                    className="h-full bg-blue-500"
+                                                                    style={{ width: `${seg.base}%` }}
+                                                                    title="勞保年金/老農津貼"
+                                                                />
+                                                            )}
+                                                            {row['勞退(雇主)'] > 0 && (
+                                                                <div
+                                                                    className="h-full bg-blue-300"
+                                                                    style={{ width: `${seg.emp}%` }}
+                                                                    title="勞退(雇主)"
+                                                                />
+                                                            )}
+                                                            {row['勞退(自提)'] > 0 && (
+                                                                <div
+                                                                    className="h-full bg-purple-500"
+                                                                    style={{ width: `${seg.self}%` }}
+                                                                    title="勞退(自提)"
+                                                                />
+                                                            )}
+                                                            {row['農民儲金'] > 0 && (
+                                                                <div
+                                                                    className="h-full bg-emerald-500"
+                                                                    style={{ width: `${seg.farmer}%` }}
+                                                                    title="農民儲金"
+                                                                />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex justify-between text-[10px] text-slate-400">
+                                                            <span className="flex items-center gap-1">
+                                                                <span className="w-2 h-2 bg-blue-500 rounded-sm" /> 勞保/老農
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <span className="w-2 h-2 bg-blue-300 rounded-sm" /> 勞退(雇主)
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <span className="w-2 h-2 bg-purple-500 rounded-sm" /> 勞退(自提)
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <span className="w-2 h-2 bg-emerald-500 rounded-sm" /> 農民儲金
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
@@ -1626,22 +1606,13 @@
                                                             }
                                                             items={[
                                                                 {
-                                                                    label: '自己提繳',
+                                                                    label: '自己提繳＋政府相對提繳',
                                                                     value: Math.round(
                                                                         results
                                                                             .farmerPath
-                                                                            .totalAsset_FarmerPension / 2
+                                                                            .totalAsset_FarmerPension
                                                                     ),
                                                                     color: 'text-emerald-600'
-                                                                },
-                                                                {
-                                                                    label: '政府相對提繳',
-                                                                    value: Math.round(
-                                                                        results
-                                                                            .farmerPath
-                                                                            .totalAsset_FarmerPension / 2
-                                                                    ),
-                                                                    color: 'text-amber-600'
                                                                 }
                                                             ]}
                                                             info="實際制度有給付標準與年金生命表，此處僅以「本金＋利息除以20年」做概略示意。"
@@ -1667,7 +1638,7 @@
         );
     };
 
-    // --- 其他頁面（簡化：保留原架構，但內容縮短） ---
+    // --- 其他頁面（簡化版，維持結構） ---
 
     const HomePage = ({ setPage, lang, currentDate }) => (
         <div className="animate-fade-in pb-12">
@@ -1757,7 +1728,7 @@
                 </div>
             </div>
 
-            {/* 簡化論壇 & 影音 */}
+            {/* 論壇 + 影音簡化區塊 */}
             <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
                 {/* 論壇 */}
                 <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
