@@ -729,7 +729,7 @@ const HomePage = ({ setPage, lang, currentDate }) => (
                     <p className="text-orange-800 mb-6 max-w-2xl mx-auto">
                         如果痛太久，請不要只貼藥布，建議至<b>「職業醫學科」</b>就診。
                     </p>
-                    <ActionButton variant="secondary" onClick={() => window.open('https://www.ylh.gov.tw/', '_blank')}>
+                    <ActionButton variant="secondary" onClick={() => window.open('https://www.ntuh.gov.tw/EOM-CMOID/Fpage.action?muid=4091&fid=3918', '_blank')}>
                         尋找台大雲林分院職業醫學科
                     </ActionButton>
                 </div>
@@ -889,7 +889,7 @@ const VideosPage = () => (
                                     <img 
     src="Logo.PNG"       // 請確認這裡的檔名跟您上傳的一模一樣
     alt="Logo" 
-    className="w-10 h-10 object-contain bg-white rounded-lg p-1" // w-10 h-10 是控制大小
+    className="w-20 h-20 object-contain bg-white rounded-lg" // w-10 h-10 是控制大小
   />
                                     <span className={`font-extrabold text-xl tracking-tight hidden sm:block ${scrolled ? 'text-emerald-900' : 'text-white'}`}>{t.title}</span>
                                 </div>
@@ -953,7 +953,7 @@ const VideosPage = () => (
                         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
                             <div className="col-span-1 md:col-span-2">
                               <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6">
-        <img src="Logo.PNG" className="w-8 h-8 object-contain bg-white rounded-md p-0.5" /> 
+        <img src="Logo.PNG" className="w-20 h-20 object-contain bg-white rounded-md" /> 
         {t.title}
       </div>
                                 <p className="text-sm leading-relaxed max-w-sm">共構雲嘉農業工作者職業健康的社會安全網。</p>
