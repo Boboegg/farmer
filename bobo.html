@@ -29,6 +29,17 @@
         .body-btn { transition: all 0.3s; }
         .body-btn:hover { transform: scale(1.1); }
         .body-btn.active { background-color: #10b981; color: white; border-color: #059669; box-shadow: 0 0 0 4px #a7f3d0; }
+
+        /* 簡單背景紋理 */
+        .hero-bg {
+            background-image:
+                radial-gradient(circle at 0 0, rgba(16,185,129,0.25), transparent 55%),
+                radial-gradient(circle at 100% 0, rgba(59,130,246,0.22), transparent 55%);
+        }
+        .card-pattern {
+            background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,0.18) 1px, transparent 0);
+            background-size: 18px 18px;
+        }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -76,12 +87,12 @@
             Users, BookOpen, Phone, Download, ChevronDown, 
             ChevronUp, Menu, X, ArrowRight, Heart, DollarSign,
             Tractor, HelpCircle, Video, MessageCircle, PlayCircle, 
-            Calendar, Hammer, MapPin, ThumbsUp, Share2, Search,
+            Calendar, Hammer, MapPin, ThumbUp, ThumbsUp, Share2, Search,
             Wind, Droplets, Mic, Globe, Clock, ClipboardCheck,
             CheckCircle2, FlaskConical, User
         } = Icons;
 
-        // --- 1. 資料庫（先專心做好繁中，不做多語） ---
+        // --- 1. 資料庫（先專心繁中） ---
 
         const translations = {
             zh: {
@@ -159,7 +170,6 @@
             { id: 3, title: "預防熱衰竭", tag: "夏季保命", color: "bg-orange-500", content: "每20分鐘喝一杯水，不要等到口渴才喝。" }
         ];
 
-        // 身體地圖運動資料
         const bodyMapData = {
             neck: {
                 title: "頸部放鬆",
@@ -413,15 +423,19 @@
         const HomePage = ({ setPage, lang, currentDate }) => (
             <div className="animate-fade-in pb-12">
                 {/* Dashboard */}
-                <div className="bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+                <div className="hero-bg bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-y-0 right-0 opacity-20 hidden md:block">
+                        <div className="h-full w-64 bg-gradient-to-b from-emerald-500/30 via-transparent to-blue-500/30 blur-3xl"></div>
+                    </div>
                     <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
                             <div>
                                 <div className="inline-flex items-center gap-2 bg-emerald-800/50 backdrop-blur-md px-4 py-1.5 rounded-full text-emerald-100 text-sm font-medium border border-emerald-700/50 mb-4">
                                     <MapPin size={14}/> 嘉義縣民雄鄉 | <Calendar size={14}/> {currentDate}
                                 </div>
-                                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-                                    {lang.title}<span className="text-emerald-400">{lang.subtitle}</span>
+                                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight flex flex-wrap items-baseline gap-2">
+                                    <span>{lang.title}</span>
+                                    <span className="text-emerald-300 text-2xl md:text-4xl">{lang.subtitle}</span>
                                 </h1>
                             </div>
                             {/* Alert Widget */}
@@ -450,35 +464,35 @@
                             { 
                                 title: lang.identity.new,
                                 icon: <Sprout size={32}/>, 
-                                desc: "看清風險，真實評論揭露。", 
-                                color: "from-blue-500 to-blue-600", 
+                                desc: "第一次踏進農業，先搞懂真實風險、收入與身體負擔。", 
+                                color: "from-blue-500 to-sky-500", 
                                 page: "newFarmerHub" 
                             },
                             { 
                                 title: lang.identity.young,
                                 icon: <Tractor size={32}/>, 
-                                desc: "溫室職安、農場體檢與省工機具。", 
-                                color: "from-emerald-500 to-emerald-600", 
+                                desc: "正在打拼的青農，用科技與制度減少體力與意外。", 
+                                color: "from-emerald-500 to-teal-500", 
                                 page: "youngFarmerHub" 
                             },
                             { 
                                 title: lang.identity.senior,
                                 icon: <Heart size={32}/>, 
-                                desc: "痠痛改善、長期健康與職災給付。", 
-                                color: "from-orange-500 to-orange-600", 
+                                desc: "種了一輩子田，該顧好的身體與保障，一樣都不漏。", 
+                                color: "from-orange-500 to-rose-500", 
                                 page: "seniorFarmerHub" 
                             }
                         ].map((item, i) => (
                             <div 
                                 key={i}
                                 onClick={() => setPage(item.page)} 
-                                className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100"
+                                className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer p-8 group border border-slate-100 card-pattern"
                             >
                                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
-                                <p className="text-slate-500 mb-6 leading-relaxed">{item.desc}</p>
+                                <p className="text-slate-600 mb-6 leading-relaxed text-sm">{item.desc}</p>
                                 <div className="flex items-center text-sm font-bold text-emerald-600 group-hover:text-emerald-700">
                                     {lang.identity.enter}
                                     <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform"/>
@@ -488,7 +502,7 @@
                     </div>
                 </div>
 
-                {/* 雙欄資訊流：交流園地 + 影音專區 */}
+                {/* 雙欄資訊流 */}
                 <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 mb-12">
                     {/* 左：交流園地 */}
                     <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
@@ -532,8 +546,8 @@
                     </div>
 
                     {/* 右：影音專區 */}
-                    <div className="bg-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
+                    <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-64 h-64 bg-purple-600/40 rounded-full blur-[80px] pointer-events-none"></div>
                         <div className="relative z-10">
                             <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                                 <h3 className="text-2xl font-bold flex items-center gap-3">
@@ -572,7 +586,7 @@
                                         <h4 className="font-bold text-lg mb-1 group-hover:text-emerald-300 transition-colors line-clamp-1">
                                             {videoData[0]?.title}
                                         </h4>
-                                        <p className="text-sm text-slate-400 line-clamp-1">
+                                        <p className="text-sm text-slate-300 line-clamp-1">
                                             {videoData[0]?.desc}
                                         </p>
                                     </div>
@@ -715,7 +729,6 @@
             );
         };
 
-        // 原本 StartFarmingPage 保留（會在角色專區中連結）
         const StartFarmingPage = () => (
             <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
                 <SectionHeader 
@@ -1139,13 +1152,38 @@
 
         const NewFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                {/* 小 Hero */}
+                <div className="bg-gradient-to-r from-blue-50 via-emerald-50 to-emerald-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-emerald-100">
+                    <div className="flex-1">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
+                            <span className="inline-flex p-2 rounded-2xl bg-emerald-600 text-white">
+                                <Sprout size={24}/>
+                            </span>
+                            新手務農專區
+                        </h1>
+                        <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                            如果你正在考慮返鄉務農或剛開始種植，這裡幫你整理「現實面」、「身體風險」、「錢怎麼算」，
+                            讓你用比較不後悔的方式開始。
+                        </p>
+                        <button
+                            onClick={() => setPage('home')}
+                            className="mt-4 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-4"
+                        >
+                            ← 回首頁看看其他資訊
+                        </button>
+                    </div>
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-emerald-100">
+                        <img src="https://images.pexels.com/photos/1268101/pexels-photo-1268101.jpeg?auto=compress&cs=tinysrgb&w=400" alt="new farmer" className="w-full h-full object-cover rounded-2xl"/>
+                    </div>
+                </div>
+
                 <SectionHeader
                     icon={Sprout}
-                    title="新手務農專區"
-                    subtitle="先看清風險，再決定怎麼走。給準備踏入農業的你。"
+                    title="先看清，再踏進來"
+                    subtitle="收入、身體、風險三件事弄懂，你就比很多人準備得更好。"
                 />
 
-                {/* 區塊一：前輩真心話（沿用 StartFarming 的兩則故事） */}
+                {/* 區塊一：前輩真心話 */}
                 <div className="space-y-6 mb-10">
                     <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400">
                         <div className="flex items-center gap-2 mb-3">
@@ -1255,10 +1293,35 @@
 
         const YoungFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                {/* 小 Hero */}
+                <div className="bg-gradient-to-r from-emerald-50 via-sky-50 to-blue-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-sky-100">
+                    <div className="flex-1">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
+                            <span className="inline-flex p-2 rounded-2xl bg-sky-600 text-white">
+                                <Tractor size={24}/>
+                            </span>
+                            青農 / 在職專區
+                        </h1>
+                        <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                            已經在田裡打拚的你，最需要的是：少一點白忙的體力，多一點可以長久做下去的安全。
+                            用系統性的檢查、機具與制度，幫自己設計「可以做很久」的工作。
+                        </p>
+                        <button
+                            onClick={() => setPage('home')}
+                            className="mt-4 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-4"
+                        >
+                            ← 回首頁看看其他資訊
+                        </button>
+                    </div>
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-sky-100">
+                        <img src="https://images.pexels.com/photos/1268102/pexels-photo-1268102.jpeg?auto=compress&cs=tinysrgb&w=400" alt="young farmer" className="w-full h-full object-cover rounded-2xl"/>
+                    </div>
+                </div>
+
                 <SectionHeader
                     icon={Tractor}
-                    title="青農 / 在職專區"
-                    subtitle="讓科技和制度幫你分擔，不要只靠硬撐。"
+                    title="讓科技與系統幫你省力"
+                    subtitle="從動線、機具到安全清單，幫自己打造不那麼累的工作日常。"
                 />
 
                 {/* 區塊一：今天想改善什麼？ */}
@@ -1380,10 +1443,35 @@
 
         const SeniorFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                {/* 小 Hero */}
+                <div className="bg-gradient-to-r from-orange-50 via-rose-50 to-amber-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-orange-100">
+                    <div className="flex-1">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
+                            <span className="inline-flex p-2 rounded-2xl bg-orange-500 text-white">
+                                <Heart size={24}/>
+                            </span>
+                            資深農友專區
+                        </h1>
+                        <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                            種了一輩子田，身體也是一輩子的工具。這裡幫你整理「痠痛怎麼照顧」、「該拿的保險與給付」，
+                            讓你可以安心把經驗傳下去，而不是只把傷留在自己身上。
+                        </p>
+                        <button
+                            onClick={() => setPage('home')}
+                            className="mt-4 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-4"
+                        >
+                            ← 回首頁看看其他資訊
+                        </button>
+                    </div>
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-orange-100">
+                        <img src="https://images.pexels.com/photos/1268103/pexels-photo-1268103.jpeg?auto=compress&cs=tinysrgb&w=400" alt="senior farmer" className="w-full h-full object-cover rounded-2xl"/>
+                    </div>
+                </div>
+
                 <SectionHeader
                     icon={Heart}
-                    title="資深農友專區"
-                    subtitle="陪你把身體顧好，把該有的權益顧好。"
+                    title="身體顧好，權益顧好"
+                    subtitle="腰、膝、肩、脖子和你的權益，都應該被好好對待。"
                 />
 
                 {/* 區塊一：常見痠痛地圖 */}
@@ -1488,12 +1576,14 @@
             const [page, setPage] = useState('home');
             const [menuOpen, setMenuOpen] = useState(false);
             const [scrolled, setScrolled] = useState(false);
+            const [roleMenuOpen, setRoleMenuOpen] = useState(false);
             const [currentDate, setCurrentDate] = useState('');
-            const t = translations['zh']; // 目前先固定繁中
+            const t = translations['zh'];
 
             useEffect(() => {
                 window.scrollTo(0, 0);
                 setMenuOpen(false);
+                setRoleMenuOpen(false);
             }, [page]);
 
             useEffect(() => {
@@ -1524,23 +1614,35 @@
                 { id: 'resources',    label: t.nav.resources },
             ];
 
+            const roleItems = [
+                { id: 'newFarmerHub',   label: '新手務農專區', icon: <Sprout size={16}/> },
+                { id: 'youngFarmerHub', label: '青農 / 在職專區', icon: <Tractor size={16}/> },
+                { id: 'seniorFarmerHub',label: '資深農友專區', icon: <Heart size={16}/> },
+            ];
+
             const renderPage = () => {
                 switch (page) {
-                    case 'home':           return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
-                    case 'newFarmerHub':   return <NewFarmerHubPage setPage={setPage} />;
-                    case 'youngFarmerHub': return <YoungFarmerHubPage setPage={setPage} />;
-                    case 'seniorFarmerHub':return <SeniorFarmerHubPage setPage={setPage} />;
-                    case 'startFarming':   return <StartFarmingPage />;
-                    case 'greenhouse':     return <GreenhousePage />;
-                    case 'safety':         return <SafetyPage lang={t} />;
-                    case 'audit':          return <AuditPage />;
-                    case 'healthPromo':    return <HealthPromoPage />;
-                    case 'economics':      return <EconomicsPage />;
-                    case 'forum':          return <ForumPage />;
-                    case 'videos':         return <VideosPage />;
-                    case 'resources':      return <ResourcesPage />;
-                    default:               return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                    case 'home':            return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                    case 'newFarmerHub':    return <NewFarmerHubPage setPage={setPage} />;
+                    case 'youngFarmerHub':  return <YoungFarmerHubPage setPage={setPage} />;
+                    case 'seniorFarmerHub': return <SeniorFarmerHubPage setPage={setPage} />;
+                    case 'startFarming':    return <StartFarmingPage />;
+                    case 'greenhouse':      return <GreenhousePage />;
+                    case 'safety':          return <SafetyPage lang={t} />;
+                    case 'audit':           return <AuditPage />;
+                    case 'healthPromo':     return <HealthPromoPage />;
+                    case 'economics':       return <EconomicsPage />;
+                    case 'forum':           return <ForumPage />;
+                    case 'videos':          return <VideosPage />;
+                    case 'resources':       return <ResourcesPage />;
+                    default:                return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
                 }
+            };
+
+            const goRole = (id) => {
+                setPage(id);
+                setRoleMenuOpen(false);
+                setMenuOpen(false);
             };
 
             return (
@@ -1561,7 +1663,7 @@
                                 </div>
 
                                 {/* Desktop Nav */}
-                                <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar mx-4">
+                                <div className="hidden lg:flex items-center gap-2 overflow-x-auto no-scrollbar mx-4">
                                     {navItems.map(item => (
                                         <button 
                                             key={item.id} 
@@ -1575,13 +1677,40 @@
                                             {item.label}
                                         </button>
                                     ))}
+
+                                    {/* 角色專區下拉 */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setRoleMenuOpen((v) => !v)}
+                                            className={`px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 ${
+                                                scrolled ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'
+                                            }`}
+                                        >
+                                            <User size={14}/> 角色專區
+                                            {roleMenuOpen ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+                                        </button>
+                                        {roleMenuOpen && (
+                                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                                                {roleItems.map((r) => (
+                                                    <button
+                                                        key={r.id}
+                                                        onClick={() => goRole(r.id)}
+                                                        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50"
+                                                    >
+                                                        <span className="text-emerald-600">{r.icon}</span>
+                                                        <span className="font-semibold">{r.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Mobile Menu 按鈕 */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 lg:hidden">
                                     <button
                                         onClick={() => setMenuOpen(!menuOpen)}
-                                        className={`lg:hidden p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}
+                                        className={`p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}
                                     >
                                         {menuOpen ? <X size={24}/> : <Menu size={24}/>}
                                     </button>
@@ -1592,7 +1721,28 @@
                         {/* Mobile Nav */}
                         {menuOpen && (
                             <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl animate-fade-in">
-                                <div className="p-4 space-y-2">
+                                <div className="p-4 space-y-3">
+                                    {/* 角色專區快捷 */}
+                                    <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-100">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <User size={16} className="text-emerald-700"/>
+                                            <span className="text-xs font-bold text-emerald-800">角色專區</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {roleItems.map(r => (
+                                                <button
+                                                    key={r.id}
+                                                    onClick={() => goRole(r.id)}
+                                                    className="flex-1 min-w-[45%] bg-white rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 border border-emerald-100 flex items-center gap-1"
+                                                >
+                                                    {r.icon}
+                                                    <span className="truncate">{r.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 一般導航 */}
                                     {navItems.map(item => (
                                         <button
                                             key={item.id}
