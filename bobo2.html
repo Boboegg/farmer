@@ -1,512 +1,603 @@
-import React, { useState, useEffect } from 'react';
-import { Calculator, BookOpen, AlertTriangle, Info, ExternalLink, Activity, Sprout, Briefcase, Stethoscope, Scale } from 'lucide-react';
-
-const OccupationalInsuranceApp = () => {
-  // --- 狀態管理 ---
-  const [identity, setIdentity] = useState('farmer'); // 'farmer' | 'labor'
-  const [salary, setSalary] = useState(45800); // 勞工預設薪資
-  const [incidentType, setIncidentType] = useState('injury'); // 'injury' | 'disease'
-  const [restDays, setRestDays] = useState(30); // 休養天數
-  const [outpatientDays, setOutpatientDays] = useState(5); // 門診天數
-  const [inpatientDays, setInpatientDays] = useState(0); // 住院天數
-  const [farmerDiseaseType, setFarmerDiseaseType] = useState(''); // 農民職業病種類
-  const [laborDiseaseType, setLaborDiseaseType] = useState(''); // 勞工職業病種類
-  const [showFormula, setShowFormula] = useState(false); // 是否顯示詳細公式
-
-  // --- 常數設定 ---
-  const FARMER_INSURED_SALARY = 20400;
-  const FARMER_DAILY_RATE = 680;
-  const FARMER_OUTPATIENT_SUBSIDY = 50; // 目前制 50元
-  const FARMER_INPATIENT_SUBSIDY = 900; // 目前制 900元
-
-  // 農民職業病清單 (法規正面表列)
-  const farmerDiseases = [
-    { id: 'pesticide', name: '1. 農藥中毒、甲醛中毒', warning: false },
-    { id: 'heat', name: '2. 中暑、熱痙攣或熱衰竭', warning: false },
-    { id: 'cold', name: '3. 低溫作業引發之凍傷、失溫', warning: false },
-    { id: 'uv', name: '4. 紫外線引發之皮膚癌', warning: false },
-    { id: 'bio', name: '5. 生物性危害 (黴菌角膜炎、恙蟲病等)', warning: false },
-    { id: 'joint', name: '6. 長期壓迫引發之關節滑囊病變', warning: true, note: '⚠️ 需醫師診斷證明長期壓迫' },
-    { id: 'finger', name: '7. 手指骨關節炎導致手指變形', warning: true, note: '⚠️ 需符合長期負重操作認定' },
-    { id: 'waist', name: '8. 腰椎間盤突出 (新增項目)', warning: true, note: '⚠️ 認定嚴格，需職業醫學科專科醫師評估' },
-    { id: 'other', name: '不在上述列表中', warning: true, note: '⛔️ 需經由專案認定，難度較高' }
-  ];
-
-  // 勞工職業病分類 (新增：共通疾病分類)
-  const laborDiseases = [
-    // 特別新增：農勞共通比較區
-    { id: 'common_heat', group: '農勞共通', name: '★ 中暑/熱衰竭 (同農民項目2)', note: '勞工歸類於「物理性危害」。戶外作業勞工適用。' },
-    { id: 'common_pesticide', group: '農勞共通', name: '★ 農藥/化學中毒 (同農民項目1)', note: '勞工歸類於「化學性危害」。噴灑農藥之受雇勞工適用。' },
-    { id: 'common_waist', group: '農勞共通', name: '★ 腰椎間盤突出 (同農民項目8)', note: '勞工歸類於「人因性危害」。需經職業醫學科評估工作負賀。' },
-    { id: 'common_bio', group: '農勞共通', name: '★ 恙蟲病/蜂螫 (同農民項目5)', note: '勞工歸類於「生物性危害」。野外作業勞工適用。' },
-    // 原有分類
-    { id: 'chemical', group: '一般分類', name: '第1類：化學性危害 (粉塵、有機溶劑)', note: '常見於裝修、化工、清潔業。需注意物質安全資料表(SDS)。' },
-    { id: 'physical', group: '一般分類', name: '第2類：物理性危害 (噪音、輻射)', note: '常見於營造、航空、潛水作業。需有環境監測紀錄佐證。' },
-    { id: 'biological', group: '一般分類', name: '第3類：生物性危害 (病毒、細菌)', note: '常見於醫療人員、畜牧業。需證明接觸史。' },
-    { id: 'ergonomic', group: '一般分類', name: '第4類：人因性危害 (長期負重)', note: '⚠️ 爭議最多。需評估工作姿勢與時間。' },
-    { id: 'cancer', group: '一般分類', name: '職業性癌症', note: '潛伏期長，需證明長期暴露於致癌物質。' },
-    { id: 'other', group: '一般分類', name: '其他 (精神疾病、腦心血管疾病等)', note: '認定門檻極高，需證明與工作壓力之因果關係。' }
-  ];
-
-  // --- 計算邏輯 ---
-  const calculate = () => {
-    let salaryBase = identity === 'farmer' ? FARMER_INSURED_SALARY : salary;
-    let dailySalary = Math.floor(salaryBase / 30);
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>農勞職災權益試算神器</title>
     
-    // 1. 傷病給付 (薪資補償)
-    let injuryBenefit = 0;
-
-    // 前3天等待期 (不給付)
-    const waitingDays = 3;
-    const paidDays = Math.max(0, restDays - waitingDays);
+    <!-- 引入 Tailwind CSS (樣式庫) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    // 計算前60天 (100%)
-    const phase1Days = Math.min(paidDays, 57); // 60 - 3
-    // 計算第61天起 (70%)
-    const phase2Days = Math.max(0, paidDays - 57);
+    <!-- 引入 Lucide Icons (圖示庫) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    // 農民特殊日額 (農職保法規規定前2個月100%是以月投保金額計算，即680元)
-    // 勞工日額 (月薪/30)
-    let phase1Rate = identity === 'farmer' ? FARMER_DAILY_RATE : dailySalary; 
-    let phase2Rate = identity === 'farmer' ? Math.floor(FARMER_DAILY_RATE * 0.7) : Math.floor(dailySalary * 0.7);
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
-    let phase1Total = phase1Days * phase1Rate;
-    let phase2Total = phase2Days * phase2Rate;
-    
-    injuryBenefit = phase1Total + phase2Total;
-
-    // 2. 醫療給付 (就醫省錢/拿錢)
-    let medicalBenefit = 0;
-    let medicalText = "";
-    let medicalFormula = ""; // 用於顯示詳細算法字串
-    let lawReference = {}; // 法規依據
-
-    if (identity === 'farmer') {
-      // 農民
-      const opTotal = outpatientDays * FARMER_OUTPATIENT_SUBSIDY;
-      const ipTotal = inpatientDays * FARMER_INPATIENT_SUBSIDY;
-      medicalBenefit = opTotal + ipTotal;
-      medicalText = `現金津貼 ${medicalBenefit.toLocaleString()} 元`;
-      
-      medicalFormula = `( 門診 ${outpatientDays} 天 × $${FARMER_OUTPATIENT_SUBSIDY} ) + ( 住院 ${inpatientDays} 天 × $${FARMER_INPATIENT_SUBSIDY} ) = $${medicalBenefit.toLocaleString()}`;
-      
-      lawReference = {
-        injury: '依據《農民職業災害保險給付辦法》第4條',
-        medical: '依據《農民職業災害保險給付辦法》第13條',
-        disease: '依據《農民職業災害保險職業傷病審查辦法》第9條 (正面表列)'
-      };
-
-    } else {
-      // 勞工
-      medicalBenefit = 0; // 無現金入帳
-      medicalText = "免繳部分負擔 + 住院膳食補助";
-      medicalFormula = `掛號費(依醫院規定) + 健保部分負擔(門診20%/住院10-30%) = 全額減免 (由勞保局支付)`;
-      
-      lawReference = {
-        injury: '依據《勞工職業災害保險及保護法》第42條',
-        medical: '依據《勞工職業災害保險及保護法》第38條 (醫療費用支付標準)',
-        disease: '依據《勞工職業災害保險職業病種類表》 (概括條款)'
-      };
-    }
-
-    return {
-      injuryBenefit,
-      phase1Days,
-      phase1Rate,
-      phase1Total,
-      phase2Days,
-      phase2Rate,
-      phase2Total,
-      medicalBenefit,
-      medicalText,
-      medicalFormula,
-      salaryBase,
-      dailySalary,
-      lawReference
-    };
-  };
-
-  const result = calculate();
-
-  // --- UI 元件 ---
-
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
         
-        {/* Header */}
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
-            <Calculator className="w-8 h-8 text-blue-600" />
-            農勞職災權益試算神器
-          </h1>
-          <p className="text-slate-600">一次搞懂「職業災害」與「職業病」能領多少錢、怎麼算出來的</p>
+        /* 自定義滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        
+        /* 動畫 */
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 md:p-8 min-h-screen">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- 標題區 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
+                <i data-lucide="calculator" class="w-8 h-8 text-blue-600"></i>
+                農勞職災權益試算神器
+            </h1>
+            <p class="text-slate-600">一次搞懂「職業災害」與「職業病」能領多少錢、怎麼算出來的</p>
         </header>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left Column: Inputs (4/12) */}
-          <div className="lg:col-span-5 space-y-6">
+        <!-- 主內容網格 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* 1. 身分設定 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
-                選擇身分與薪資
-              </h2>
-              
-              <div className="flex gap-2 mb-4">
-                <button 
-                  onClick={() => setIdentity('farmer')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${
-                    identity === 'farmer' 
-                    ? 'border-green-500 bg-green-50 text-green-700 font-bold' 
-                    : 'border-slate-200 text-slate-500 hover:border-green-200'
-                  }`}
-                >
-                  <Sprout size={20} /> 農民
-                </button>
-                <button 
-                  onClick={() => setIdentity('labor')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${
-                    identity === 'labor' 
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold' 
-                    : 'border-slate-200 text-slate-500 hover:border-blue-200'
-                  }`}
-                >
-                  <Briefcase size={20} /> 勞工
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">月投保薪資 (元)</label>
-                <div className="relative">
-                  <input 
-                    type="number" 
-                    value={identity === 'farmer' ? FARMER_INSURED_SALARY : salary}
-                    onChange={(e) => setSalary(Number(e.target.value))}
-                    disabled={identity === 'farmer'}
-                    className={`w-full p-3 rounded-lg border ${identity === 'farmer' ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-white border-blue-300 text-slate-900 font-bold'}`}
-                  />
-                  {identity === 'farmer' && (
-                    <span className="absolute right-3 top-3 text-xs text-slate-400">農職保固定金額</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 2. 事件設定 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
-                發生什麼事？
-              </h2>
-
-              <div className="flex gap-2 mb-4">
-                <button 
-                  onClick={() => setIncidentType('injury')}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    incidentType === 'injury' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  職業傷害 (受傷)
-                </button>
-                <button 
-                  onClick={() => setIncidentType('disease')}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    incidentType === 'disease' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  職業病 (生病)
-                </button>
-              </div>
-
-              {/* 農民職業病選單 */}
-              {identity === 'farmer' && incidentType === 'disease' && (
-                <div className="mb-4 animate-fadeIn">
-                  <label className="text-sm font-medium text-green-700 mb-1 block">農民職業病 (法定8大類正面表列)</label>
-                  <select 
-                    className="w-full p-2 border border-green-300 rounded-lg text-sm bg-green-50 focus:ring-2 focus:ring-green-500"
-                    value={farmerDiseaseType}
-                    onChange={(e) => setFarmerDiseaseType(e.target.value)}
-                  >
-                    <option value="">請選擇...</option>
-                    {farmerDiseases.map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
-                  
-                  {/* 為什麼只有8種的說明 */}
-                  <div className="mt-2 p-2 bg-green-50 rounded border border-green-100 text-xs text-green-800">
-                    <p className="font-bold flex items-center gap-1"><Info size={12}/> 為什麼農民只有這幾種？</p>
-                    <p className="mt-1">
-                      農民職災保險採<strong>「正面表列」</strong>制。為了讓農民能「快速獲得理賠」，政府直接列出這8類與農業最直接相關的病。只要診斷符合，審核速度非常快。
-                    </p>
-                  </div>
-
-                  {farmerDiseaseType && (
-                    <div className="mt-2 text-xs p-2 bg-yellow-50 text-yellow-800 rounded border border-yellow-200 flex items-start gap-2">
-                      <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
-                      <span>{farmerDiseases.find(d => d.id === farmerDiseaseType)?.note || '此項目符合農民職災保險給付規定。'}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 勞工職業病選單 (更新版：包含共通分類) */}
-              {identity === 'labor' && incidentType === 'disease' && (
-                <div className="mb-4 animate-fadeIn">
-                  <label className="text-sm font-medium text-blue-700 mb-1 block">勞工職業病種類 (含農勞共通項目)</label>
-                  <select 
-                    className="w-full p-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500"
-                    value={laborDiseaseType}
-                    onChange={(e) => setLaborDiseaseType(e.target.value)}
-                  >
-                    <option value="">請選擇...</option>
-                    <optgroup label="--- 與農民共通之職業病 ---">
-                      {laborDiseases.filter(d => d.group === '農勞共通').map(d => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="--- 勞工一般分類 ---">
-                      {laborDiseases.filter(d => d.group === '一般分類').map(d => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
-                      ))}
-                    </optgroup>
-                  </select>
-
-                  <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-100 text-xs text-blue-800">
-                    <p className="font-bold flex items-center gap-1"><Scale size={12}/> 勞工職業病範圍較大？</p>
-                    <p className="mt-1">
-                      勞保採<strong>「概括主義」</strong>。除了表列的170多項，只要能證明「疾病與工作有因果關係」都可能被認定。但缺點是審核時間長，舉證責任較重。
-                    </p>
-                  </div>
-
-                  {laborDiseaseType ? (
-                     <div className="mt-2 text-xs p-2 bg-blue-50 text-blue-800 rounded border border-blue-200 flex items-start gap-2">
-                      <Info size={14} className="mt-0.5 flex-shrink-0" />
-                      <span>{laborDiseases.find(d => d.id === laborDiseaseType)?.note}</span>
-                    </div>
-                  ) : (
-                    <div className="mt-2 text-xs text-slate-500">
-                      * 點選上方「農勞共通」項目，可比較同一種病在不同身分下的給付差異。
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div>
-                  <label className="flex justify-between text-sm font-medium text-slate-700 mb-1">
-                    不能工作之休養天數
-                    <span className="text-blue-600 font-bold">{restDays} 天</span>
-                  </label>
-                  <input 
-                    type="range" min="4" max="365" value={restDays} 
-                    onChange={(e) => setRestDays(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                  />
-                  <p className="text-xs text-slate-500 mt-1">包含住院與門診休養期間 (需醫師證明)</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-slate-700 block mb-1">門診次數</label>
-                    <input type="number" min="0" value={outpatientDays} onChange={(e) => setOutpatientDays(Number(e.target.value))} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-slate-700 block mb-1">住院天數</label>
-                    <input type="number" min="0" value={inpatientDays} onChange={(e) => setInpatientDays(Number(e.target.value))} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Right Column: Results (8/12) */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* 結果卡片 */}
-            <div className={`rounded-xl shadow-lg border-t-8 overflow-hidden ${identity === 'farmer' ? 'border-green-500 bg-white' : 'border-blue-500 bg-white'}`}>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-slate-500 text-sm font-medium uppercase tracking-wider">預估總給付金額</h3>
-                    <div className="text-4xl font-extrabold text-slate-900 mt-2">
-                      {identity === 'farmer' 
-                        ? `$ ${(result.injuryBenefit + result.medicalBenefit).toLocaleString()}` 
-                        : `$ ${(result.injuryBenefit).toLocaleString()}`
-                      }
-                      <span className="text-lg text-slate-500 font-normal ml-2">元</span>
-                    </div>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${identity === 'farmer' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                    {identity === 'farmer' ? '農民職業災害保險' : '勞工職業災害保險'}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* 左：傷病給付 */}
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                    <h4 className="font-bold text-slate-700 flex items-center gap-2 mb-2">
-                      <Activity size={18} className="text-red-500" />
-                      傷病給付 (薪資補償)
-                    </h4>
-                    <p className="text-2xl font-bold text-slate-800">{result.injuryBenefit.toLocaleString()} <span className="text-sm text-slate-500">元</span></p>
-                    <p className="text-xs text-slate-500 mt-1">不能工作期間的收入填補</p>
-                  </div>
-
-                  {/* 右：醫療給付 */}
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                    <h4 className="font-bold text-slate-700 flex items-center gap-2 mb-2">
-                      <Stethoscope size={18} className="text-indigo-500" />
-                      醫療給付 (看病補助)
-                    </h4>
-                    <p className="text-xl font-bold text-slate-800">{result.medicalText}</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {identity === 'farmer' ? '包含門診與住院津貼' : '就醫時直接減免費用'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 詳細計算過程 Toggle */}
-              <div className="bg-slate-100 p-4 border-t border-slate-200">
-                <button 
-                  onClick={() => setShowFormula(!showFormula)}
-                  className="w-full flex items-center justify-between text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  <span className="flex items-center gap-2 font-medium">
-                    <Info size={18} />
-                    {showFormula ? '收起詳細算法與法源' : '怎麼算出來的？點我看公式與法源'}
-                  </span>
-                  <span className="text-xs text-slate-400">{showFormula ? '▲' : '▼'}</span>
-                </button>
+            <!-- 左側：輸入區 (佔 5/12) -->
+            <div class="lg:col-span-5 space-y-6">
                 
-                {showFormula && (
-                  <div className="mt-4 space-y-4 animate-slideDown">
+                <!-- 1. 身分選擇 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
+                        選擇身分與薪資
+                    </h2>
                     
-                    {/* 傷病給付詳情 */}
-                    <div className="p-3 bg-white rounded border border-slate-200 text-sm space-y-2">
-                      <div className="flex justify-between items-center border-b pb-1">
-                        <p className="font-bold text-slate-800 flex items-center gap-2"><Activity size={14} /> 1. 傷病給付算法</p>
-                        <span className="text-xs text-slate-400 font-mono">{result.lawReference.injury}</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-[80px_1fr] gap-2 text-slate-600">
+                    <div class="flex gap-2 mb-4">
+                        <button id="btn-farmer" class="flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all font-bold" onclick="setIdentity('farmer')">
+                            <i data-lucide="sprout"></i> 農民
+                        </button>
+                        <button id="btn-labor" class="flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all" onclick="setIdentity('labor')">
+                            <i data-lucide="briefcase"></i> 勞工
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-700">月投保薪資 (元)</label>
+                        <div class="relative">
+                            <input type="number" id="input-salary" class="w-full p-3 rounded-lg border bg-slate-100 text-slate-500 border-slate-200" value="20400" disabled oninput="updateCalculation()">
+                            <span id="salary-hint" class="absolute right-3 top-3 text-xs text-slate-400">農職保固定金額</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 事件設定 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
+                        發生什麼事？
+                    </h2>
+
+                    <div class="flex gap-2 mb-4">
+                        <button id="btn-injury" class="flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-800 text-white" onclick="setIncidentType('injury')">
+                            職業傷害 (受傷)
+                        </button>
+                        <button id="btn-disease" class="flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200" onclick="setIncidentType('disease')">
+                            職業病 (生病)
+                        </button>
+                    </div>
+
+                    <!-- 職業病選單區塊 (動態顯示) -->
+                    <div id="disease-section" class="mb-4 hidden fade-in">
+                        <label id="disease-label" class="text-sm font-medium mb-1 block">請選擇病症</label>
+                        <select id="select-disease" class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" onchange="updateDiseaseNote()">
+                            <option value="">請選擇...</option>
+                        </select>
+                        
+                        <!-- 農民專屬說明 -->
+                        <div id="farmer-disease-info" class="mt-2 p-2 bg-green-50 rounded border border-green-100 text-xs text-green-800 hidden">
+                            <p class="font-bold flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> 為什麼農民只有這幾種？</p>
+                            <p class="mt-1">農民職災保險採<strong>「正面表列」</strong>制，只要符合清單，審核速度快且明確。</p>
+                        </div>
+                        
+                        <!-- 勞工專屬說明 -->
+                        <div id="labor-disease-info" class="mt-2 p-2 bg-blue-50 rounded border border-blue-100 text-xs text-blue-800 hidden">
+                            <p class="font-bold flex items-center gap-1"><i data-lucide="scale" class="w-3 h-3"></i> 勞工職業病範圍較大？</p>
+                            <p class="mt-1">勞保採<strong>「概括主義」</strong>，除了表列項目，只要證明因果關係皆可申請，但舉證較難。</p>
+                        </div>
+
+                        <!-- 警語/備註 -->
+                        <div id="disease-note" class="mt-2 text-xs p-2 rounded border flex items-start gap-2 hidden">
+                            <i data-lucide="alert-triangle" class="w-3 h-3 mt-0.5 shrink-0"></i>
+                            <span id="disease-note-text"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                                不能工作之休養天數
+                                <span class="text-blue-600 font-bold"><span id="display-rest-days">30</span> 天</span>
+                            </label>
+                            <input type="range" id="range-rest-days" min="4" max="365" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateCalculation()">
+                            <p class="text-xs text-slate-500 mt-1">包含住院與門診休養期間 (需醫師證明)</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 block mb-1">門診次數</label>
+                                <input type="number" id="input-outpatient" min="0" value="5" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" oninput="updateCalculation()">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 block mb-1">住院天數</label>
+                                <input type="number" id="input-inpatient" min="0" value="0" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" oninput="updateCalculation()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：結果區 (佔 7/12) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- 結果卡片 -->
+                <div id="result-card" class="rounded-xl shadow-lg border-t-8 overflow-hidden bg-white border-green-500">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-slate-500 text-sm font-medium uppercase tracking-wider">預估總給付金額</h3>
+                                <div class="text-4xl font-extrabold text-slate-900 mt-2">
+                                    $<span id="total-amount">0</span>
+                                    <span class="text-lg text-slate-500 font-normal ml-2">元</span>
+                                </div>
+                            </div>
+                            <div id="badge-identity" class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                農民職業災害保險
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 左：傷病給付 -->
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <h4 class="font-bold text-slate-700 flex items-center gap-2 mb-2">
+                                    <i data-lucide="activity" class="text-red-500 w-4 h-4"></i>
+                                    傷病給付 (薪資補償)
+                                </h4>
+                                <p class="text-2xl font-bold text-slate-800"><span id="injury-amount">0</span> <span class="text-sm text-slate-500">元</span></p>
+                                <p class="text-xs text-slate-500 mt-1">不能工作期間的收入填補</p>
+                            </div>
+
+                            <!-- 右：醫療給付 -->
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <h4 class="font-bold text-slate-700 flex items-center gap-2 mb-2">
+                                    <i data-lucide="stethoscope" class="text-indigo-500 w-4 h-4"></i>
+                                    醫療給付 (看病補助)
+                                </h4>
+                                <p id="medical-text" class="text-xl font-bold text-slate-800">現金津貼 0 元</p>
+                                <p id="medical-subtext" class="text-xs text-slate-500 mt-1">包含門診與住院津貼</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 詳細計算過程 Toggle -->
+                    <div class="bg-slate-100 p-4 border-t border-slate-200">
+                        <button onclick="toggleFormula()" class="w-full flex items-center justify-between text-slate-600 hover:text-slate-900 transition-colors">
+                            <span class="flex items-center gap-2 font-medium">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                                <span id="formula-toggle-text">怎麼算出來的？點我看公式與法源</span>
+                            </span>
+                            <span class="text-xs text-slate-400">▼</span>
+                        </button>
+                        
+                        <div id="formula-content" class="mt-4 space-y-4 hidden fade-in">
+                            <!-- 這裡會由 JS 動態填入 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 法規與資訊卡片 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="book-open" class="text-slate-600 w-5 h-5"></i>
+                        法規依據與小知識
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                            <div class="bg-green-100 text-green-600 p-2 rounded shrink-0">
+                                <i data-lucide="sprout" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">農民職業災害保險</h4>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    給付依據：《農民職業災害保險給付辦法》第4條(傷病)、第13條(醫療)。<br>
+                                    職業病認定：<span class="text-green-700 font-bold">正面表列制</span>，需符合《農民職業災害保險職業傷病審查辦法》第9條。
+                                </p>
+                                <a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0060084" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-2">
+                                    查看詳細法規 <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                            <div class="bg-blue-100 text-blue-600 p-2 rounded shrink-0">
+                                <i data-lucide="briefcase" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">勞工職業災害保險</h4>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    給付依據：《勞工職業災害保險及保護法》第42條(傷病)、第38條(醫療)。<br>
+                                    職業病認定：<span class="text-blue-700 font-bold">概括主義</span>，包含表列及經鑑定之疾病 (種類表)。
+                                </p>
+                                <a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-2">
+                                    查看詳細法規 <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 border-l-4 border-yellow-400 bg-yellow-50 text-xs text-yellow-800">
+                        <strong>免責聲明：</strong> 此試算結果僅供參考，實際給付金額與核定結果以勞保局最終審核為準。
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // --- 1. 資料與常數 ---
+        const FARMER_INSURED_SALARY = 20400;
+        const FARMER_DAILY_RATE = 680;
+        const FARMER_OUTPATIENT_SUBSIDY = 50; 
+        const FARMER_INPATIENT_SUBSIDY = 900; 
+
+        const farmerDiseases = [
+            { id: 'pesticide', name: '1. 農藥中毒、甲醛中毒', warning: false },
+            { id: 'heat', name: '2. 中暑、熱痙攣或熱衰竭', warning: false },
+            { id: 'cold', name: '3. 低溫作業引發之凍傷、失溫', warning: false },
+            { id: 'uv', name: '4. 紫外線引發之皮膚癌', warning: false },
+            { id: 'bio', name: '5. 生物性危害 (黴菌角膜炎、恙蟲病等)', warning: false },
+            { id: 'joint', name: '6. 長期壓迫引發之關節滑囊病變', warning: true, note: '⚠️ 需醫師診斷證明長期壓迫' },
+            { id: 'finger', name: '7. 手指骨關節炎導致手指變形', warning: true, note: '⚠️ 需符合長期負重操作認定' },
+            { id: 'waist', name: '8. 腰椎間盤突出 (新增項目)', warning: true, note: '⚠️ 認定嚴格，需職業醫學科專科醫師評估' },
+            { id: 'other', name: '不在上述列表中', warning: true, note: '⛔️ 需經由專案認定，難度較高' }
+        ];
+
+        const laborDiseases = [
+            { id: 'common_heat', group: '農勞共通', name: '★ 中暑/熱衰竭 (同農民項目2)', note: '勞工歸類於「物理性危害」。戶外作業勞工適用。' },
+            { id: 'common_pesticide', group: '農勞共通', name: '★ 農藥/化學中毒 (同農民項目1)', note: '勞工歸類於「化學性危害」。噴灑農藥之受雇勞工適用。' },
+            { id: 'common_waist', group: '農勞共通', name: '★ 腰椎間盤突出 (同農民項目8)', note: '勞工歸類於「人因性危害」。需經職業醫學科評估工作負荷。' },
+            { id: 'common_bio', group: '農勞共通', name: '★ 恙蟲病/蜂螫 (同農民項目5)', note: '勞工歸類於「生物性危害」。野外作業勞工適用。' },
+            { id: 'chemical', group: '一般分類', name: '第1類：化學性危害 (粉塵、有機溶劑)', note: '常見於裝修、化工、清潔業。需注意物質安全資料表(SDS)。' },
+            { id: 'physical', group: '一般分類', name: '第2類：物理性危害 (噪音、輻射)', note: '常見於營造、航空、潛水作業。需有環境監測紀錄佐證。' },
+            { id: 'biological', group: '一般分類', name: '第3類：生物性危害 (病毒、細菌)', note: '常見於醫療人員、畜牧業。需證明接觸史。' },
+            { id: 'ergonomic', group: '一般分類', name: '第4類：人因性危害 (長期負重)', note: '⚠️ 爭議最多。需評估工作姿勢與時間。' },
+            { id: 'cancer', group: '一般分類', name: '職業性癌症', note: '潛伏期長，需證明長期暴露於致癌物質。' },
+            { id: 'other', group: '一般分類', name: '其他 (精神疾病、腦心血管疾病等)', note: '認定門檻極高，需證明與工作壓力之因果關係。' }
+        ];
+
+        // --- 2. 狀態變數 ---
+        let currentIdentity = 'farmer'; // 'farmer' or 'labor'
+        let currentIncident = 'injury'; // 'injury' or 'disease'
+        let isFormulaVisible = false;
+
+        // --- 3. 初始化 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            setIdentity('farmer'); // 預設農民
+            updateCalculation();
+        });
+
+        // --- 4. 互動邏輯 ---
+
+        function setIdentity(identity) {
+            currentIdentity = identity;
+            const btnFarmer = document.getElementById('btn-farmer');
+            const btnLabor = document.getElementById('btn-labor');
+            const inputSalary = document.getElementById('input-salary');
+            const resultCard = document.getElementById('result-card');
+            const badge = document.getElementById('badge-identity');
+            const salaryHint = document.getElementById('salary-hint');
+
+            // 樣式切換
+            if (identity === 'farmer') {
+                // 按鈕樣式
+                btnFarmer.className = "flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all font-bold border-green-500 bg-green-50 text-green-700";
+                btnLabor.className = "flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all border-slate-200 text-slate-500 hover:border-green-200";
+                
+                // 薪資輸入框鎖定
+                inputSalary.value = FARMER_INSURED_SALARY;
+                inputSalary.disabled = true;
+                inputSalary.className = "w-full p-3 rounded-lg border bg-slate-100 text-slate-500 border-slate-200";
+                salaryHint.classList.remove('hidden');
+
+                // 結果卡片主題
+                resultCard.className = "rounded-xl shadow-lg border-t-8 overflow-hidden bg-white border-green-500";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700";
+                badge.innerText = "農民職業災害保險";
+            } else {
+                // 按鈕樣式
+                btnFarmer.className = "flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all border-slate-200 text-slate-500 hover:border-blue-200";
+                btnLabor.className = "flex-1 py-3 px-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all font-bold border-blue-500 bg-blue-50 text-blue-700";
+
+                // 薪資輸入框開啟
+                inputSalary.value = 45800; // 勞工預設
+                inputSalary.disabled = false;
+                inputSalary.className = "w-full p-3 rounded-lg border bg-white border-blue-300 text-slate-900 font-bold";
+                salaryHint.classList.add('hidden');
+
+                // 結果卡片主題
+                resultCard.className = "rounded-xl shadow-lg border-t-8 overflow-hidden bg-white border-blue-500";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700";
+                badge.innerText = "勞工職業災害保險";
+            }
+
+            // 更新職業病選單內容
+            updateDiseaseOptions();
+            updateCalculation();
+        }
+
+        function setIncidentType(type) {
+            currentIncident = type;
+            const btnInjury = document.getElementById('btn-injury');
+            const btnDisease = document.getElementById('btn-disease');
+            const diseaseSection = document.getElementById('disease-section');
+
+            if (type === 'injury') {
+                btnInjury.className = "flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-800 text-white";
+                btnDisease.className = "flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200";
+                diseaseSection.classList.add('hidden');
+            } else {
+                btnInjury.className = "flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200";
+                btnDisease.className = "flex-1 py-2 rounded-lg text-sm font-medium transition-colors bg-slate-800 text-white";
+                diseaseSection.classList.remove('hidden');
+                updateDiseaseOptions(); // 確保顯示正確的清單
+            }
+            updateCalculation();
+        }
+
+        function updateDiseaseOptions() {
+            const select = document.getElementById('select-disease');
+            const label = document.getElementById('disease-label');
+            const farmerInfo = document.getElementById('farmer-disease-info');
+            const laborInfo = document.getElementById('labor-disease-info');
+            const diseaseNote = document.getElementById('disease-note');
+            
+            select.innerHTML = '<option value="">請選擇...</option>';
+            diseaseNote.classList.add('hidden');
+
+            if (currentIdentity === 'farmer') {
+                label.innerText = "農民職業病 (法定8大類正面表列)";
+                label.className = "text-sm font-medium mb-1 block text-green-700";
+                select.className = "w-full p-2 border border-green-300 rounded-lg text-sm bg-green-50 focus:ring-2 focus:ring-green-500";
+                
+                farmerDiseases.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.text = d.name;
+                    select.appendChild(opt);
+                });
+                
+                farmerInfo.classList.remove('hidden');
+                laborInfo.classList.add('hidden');
+
+            } else {
+                label.innerText = "勞工職業病種類 (含農勞共通項目)";
+                label.className = "text-sm font-medium mb-1 block text-blue-700";
+                select.className = "w-full p-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500";
+
+                // Group: Common
+                const groupCommon = document.createElement('optgroup');
+                groupCommon.label = "--- 與農民共通之職業病 ---";
+                laborDiseases.filter(d => d.group === '農勞共通').forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.text = d.name;
+                    groupCommon.appendChild(opt);
+                });
+                select.appendChild(groupCommon);
+
+                // Group: General
+                const groupGeneral = document.createElement('optgroup');
+                groupGeneral.label = "--- 勞工一般分類 ---";
+                laborDiseases.filter(d => d.group === '一般分類').forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.text = d.name;
+                    groupGeneral.appendChild(opt);
+                });
+                select.appendChild(groupGeneral);
+
+                farmerInfo.classList.add('hidden');
+                laborInfo.classList.remove('hidden');
+            }
+        }
+
+        function updateDiseaseNote() {
+            const select = document.getElementById('select-disease');
+            const noteDiv = document.getElementById('disease-note');
+            const noteText = document.getElementById('disease-note-text');
+            const val = select.value;
+
+            if (!val) {
+                noteDiv.classList.add('hidden');
+                return;
+            }
+
+            let diseaseObj;
+            if (currentIdentity === 'farmer') {
+                diseaseObj = farmerDiseases.find(d => d.id === val);
+                noteDiv.className = "mt-2 text-xs p-2 rounded border flex items-start gap-2 bg-yellow-50 text-yellow-800 border-yellow-200";
+            } else {
+                diseaseObj = laborDiseases.find(d => d.id === val);
+                noteDiv.className = "mt-2 text-xs p-2 rounded border flex items-start gap-2 bg-blue-50 text-blue-800 border-blue-200";
+            }
+
+            if (diseaseObj && diseaseObj.note) {
+                noteText.innerText = diseaseObj.note;
+                noteDiv.classList.remove('hidden');
+            } else {
+                // 農民若無 note 表示符合
+                if(currentIdentity === 'farmer') {
+                     noteText.innerText = "此項目符合農民職災保險給付規定。";
+                     noteDiv.classList.remove('hidden');
+                } else {
+                    noteDiv.classList.add('hidden');
+                }
+            }
+            lucide.createIcons(); // 重繪 icon
+        }
+
+        // --- 5. 核心計算 ---
+        function updateCalculation() {
+            // 讀取數值
+            const salary = parseInt(document.getElementById('input-salary').value) || 0;
+            const restDays = parseInt(document.getElementById('range-rest-days').value) || 0;
+            const outpatientDays = parseInt(document.getElementById('input-outpatient').value) || 0;
+            const inpatientDays = parseInt(document.getElementById('input-inpatient').value) || 0;
+
+            // 更新 UI 顯示 (天數)
+            document.getElementById('display-rest-days').innerText = restDays;
+
+            // 計算基礎
+            let salaryBase = currentIdentity === 'farmer' ? FARMER_INSURED_SALARY : salary;
+            let dailySalary = Math.floor(salaryBase / 30);
+            
+            // 1. 傷病給付
+            const waitingDays = 3;
+            const paidDays = Math.max(0, restDays - waitingDays);
+            const phase1Days = Math.min(paidDays, 57); // 60-3
+            const phase2Days = Math.max(0, paidDays - 57);
+
+            let phase1Rate = currentIdentity === 'farmer' ? FARMER_DAILY_RATE : dailySalary;
+            let phase2Rate = currentIdentity === 'farmer' ? Math.floor(FARMER_DAILY_RATE * 0.7) : Math.floor(dailySalary * 0.7);
+
+            let phase1Total = phase1Days * phase1Rate;
+            let phase2Total = phase2Days * phase2Rate;
+            let injuryBenefit = phase1Total + phase2Total;
+
+            // 2. 醫療給付
+            let medicalBenefit = 0;
+            let medicalText = "";
+            let medicalSubtext = "";
+            let medicalFormulaStr = "";
+            let lawRefInjury = "";
+            let lawRefMedical = "";
+
+            if (currentIdentity === 'farmer') {
+                medicalBenefit = (outpatientDays * FARMER_OUTPATIENT_SUBSIDY) + (inpatientDays * FARMER_INPATIENT_SUBSIDY);
+                medicalText = `現金津貼 ${medicalBenefit.toLocaleString()} 元`;
+                medicalSubtext = "包含門診與住院津貼";
+                medicalFormulaStr = `( 門診 ${outpatientDays} 天 × $${FARMER_OUTPATIENT_SUBSIDY} ) + ( 住院 ${inpatientDays} 天 × $${FARMER_INPATIENT_SUBSIDY} ) = $${medicalBenefit.toLocaleString()}`;
+                
+                lawRefInjury = "依據《農民職業災害保險給付辦法》第4條";
+                lawRefMedical = "依據《農民職業災害保險給付辦法》第13條";
+            } else {
+                medicalBenefit = 0; // 勞工是實物給付
+                medicalText = "免繳部分負擔 + 膳食補助";
+                medicalSubtext = "就醫時直接減免費用";
+                medicalFormulaStr = "掛號費(依醫院規定) + 健保部分負擔(門診20%/住院10-30%) = 全額減免 (由勞保局支付)";
+                
+                lawRefInjury = "依據《勞工職業災害保險及保護法》第42條";
+                lawRefMedical = "依據《勞工職業災害保險及保護法》第38條";
+            }
+
+            // 更新結果 UI
+            document.getElementById('injury-amount').innerText = injuryBenefit.toLocaleString();
+            document.getElementById('medical-text').innerText = medicalText;
+            document.getElementById('medical-subtext').innerText = medicalSubtext;
+            document.getElementById('total-amount').innerText = (injuryBenefit + medicalBenefit).toLocaleString();
+
+            // 生成詳細公式 HTML
+            const formulaHTML = `
+                <div class="p-3 bg-white rounded border border-slate-200 text-sm space-y-2">
+                    <div class="flex justify-between items-center border-b pb-1">
+                        <p class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="activity" class="w-3 h-3"></i> 1. 傷病給付算法</p>
+                        <span class="text-xs text-slate-400 font-mono">${lawRefInjury}</span>
+                    </div>
+                    <div class="grid grid-cols-[80px_1fr] gap-2 text-slate-600">
                         <span>基礎：</span>
-                        <span>{identity === 'farmer' ? '固定月投保金額 20,400元' : `月投保薪資 ${salary.toLocaleString()}元`} (日額 {result.dailySalary}元)</span>
+                        <span>${currentIdentity === 'farmer' ? '固定月投保金額 20,400元' : `月投保薪資 ${salary.toLocaleString()}元`} (日額 ${dailySalary}元)</span>
                         
                         <span>前3天：</span>
-                        <span className="text-slate-400">等待期 (0元)</span>
+                        <span class="text-slate-400">等待期 (0元)</span>
                         
                         <span>第4~60天：</span>
                         <span>
-                          {result.phase1Days} 天 × {result.phase1Rate} 元 (100%) = 
-                          <span className="font-bold text-slate-800 ml-1">{(result.phase1Total).toLocaleString()}</span>
+                            ${phase1Days} 天 × ${phase1Rate} 元 (100%) = 
+                            <span class="font-bold text-slate-800 ml-1">${phase1Total.toLocaleString()}</span>
                         </span>
                         
-                        {result.phase2Days > 0 && (
-                          <>
-                            <span>第61天起：</span>
-                            <span>
-                              {result.phase2Days} 天 × {result.phase2Rate} 元 (70%) = 
-                              <span className="font-bold text-slate-800 ml-1">{(result.phase2Total).toLocaleString()}</span>
-                            </span>
-                          </>
-                        )}
+                        ${phase2Days > 0 ? `
+                        <span>第61天起：</span>
+                        <span>
+                            ${phase2Days} 天 × ${phase2Rate} 元 (70%) = 
+                            <span class="font-bold text-slate-800 ml-1">${phase2Total.toLocaleString()}</span>
+                        </span>` : ''}
                         
-                        <span className="font-bold text-blue-600 border-t pt-1">總計：</span>
-                        <span className="font-bold text-blue-600 border-t pt-1">{result.injuryBenefit.toLocaleString()} 元</span>
-                      </div>
+                        <span class="font-bold text-blue-600 border-t pt-1">總計：</span>
+                        <span class="font-bold text-blue-600 border-t pt-1">${injuryBenefit.toLocaleString()} 元</span>
                     </div>
-
-                    {/* 醫療給付詳情 */}
-                    <div className="p-3 bg-white rounded border border-slate-200 text-sm space-y-2">
-                      <div className="flex justify-between items-center border-b pb-1">
-                        <p className="font-bold text-slate-800 flex items-center gap-2"><Stethoscope size={14} /> 2. 醫療給付算法</p>
-                        <span className="text-xs text-slate-400 font-mono">{result.lawReference.medical}</span>
-                      </div>
-
-                      <div className="text-slate-600">
-                        {identity === 'farmer' ? (
-                          <>
-                            <p className="mb-2 text-xs bg-green-50 text-green-800 p-1 rounded">農民採「現金津貼」，算式如下：</p>
-                            <p className="font-mono text-sm bg-slate-50 p-2 rounded border border-slate-100">
-                              {result.medicalFormula}
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="mb-2 text-xs bg-blue-50 text-blue-800 p-1 rounded">勞工採「實物給付」(直接減免)，計算原理如下：</p>
-                            <p className="font-mono text-sm bg-slate-50 p-2 rounded border border-slate-100">
-                              {result.medicalFormula}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-2">
-                              * 也就是說，您原本要付給醫院的這些錢，全部由保險支付，這筆省下來的錢就是您的醫療給付金額。
-                            </p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 法規與資訊卡片 */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <BookOpen size={20} className="text-slate-600" />
-                法規依據與小知識
-              </h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="bg-green-100 text-green-600 p-2 rounded shrink-0">
-                    <Sprout size={16} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-slate-800">農民職業災害保險</h4>
-                    <p className="text-xs text-slate-600 mt-1">
-                      給付依據：《農民職業災害保險給付辦法》第4條(傷病)、第13條(醫療)。<br/>
-                      職業病認定：<span className="text-green-700 font-bold">正面表列制</span>，需符合《農民職業災害保險職業傷病審查辦法》第9條。
-                    </p>
-                    <a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=M0060084" target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-2">
-                      查看詳細法規 <ExternalLink size={10} />
-                    </a>
-                  </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="bg-blue-100 text-blue-600 p-2 rounded shrink-0">
-                    <Briefcase size={16} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-slate-800">勞工職業災害保險</h4>
-                    <p className="text-xs text-slate-600 mt-1">
-                      給付依據：《勞工職業災害保險及保護法》第42條(傷病)、第38條(醫療)。<br/>
-                      職業病認定：<span className="text-blue-700 font-bold">概括主義</span>，包含表列及經鑑定之疾病 (種類表)。
-                    </p>
-                    <a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031" target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-2">
-                      查看詳細法規 <ExternalLink size={10} />
-                    </a>
-                  </div>
+                <div class="p-3 bg-white rounded border border-slate-200 text-sm space-y-2">
+                    <div class="flex justify-between items-center border-b pb-1">
+                        <p class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="stethoscope" class="w-3 h-3"></i> 2. 醫療給付算法</p>
+                        <span class="text-xs text-slate-400 font-mono">${lawRefMedical}</span>
+                    </div>
+                    <div class="text-slate-600">
+                        ${currentIdentity === 'farmer' ? 
+                        `<p class="mb-2 text-xs bg-green-50 text-green-800 p-1 rounded">農民採「現金津貼」，算式如下：</p>` : 
+                        `<p class="mb-2 text-xs bg-blue-50 text-blue-800 p-1 rounded">勞工採「實物給付」(直接減免)，計算原理如下：</p>`}
+                        
+                        <p class="font-mono text-sm bg-slate-50 p-2 rounded border border-slate-100">${medicalFormulaStr}</p>
+                        
+                        ${currentIdentity === 'labor' ? `<p class="text-xs text-slate-500 mt-2">* 也就是說，您原本要付給醫院的這些錢，全部由保險支付，這筆省下來的錢就是您的醫療給付金額。</p>` : ''}
+                    </div>
                 </div>
-              </div>
+            `;
+            
+            document.getElementById('formula-content').innerHTML = formulaHTML;
+            if(isFormulaVisible) lucide.createIcons(); // 如果展開中，重繪 icons
+        }
 
-              <div className="mt-4 p-3 border-l-4 border-yellow-400 bg-yellow-50 text-xs text-yellow-800">
-                <strong>免責聲明：</strong> 此試算結果僅供參考，實際給付金額與核定結果以勞保局最終審核為準。
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default OccupationalInsuranceApp;
+        function toggleFormula() {
+            const content = document.getElementById('formula-content');
+            const btnText = document.getElementById('formula-toggle-text');
+            isFormulaVisible = !isFormulaVisible;
+            
+            if (isFormulaVisible) {
+                content.classList.remove('hidden');
+                btnText.innerText = '收起詳細算法與法源';
+                lucide.createIcons();
+            } else {
+                content.classList.add('hidden');
+                btnText.innerText = '怎麼算出來的？點我看公式與法源';
+            }
+        }
+    </script>
+</body>
+</html>
