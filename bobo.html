@@ -30,15 +30,13 @@
         .body-btn:hover { transform: scale(1.1); }
         .body-btn.active { background-color: #10b981; color: white; border-color: #059669; box-shadow: 0 0 0 4px #a7f3d0; }
 
-        /* Hero 背景紋理 */
         .hero-bg {
             background-image:
                 radial-gradient(circle at 0 0, rgba(16,185,129,0.25), transparent 55%),
-                radial-gradient(circle at 100% 0, rgba(59,130,246,0.22), transparent 55%);
+                radial-gradient(circle at 100% 0, rgba(59,130,246,0.18), transparent 55%);
         }
-        /* 卡片點點紋理 */
         .card-pattern {
-            background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,0.18) 1px, transparent 0);
+            background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,0.12) 1px, transparent 0);
             background-size: 18px 18px;
         }
     </style>
@@ -166,9 +164,9 @@
         };
 
         const visualCards = [
-            { id: 1, title: "防護衣穿脫順序", tag: "避免二次沾染", color: "bg-blue-600", content: "脫手套前要先沖水，避免農藥沾到內層衣物。" },
-            { id: 2, title: "正確搬運姿勢", tag: "保護腰椎", color: "bg-emerald-600", content: "重物要貼近身體，利用大腿力量站起，腰背挺直。" },
-            { id: 3, title: "預防熱衰竭", tag: "夏季保命", color: "bg-orange-500", content: "每20分鐘喝一杯水，不要等到口渴才喝。" }
+            { id: 1, title: "防護衣穿脫順序", tag: "避免二次沾染", color: "bg-emerald-700", content: "脫手套前要先沖水，避免農藥沾到內層衣物。" },
+            { id: 2, title: "正確搬運姿勢", tag: "保護腰椎", color: "bg-lime-700", content: "重物要貼近身體，利用大腿力量站起，腰背挺直。" },
+            { id: 3, title: "預防熱衰竭", tag: "夏季保命", color: "bg-amber-500", content: "每20分鐘喝一杯水，不要等到口渴才喝。" }
         ];
 
         const bodyMapData = {
@@ -218,7 +216,7 @@
                 id: 'machine',
                 title: '農機具安全',
                 icon: <Tractor/>,
-                color: 'blue',
+                theme: 'blue',
                 items: [
                     "轉動軸是否有黃色護蓋？",
                     "是否有防翻覆保護架 (ROPS)？",
@@ -230,7 +228,7 @@
                 id: 'chem',
                 title: '化學品管理',
                 icon: <FlaskConical/>,
-                color: 'purple',
+                theme: 'purple',
                 items: [
                     "農藥櫃是否上鎖，且遠離兒童？",
                     "農藥是否有清楚的分類與標示？",
@@ -242,7 +240,7 @@
                 id: 'env',
                 title: '作業環境',
                 icon: <Sun/>,
-                color: 'orange',
+                theme: 'amber',
                 items: [
                     "是否有高溫休息與補水計畫？",
                     "田間是否有坑洞、電線等危險標示？",
@@ -293,10 +291,10 @@
         const Badge = ({ children, color = "green" }) => {
             const colors = {
                 green: "bg-emerald-100 text-emerald-700",
-                blue: "bg-blue-100 text-blue-700",
+                blue: "bg-sky-100 text-sky-700",
                 purple: "bg-purple-100 text-purple-700",
                 red: "bg-red-100 text-red-700",
-                orange: "bg-orange-100 text-orange-700",
+                orange: "bg-amber-100 text-amber-700",
                 gray: "bg-gray-100 text-gray-700",
                 white: "bg-white/90 text-slate-800"
             };
@@ -343,8 +341,8 @@
         const EmergencyCard = ({ data, type, lang }) => {
             const isHeat = type === 'heat';
             const theme = isHeat
-                ? { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-600', sub: 'text-orange-800' }
-                : { bg: 'bg-red-50', border: 'border-red-600', text: 'text-red-600', sub: 'text-red-800' };
+                ? { bg: 'bg-amber-50', border: 'border-amber-500', text: 'text-amber-600', sub: 'text-amber-800' }
+                : { bg: 'bg-rose-50', border: 'border-rose-600', text: 'text-rose-600', sub: 'text-rose-800' };
             
             const title = isHeat ? lang.redCard.heatTitle : lang.redCard.pestTitle;
             const subtitle = isHeat ? lang.redCard.heatSub : lang.redCard.pestSub;
@@ -426,7 +424,7 @@
                 {/* Hero */}
                 <div className="hero-bg bg-emerald-900 text-white pt-24 pb-32 px-4 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
                     <div className="absolute inset-y-0 right-0 opacity-20 hidden md:block">
-                        <div className="h-full w-64 bg-gradient-to-b from-emerald-500/30 via-transparent to-blue-500/30 blur-3xl"></div>
+                        <div className="h-full w-64 bg-gradient-to-b from-emerald-500/30 via-transparent to-emerald-700/40 blur-3xl"></div>
                     </div>
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
@@ -436,12 +434,11 @@
                                 </div>
                                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight flex flex-wrap items-baseline gap-2">
                                     <span>{lang.title}</span>
-                                    <span className="text-emerald-300 text-2xl md:text-4xl">{lang.subtitle}</span>
+                                    <span className="text-emerald-200 text-2xl md:text-4xl">{lang.subtitle}</span>
                                 </h1>
                             </div>
-                            {/* Alert Widget */}
                             <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-full md:w-auto flex items-center gap-4 text-left shadow-lg">
-                                <div className="bg-orange-500 p-3 rounded-xl text-white shadow-lg animate-pulse">
+                                <div className="bg-amber-500 p-3 rounded-xl text-white shadow-lg animate-pulse">
                                     <Sun size={32} />
                                 </div>
                                 <div>
@@ -466,21 +463,21 @@
                                 title: lang.identity.new,
                                 icon: <Sprout size={32}/>, 
                                 desc: "第一次踏進農業，先搞懂真實風險、收入與身體負擔。", 
-                                color: "from-blue-500 to-sky-500", 
+                                color: "from-emerald-500 to-teal-500", 
                                 page: "newFarmerHub" 
                             },
                             { 
                                 title: lang.identity.young,
                                 icon: <Tractor size={32}/>, 
-                                desc: "正在打拼的青農，用科技與制度減少體力與意外。", 
-                                color: "from-emerald-500 to-teal-500", 
+                                desc: "正在打拼的青農，利用機具與制度減少體力與意外。", 
+                                color: "from-teal-500 to-sky-500", 
                                 page: "youngFarmerHub" 
                             },
                             { 
                                 title: lang.identity.senior,
                                 icon: <Heart size={32}/>, 
-                                desc: "種了一輩子田，該顧好的身體與保障，一樣都不漏。", 
-                                color: "from-orange-500 to-rose-500", 
+                                desc: "種了一輩子田，身體與權益都值得被好好照顧。", 
+                                color: "from-amber-500 to-rose-500", 
                                 page: "seniorFarmerHub" 
                             }
                         ].map((item, i) => (
@@ -494,7 +491,7 @@
                                 </div>
                                 <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
                                 <p className="text-slate-600 mb-6 leading-relaxed text-sm">{item.desc}</p>
-                                <div className="flex items-center text-sm font-bold text-emerald-600 group-hover:text-emerald-700">
+                                <div className="flex items-center text-sm font-bold text-emerald-700 group-hover:text-emerald-900">
                                     {lang.identity.enter}
                                     <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform"/>
                                 </div>
@@ -509,11 +506,11 @@
                     <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-lg">
                         <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
                             <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                                <MessageCircle className="text-blue-600 fill-blue-100"/> {lang.section.forum}
+                                <MessageCircle className="text-emerald-600 fill-emerald-50"/> {lang.section.forum}
                             </h3>
                             <button
                                 onClick={() => setPage('forum')}
-                                className="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full transition-colors"
+                                className="text-sm font-bold text-emerald-700 hover:bg-emerald-50 px-3 py-1 rounded-full transition-colors"
                             >
                                 {lang.section.more}
                             </button>
@@ -522,20 +519,20 @@
                             {forumPosts.map((post) => (
                                 <div
                                     key={post.id}
-                                    className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 group"
+                                    className="flex gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors cursor-pointer border border-transparent hover:border-emerald-100 group"
                                     onClick={() => setPage('forum')}
                                 >
-                                    <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-blue-600 group-hover:border-blue-200">
+                                    <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-slate-500 flex-shrink-0 shadow-sm group-hover:text-emerald-700 group-hover:border-emerald-200">
                                         {post.avatar}
                                     </div>
                                     <div className="flex-grow">
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700">{post.title}</h4>
+                                            <h4 className="font-bold text-slate-800 line-clamp-1 group-hover:text-emerald-800">{post.title}</h4>
                                             <span className="text-xs text-slate-400 whitespace-nowrap">{post.time}</span>
                                         </div>
                                         <p className="text-sm text-slate-500 line-clamp-1 mt-1 mb-2">{post.content}</p>
                                         <div className="flex gap-3 text-xs text-slate-400 font-medium">
-                                            <Badge color="blue">{post.tag}</Badge>
+                                            <Badge color="green">{post.tag}</Badge>
                                             <span className="flex items-center gap-1 ml-auto">
                                                 <MessageCircle size={14}/> {post.comments}
                                             </span>
@@ -548,7 +545,7 @@
 
                     {/* 右：影音專區 */}
                     <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-8 shadow-lg text-white relative overflow-hidden">
-                        <div className="absolute -top-10 -right-10 w-64 h-64 bg-purple-600/40 rounded-full blur-[80px] pointer-events-none"></div>
+                        <div className="absolute -top-10 -right-10 w-64 h-64 bg-emerald-500/40 rounded-full blur-[80px] pointer-events-none"></div>
                         <div className="relative z-10">
                             <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                                 <h3 className="text-2xl font-bold flex items-center gap-3">
@@ -556,13 +553,12 @@
                                 </h3>
                                 <button
                                     onClick={() => setPage('videos')}
-                                    className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                                    className="text-sm font-bold text-emerald-300 hover:text-emerald-200 transition-colors"
                                 >
                                     {lang.section.more}
                                 </button>
                             </div>
 
-                            {/* 主推薦影片 */}
                             <div
                                 className="bg-white/5 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group"
                                 onClick={() => setPage('videos')}
@@ -576,7 +572,7 @@
                                                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-purple-900"></div>
+                                            <div className="w-full h-full bg-emerald-900"></div>
                                         )}
                                         <PlayCircle size={32} className="text-white absolute z-10 drop-shadow-md group-hover:scale-110 transition-transform"/>
                                     </div>
@@ -594,12 +590,11 @@
                                 </div>
                             </div>
 
-                            {/* 其他影片列表 */}
                             <div className="space-y-3">
                                 {videoData.slice(1, 3).map((video) => (
                                     <div
                                         key={video.id}
-                                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white transition-colors border border透明 hover:border-white/5"
+                                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white transition-colors border border-transparent hover:border-white/5"
                                         onClick={() => setPage('videos')}
                                     >
                                         <div className="w-10 h-10 rounded-lg bg-black/50 overflow-hidden flex-shrink-0 border border-white/10">
@@ -634,15 +629,13 @@
                     title="急救與安全懶人包"
                     subtitle="SOS 指南與視覺化圖卡，關鍵時刻一看就懂。"
                 />
-                
                 <div className="space-y-8 mb-16">
                     <EmergencyCard data={safetyData.heat} type="heat" lang={lang} />
                     <EmergencyCard data={safetyData.pesticide} type="pesticide" lang={lang} />
                 </div>
-
                 <div className="border-t border-slate-200 pt-12">
                     <h3 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
-                        <BookOpen className="text-blue-500"/> 安全圖卡懶人包 (Visual Guides)
+                        <BookOpen className="text-emerald-600"/> 安全圖卡懶人包 (Visual Guides)
                     </h3>
                     <div className="grid md:grid-cols-3 gap-6">
                         {visualCards.map(card => (
@@ -659,7 +652,6 @@
                         ))}
                     </div>
                 </div>
-
                 <div className="mt-12 text-center">
                     <div className="inline-block bg-slate-100 rounded-xl p-6">
                         <p className="text-slate-600 mb-4 font-bold">Medical Support / 專業諮詢</p>
@@ -678,6 +670,28 @@
 
         const AuditPage = () => {
             const [checked, setChecked] = useState({});
+            const totalItems = auditCategories.reduce((sum, cat) => sum + cat.items.length, 0);
+            const checkedCount = Object.values(checked).filter(Boolean).length;
+            const progress = Math.round((checkedCount / totalItems) * 100);
+
+            let summaryTitle = "還沒開始檢查";
+            let summaryDesc = "先從其中一個區塊開始勾選，看看你的農場有沒有明顯的風險點。";
+            let summaryColor = "bg-slate-100 text-slate-700 border-slate-200";
+
+            if (checkedCount > 0 && checkedCount < totalItems / 3) {
+                summaryTitle = "需要優先改善";
+                summaryDesc = "目前勾選的項目較少，代表還有不少安全細節可以補強，建議先從農機具護罩與化學品管理開始。";
+                summaryColor = "bg-rose-50 text-rose-800 border-rose-200";
+            } else if (checkedCount >= totalItems / 3 && checkedCount < (totalItems * 2) / 3) {
+                summaryTitle = "有基本防護，但還可以更好";
+                summaryDesc = "你已經注意到一些安全重點，可以再檢查環境標示、夜間照明與個人防護裝備是否齊全。";
+                summaryColor = "bg-amber-50 text-amber-800 border-amber-200";
+            } else if (checkedCount >= (totalItems * 2) / 3) {
+                summaryTitle = "相對安全，但要持續追蹤";
+                summaryDesc = "你的農場在多數面向都有基礎防護，建議每季重新檢查一次，並為家人或員工做簡單安全說明。";
+                summaryColor = "bg-emerald-50 text-emerald-800 border-emerald-200";
+            }
+
             const toggle = (id) => setChecked(prev => ({...prev, [id]: !prev[id]}));
 
             return (
@@ -687,43 +701,74 @@
                         title="農場體檢 (Audit)"
                         subtitle="源自澳洲 AgHealth 的系統性檢查，每天 3 分鐘，安全升級。"
                     />
-                    <div className="space-y-6">
-                        {auditCategories.map(cat => (
-                            <div key={cat.id} className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100">
-                                <div className={`bg-${cat.color}-50 p-4 flex items-center gap-3 border-b border-${cat.color}-100`}>
-                                    <div className={`text-${cat.color}-600`}>{cat.icon}</div>
-                                    <h3 className={`font-bold text-xl text-${cat.color}-900`}>{cat.title}</h3>
+
+                    {/* 總結區塊 */}
+                    <div className="mb-8">
+                        <div className={`rounded-2xl p-5 border ${summaryColor}`}>
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="font-bold text-sm">
+                                    體檢進度：{checkedCount} / {totalItems} 項
                                 </div>
-                                <div className="p-6 space-y-3">
-                                    {cat.items.map((item, idx) => {
-                                        const key = `${cat.id}-${idx}`;
-                                        const isChecked = !!checked[key];
-                                        return (
-                                            <div
-                                                key={idx}
-                                                onClick={() => toggle(key)}
-                                                className={`p-4 rounded-xl border-2 cursor-pointer flex items-center gap-3 transition-colors ${
-                                                    isChecked
-                                                        ? `border-${cat.color}-500 bg-${cat.color}-50`
-                                                        : `border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40`
-                                                }`}
-                                            >
-                                                <div
-                                                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                                        isChecked
-                                                            ? `bg-${cat.color}-500 border-${cat.color}-500 text-white`
-                                                            : `border-slate-300 bg-white`
-                                                    }`}
-                                                >
-                                                    {isChecked && <CheckCircle2 size={16}/>}
-                                                </div>
-                                                <span className="font-bold text-slate-700">{item}</span>
-                                            </div>
-                                        );
-                                    })}
+                                <div className="text-xs text-slate-500">
+                                    建議每季重新檢查一次
                                 </div>
                             </div>
-                        ))}
+                            <div className="w-full bg-white/60 h-2 rounded-full overflow-hidden mb-3">
+                                <div
+                                    style={{ width: `${progress}%` }}
+                                    className={`h-2 rounded-full transition-all duration-300 ${progress < 33 ? 'bg-rose-400' : progress < 66 ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                                ></div>
+                            </div>
+                            <div className="font-bold mb-1 text-sm">{summaryTitle}</div>
+                            <div className="text-xs leading-relaxed">{summaryDesc}</div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        {auditCategories.map(cat => {
+                            const themeClasses = cat.theme === 'blue'
+                                ? { headerBg: 'bg-sky-50', headerBorder: 'border-sky-100', icon: 'text-sky-700' }
+                                : cat.theme === 'purple'
+                                ? { headerBg: 'bg-violet-50', headerBorder: 'border-violet-100', icon: 'text-violet-700' }
+                                : { headerBg: 'bg-amber-50', headerBorder: 'border-amber-100', icon: 'text-amber-700' };
+
+                            return (
+                                <div key={cat.id} className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100">
+                                    <div className={`${themeClasses.headerBg} p-4 flex items-center gap-3 border-b ${themeClasses.headerBorder}`}>
+                                        <div className={`${themeClasses.icon}`}>{cat.icon}</div>
+                                        <h3 className="font-bold text-xl text-slate-800">{cat.title}</h3>
+                                    </div>
+                                    <div className="p-6 space-y-3">
+                                        {cat.items.map((item, idx) => {
+                                            const key = `${cat.id}-${idx}`;
+                                            const isChecked = !!checked[key];
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => toggle(key)}
+                                                    className={`p-4 rounded-xl border-2 cursor-pointer flex items-center gap-3 transition-colors ${
+                                                        isChecked
+                                                            ? 'border-emerald-500 bg-emerald-50'
+                                                            : 'border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40'
+                                                    }`}
+                                                >
+                                                    <div
+                                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                                            isChecked
+                                                                ? 'bg-emerald-500 border-emerald-500 text-white'
+                                                                : 'border-slate-300 bg-white'
+                                                        }`}
+                                                    >
+                                                        {isChecked && <CheckCircle2 size={16}/>}
+                                                    </div>
+                                                    <span className="font-bold text-slate-700 text-sm">{item}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             );
@@ -736,11 +781,10 @@
                     title="從事農業：真實面揭露" 
                     subtitle="前輩的真心話。看清風險，才能走得長遠。"
                 />
-                
                 <div className="space-y-6 mb-12">
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-amber-400">
                         <div className="flex items-center gap-2 mb-3">
-                            <div className="flex text-yellow-400">
+                            <div className="flex text-amber-400">
                                 <span className="text-xl">★★</span>
                                 <span className="text-slate-200 text-xl">★★★</span>
                             </div>
@@ -751,10 +795,9 @@
                         </p>
                         <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 嘉義青農的心聲</p>
                     </div>
-
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-red-400">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-rose-400">
                         <div className="flex items-center gap-2 mb-3">
-                            <div className="flex text-yellow-400">
+                            <div className="flex text-amber-400">
                                 <span className="text-xl">★</span>
                                 <span className="text-slate-200 text-xl">★★★★</span>
                             </div>
@@ -766,7 +809,6 @@
                         <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 鳳梨農 吳先生</p>
                     </div>
                 </div>
-
                 <div className="bg-emerald-50 p-8 rounded-3xl">
                     <h3 className="text-2xl font-bold mb-6 text-center text-emerald-900">官方資源導航</h3>
                     <div className="grid md:grid-cols-2 gap-4">
@@ -780,7 +822,7 @@
                             </div>
                         </a>
                         <a href="https://www.boaf.gov.tw/" target="_blank" rel="noreferrer" className="bg-white p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group">
-                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text白 transition-colors">
+                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                 <DollarSign/>
                             </div>
                             <div>
@@ -805,37 +847,37 @@
                         <h3 className="text-xl font-bold mb-4 text-emerald-800 flex items-center gap-2">
                             <Sun/> 溫室熱危害對策
                         </h3>
-                        <ul className="space-y-4 text-slate-600">
+                        <ul className="space-y-4 text-slate-600 text-sm">
                             <li className="flex gap-3 items-start">
-                                <span className="text-orange-500 font-bold">1.</span>
-                                <span><b>裝風扇：</b>一定要裝在「人站的高度」。</span>
+                                <span className="text-amber-500 font-bold">1.</span>
+                                <span><b>裝風扇：</b>一定要裝在「人站的高度」，風才吹得到人而不只是吹到作物。</span>
                             </li>
                             <li className="flex gap-3 items-start">
-                                <span className="text-orange-500 font-bold">2.</span>
-                                <span><b>躲太陽：</b>善用黑網遮陽。</span>
+                                <span className="text-amber-500 font-bold">2.</span>
+                                <span><b>躲太陽：</b>善用黑網遮陽，特別是工作路徑與休息點。</span>
                             </li>
                             <li className="flex gap-3 items-start">
-                                <span className="text-orange-500 font-bold">3.</span>
-                                <span><b>強制補水：</b>設鬧鐘每20分鐘喝水。</span>
+                                <span className="text-amber-500 font-bold">3.</span>
+                                <span><b>強制補水：</b>設鬧鐘或廣播提醒，每20分鐘至少喝一小杯水。</span>
                             </li>
                         </ul>
                     </div>
                     <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100">
-                        <h3 className="text-xl font-bold mb-4 text-blue-800 flex items-center gap-2">
+                        <h3 className="text-xl font-bold mb-4 text-emerald-800 flex items-center gap-2">
                             <Tractor/> 省工機具推薦
                         </h3>
-                        <ul className="space-y-4 text-slate-600">
+                        <ul className="space-y-4 text-slate-600 text-sm">
                             <li className="flex gap-3 items-start">
-                                <span className="text-blue-500 font-bold">1.</span>
-                                <span><b>無人機噴藥：</b>遠離中毒風險。</span>
+                                <span className="text-emerald-500 font-bold">1.</span>
+                                <span><b>無人機噴藥：</b>遠離中毒風險，也減少長時間揹機器的負擔。</span>
                             </li>
                             <li className="flex gap-3 items-start">
-                                <span className="text-blue-500 font-bold">2.</span>
-                                <span><b>採收搬運機：</b>救救你的腰。</span>
+                                <span className="text-emerald-500 font-bold">2.</span>
+                                <span><b>採收搬運機：</b>救救你的腰，讓重物「坐車」而不是「靠肩」。</span>
                             </li>
                             <li className="flex gap-3 items-start">
-                                <span className="text-blue-500 font-bold">3.</span>
-                                <span><b>坐駕式割草機：</b>減少體力消耗。</span>
+                                <span className="text-emerald-500 font-bold">3.</span>
+                                <span><b>坐駕式割草機：</b>減少體力消耗，也降低被飛石打傷的風險。</span>
                             </li>
                         </ul>
                     </div>
@@ -854,12 +896,11 @@
                         title="健康促進與伸展" 
                         subtitle="每天 3 分鐘，預防職業傷害。"
                     />
-
                     <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-12 grid md:grid-cols-2 gap-8">
                         <div className="relative h-80 bg-slate-100 rounded-2xl flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]">
                             <button
                                 onClick={() => setSelectedPart('neck')}
-                                className={`body-btn absolute top-4 w-20 h-20 rounded-full bg白 border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
+                                className={`body-btn absolute top-4 w-20 h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
                                     selectedPart === 'neck' ? 'active' : ''
                                 }`}
                             >
@@ -867,7 +908,7 @@
                             </button>
                             <button
                                 onClick={() => setSelectedPart('shoulder')}
-                                className={`body-btn absolute top-28 left-4 w-20 h-20 rounded-full bg白 border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
+                                className={`body-btn absolute top-28 left-4 w-20 h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
                                     selectedPart === 'shoulder' ? 'active' : ''
                                 }`}
                             >
@@ -875,7 +916,7 @@
                             </button>
                             <button
                                 onClick={() => setSelectedPart('back')}
-                                className={`body-btn absolute top-28 right-4 w-20 h-20 rounded-full bg白 border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
+                                className={`body-btn absolute top-28 right-4 w-20 h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
                                     selectedPart === 'back' ? 'active' : ''
                                 }`}
                             >
@@ -883,14 +924,13 @@
                             </button>
                             <button
                                 onClick={() => setSelectedPart('knee')}
-                                className={`body-btn absolute bottom-4 w-20 h-20 rounded-full bg白 border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
+                                className={`body-btn absolute bottom-4 w-20 h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs text-slate-600 ${
                                     selectedPart === 'knee' ? 'active' : ''
                                 }`}
                             >
                                 <span className="font-bold">膝蓋</span>
                             </button>
                         </div>
-
                         <div className="flex flex-col justify-center">
                             <h3 className="text-2xl font-bold text-emerald-800 mb-2">{currentEx.title}</h3>
                             <p className="text-slate-500 mb-6">{currentEx.desc}</p>
@@ -908,7 +948,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div className="grid md:grid-cols-3 gap-6 mb-12">
                         {exerciseData.map((ex, i) => (
                             <div key={i} className="bg-white p-6 rounded-2xl shadow-md border-t-4 border-emerald-500">
@@ -922,14 +961,13 @@
                             </div>
                         ))}
                     </div>
-
-                    <div className="bg-orange-50 p-8 rounded-3xl text-center">
-                        <h3 className="text-2xl font-bold text-orange-900 mb-4">資深農友專區</h3>
-                        <p className="text-orange-800 mb-6 max-w-2xl mx-auto">
+                    <div className="bg-amber-50 p-8 rounded-3xl text-center">
+                        <h3 className="text-2xl font-bold text-amber-900 mb-4">資深農友專區</h3>
+                        <p className="text-amber-800 mb-6 max-w-2xl mx-auto">
                             如果痛太久，請不要只貼藥布，建議至<b>「職業醫學科」</b>就診。
                         </p>
                         <button
-                            className="bg白 text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm px-6 py-3 rounded-xl font-bold"
+                            className="bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm px-6 py-3 rounded-xl font-bold"
                             onClick={() => window.open('https://www.ntuh.gov.tw/EOM-CMOID/Fpage.action?muid=4091&fid=3918', '_blank')}
                         >
                             尋找台大雲林分院職業醫學科
@@ -966,18 +1004,17 @@
                         title="保險與經濟安全" 
                         subtitle="搞懂權益，增加你的財務韌性。"
                     />
-                    
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-12">
                         <h3 className="text-2xl font-bold mb-8 text-center text-slate-800">
                             保險決策樹：我該保什麼？
                         </h3>
                         <div className="grid md:grid-cols-2 gap-8">
-                            <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
-                                <h4 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+                            <div className="bg-emerald-50/40 rounded-2xl p-6 border border-emerald-100">
+                                <h4 className="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
                                     <Users size={24}/> 擔心「人」受傷
                                 </h4>
                                 <ul className="space-y-4">
-                                    <li className="bg白 p-4 rounded-xl shadow-sm">
+                                    <li className="bg-white p-4 rounded-xl shadow-sm">
                                         <span className="font-bold block text-slate-800 mb-1">
                                             1. 農民健康保險 (基本)
                                         </span>
@@ -985,7 +1022,7 @@
                                             提供生育、身心障礙、喪葬津貼等基本保障。
                                         </span>
                                     </li>
-                                    <li className="bg-blue-600 text白 p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-blue-100">
+                                    <li className="bg-emerald-600 text-white p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-emerald-100">
                                         <span className="font-bold block flex items-center justify-between mb-1">
                                             2. 農民職災保險 (必保!) <Heart size={16} className="fill-current"/>
                                         </span>
@@ -995,12 +1032,12 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div className="bg-green-50/50 rounded-2xl p-6 border border-green-100">
-                                <h4 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                            <div className="bg-emerald-50/10 rounded-2xl p-6 border border-emerald-100/60">
+                                <h4 className="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
                                     <Sprout size={24}/> 擔心「作物」沒收成
                                 </h4>
                                 <ul className="space-y-4">
-                                    <li className="bg白 p-4 rounded-xl shadow-sm">
+                                    <li className="bg-white p-4 rounded-xl shadow-sm">
                                         <span className="font-bold block text-slate-800 mb-1">
                                             1. 天然災害救助
                                         </span>
@@ -1008,13 +1045,13 @@
                                             颱風、豪雨、寒害等達到一定損害比例時，可申請政府救助，主要是補貼生產成本。
                                         </span>
                                     </li>
-                                    <li className="bg-green-100 p-4 rounded-xl shadow-sm border border-green-200">
-                                        <span className="font-bold block text-green-800 mb-1">
+                                    <li className="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200">
+                                        <span className="font-bold block text-emerald-900 mb-1">
                                             2. 作物收入保險
                                         </span>
-                                        <span className="text-sm text-green-700">
+                                        <span className="text-sm text-emerald-800">
                                             不是只看「損失多少公斤」，而是保障「整體收入」。若實際收入低於基準，就可以啟動理賠。<br/>
-                                            <span className="text-xs bg白 px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">
+                                            <span className="text-xs bg-white px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">
                                                 關鍵字：奧林匹克平均法（排除極端高低價，計算較公平）
                                             </span>
                                         </span>
@@ -1023,7 +1060,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
                         <h3 className="text-2xl font-bold mb-6 text-slate-800">
                             職災就醫與申請流程 (懶人版)
@@ -1032,9 +1068,9 @@
                             {injuryFlowSteps.map((step, idx) => (
                                 <li
                                     key={idx}
-                                    className="bg白 rounded-2xl p-4 shadow-sm border border-slate-100 flex gap-3"
+                                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex gap-3"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-emerald-500 text白 flex items-center justify-center font-bold flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold flex-shrink-0">
                                         {idx + 1}
                                     </div>
                                     <div>
@@ -1058,19 +1094,19 @@
                         <Accordion key={i} category={item.category} question={item.q} answer={item.a} />
                     ))}
                 </div>
-                <div className="bg白 rounded-3xl border border-slate-100 shadow-md overflow-hidden">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-md overflow-hidden">
                     <div className="p-6 bg-slate-50 border-b border-slate-100">
                         <h3 className="font-bold text-slate-700">最新討論文章</h3>
                     </div>
                     <div>
                         {forumPosts.map((post) => (
-                            <div key={post.id} className="p-6 border-b border-slate-50 hover:bg-blue-50/30 transition-colors">
+                            <div key={post.id} className="p-6 border-b border-slate-50 hover:bg-emerald-50/30 transition-colors">
                                 <h4 className="font-bold text-lg text-slate-800 mb-2">{post.title}</h4>
                                 <p className="text-slate-600 mb-4">{post.content}</p>
                                 <div className="flex gap-4 text-sm text-slate-400">
                                     <span>{post.author}</span>
                                     <span>{post.time}</span>
-                                    <span className="text-blue-500 font-bold">{post.tag}</span>
+                                    <span className="text-emerald-600 font-bold">{post.tag}</span>
                                 </div>
                             </div>
                         ))}
@@ -1086,9 +1122,9 @@
                     {videoData.map((video) => (
                         <div 
                             key={video.id} 
-                            className="bg白 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group"
+                            className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow border border-slate-100 group"
                         >
-                            <div className="aspect-video w-full bg黑 relative">
+                            <div className="aspect-video w-full bg-black relative">
                                 <iframe
                                     className="absolute top-0 left-0 w-full h-full"
                                     src={`https://www.youtube.com/embed/${video.youtubeId}`}
@@ -1101,7 +1137,7 @@
                             <div className="p-6">
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="font-bold text-lg text-slate-800 line-clamp-2">{video.title}</h3>
-                                    <Badge color="blue">{video.type}</Badge>
+                                    <Badge color="green">{video.type}</Badge>
                                 </div>
                                 <p className="text-sm text-slate-500 mb-4 line-clamp-2">{video.desc}</p>
                                 <div className="text-xs text-slate-400 flex justify-between border-t border-slate-50 pt-3">
@@ -1126,7 +1162,7 @@
                     ].map((item, i) => (
                         <div
                             key={i}
-                            className="bg白 p-6 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100 hover:border-emerald-500 transition-colors cursor-pointer group"
+                            className="bg-white p-6 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100 hover:border-emerald-500 transition-colors cursor-pointer group"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="bg-slate-100 p-3 rounded-lg text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-600">
@@ -1147,11 +1183,11 @@
 
         const NewFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
-                {/* 小 Hero */}
-                <div className="bg-gradient-to-r from-blue-50 via-emerald-50 to-emerald-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-emerald-100">
+                {/* Hero */}
+                <div className="bg-gradient-to-r from-emerald-50 via-emerald-100 to-emerald-50 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-emerald-100">
                     <div className="flex-1">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
-                            <span className="inline-flex p-2 rounded-2xl bg-emerald-600 text白">
+                            <span className="inline-flex p-2 rounded-2xl bg-emerald-600 text-white">
                                 <Sprout size={24}/>
                             </span>
                             新手務農專區
@@ -1167,7 +1203,7 @@
                             ← 回首頁看看其他資訊
                         </button>
                     </div>
-                    <div className="w-32 h-32 md:w-40 md:h-40 bg白/70 rounded-2xl shadow-sm flex items-center justify-center border border-emerald-100">
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-emerald-100">
                         <img src="https://images.pexels.com/photos/1268101/pexels-photo-1268101.jpeg?auto=compress&cs=tinysrgb&w=400" alt="new farmer" className="w-full h-full object-cover rounded-2xl"/>
                     </div>
                 </div>
@@ -1178,121 +1214,17 @@
                     subtitle="收入、身體、風險三件事弄懂，你就比很多人準備得更好。"
                 />
 
-                {/* 匯入 StartFarming 兩則故事 */}
-                <div className="space-y-6 mb-10">
-                    <div className="bg白 p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400">
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="flex text-yellow-400">
-                                <span className="text-xl">★★</span>
-                                <span className="text-slate-200 text-xl">★★★</span>
-                            </div>
-                            <span className="font-bold text-slate-800 text-lg">收入真的不穩定</span>
-                        </div>
-                        <p className="text-slate-600 italic text-lg leading-relaxed">
-                            "大家都說青農返鄉很棒，但前三年真的要有『吃老本』的心理準備。建議新手一定要準備好預備金，
-                            或者先從兼業（斜槓）開始，不要一次全壓身家。"
-                        </p>
-                        <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 嘉義青農的心聲</p>
-                    </div>
-
-                    <div className="bg白 p-8 rounded-2xl shadow-sm border-l-8 border-red-400">
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="flex text-yellow-400">
-                                <span className="text-xl">★</span>
-                                <span className="text-slate-200 text-xl">★★★★</span>
-                            </div>
-                            <span className="font-bold text-slate-800 text-lg">身體壞得比想像快</span>
-                        </div>
-                        <p className="text-slate-600 italic text-lg leading-relaxed">
-                            "我以為我年輕力壯，搬鳳梨都自己來。結果五年腰就壞了。不要以為年輕就是本錢，護具和姿勢最重要，
-                            不然賺的錢都拿去看醫生。"
-                        </p>
-                        <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 鳳梨農 吳先生</p>
-                    </div>
-                </div>
-
-                {/* 三件事 */}
-                <div className="bg-emerald-50 rounded-3xl p-8 mb-10">
-                    <h3 className="text-2xl font-bold text-emerald-900 mb-6 text-center">新手必懂的三件事</h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">1. 錢怎麼來、怎麼流</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                不只是賣多少、成本多少，還要算進「你自己的工資」。
-                                建議先用簡單的記帳表，把每一筆肥料、油錢、租金都記起來。
-                            </p>
-                            <button
-                                onClick={() => setPage('economics')}
-                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
-                            >
-                                → 看「保險與經濟安全」怎麼幫你分散風險
-                            </button>
-                        </div>
-
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">2. 身體就是你的本錢</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                長期彎腰、搬重物、曝曬，五年十年後都會回到自己身上。
-                                一開始就養成「先暖身再下田」、「固定伸展」的習慣，反而可以做得比較久。
-                            </p>
-                            <button
-                                onClick={() => setPage('healthPromo')}
-                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
-                            >
-                                → 看「健康促進與伸展」三分鐘護身操
-                            </button>
-                        </div>
-
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">3. 出事時，要會自保</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                熱中暑、跌倒、農藥中毒，都是「工作中的風險」。
-                                先搞懂農民職災保險、就醫時要說什麼，出事才不會兩手一攤。
-                            </p>
-                            <button
-                                onClick={() => setPage('safety')}
-                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
-                            >
-                                → 看「急救與安全懶人包」與紅卡
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 官方資源 */}
-                <div className="bg白 rounded-3xl p-8 shadow-sm border border-slate-100">
-                    <h3 className="text-2xl font-bold mb-6 text-slate-800 text-center">可以立刻用的官方資源</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <a href="https://www.moa.gov.tw/" target="_blank" rel="noreferrer" className="bg-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group">
-                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text白 transition-colors">
-                                <Users/>
-                            </div>
-                            <div>
-                                <div className="font-bold text-emerald-900 text-lg">百大青農計畫</div>
-                                <div className="text-sm text-slate-500">找陪伴師教技術與行銷，一開始不用自己摸索。</div>
-                            </div>
-                        </a>
-                        <a href="https://www.boaf.gov.tw/" target="_blank" rel="noreferrer" className="bg-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group">
-                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text白 transition-colors">
-                                <DollarSign/>
-                            </div>
-                            <div>
-                                <div className="font-bold text-emerald-900 text-lg">青年從農貸款</div>
-                                <div className="text-sm text-slate-500">前 5 年免息，減少前期壓力，不用一次砸光存款。</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                {/* 引用 StartFarmingPage 的內容 */}
+                <StartFarmingPage />
             </div>
         );
 
         const YoungFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
-                {/* 小 Hero */}
-                <div className="bg-gradient-to-r from-emerald-50 via-sky-50 to-blue-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-sky-100">
+                <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-teal-100">
                     <div className="flex-1">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
-                            <span className="inline-flex p-2 rounded-2xl bg-sky-600 text白">
+                            <span className="inline-flex p-2 rounded-2xl bg-teal-600 text-white">
                                 <Tractor size={24}/>
                             </span>
                             青農 / 在職專區
@@ -1308,19 +1240,12 @@
                             ← 回首頁看看其他資訊
                         </button>
                     </div>
-                    <div className="w-32 h-32 md:w-40 md:h-40 bg白/70 rounded-2xl shadow-sm flex items-center justify-center border border-sky-100">
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-teal-100">
                         <img src="https://images.pexels.com/photos/1268102/pexels-photo-1268102.jpeg?auto=compress&cs=tinysrgb&w=400" alt="young farmer" className="w-full h-full object-cover rounded-2xl"/>
                     </div>
                 </div>
 
-                <SectionHeader
-                    icon={Tractor}
-                    title="讓科技與系統幫你省力"
-                    subtitle="從動線、機具到安全清單，幫自己打造不那麼累的工作日常。"
-                />
-
-                {/* 改善什麼？ */}
-                <div className="bg白 rounded-3xl p-8 shadow-sm border border-slate-100 mb-10">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-10">
                     <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center">
                         今天你最想改善的是哪一塊？
                     </h3>
@@ -1342,10 +1267,10 @@
 
                         <button
                             onClick={() => setPage('audit')}
-                            className="text左 bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
+                            className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
                         >
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="bg-blue-100 text-blue-700 p-2 rounded-full">
+                                <div className="bg-emerald-100 text-emerald-700 p-2 rounded-full">
                                     <ClipboardCheck size={20}/>
                                 </div>
                                 <span className="font-bold text-slate-800 text-sm">想檢查看看農場安全</span>
@@ -1360,7 +1285,7 @@
                             className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
                         >
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="bg-red-100 text-red-700 p-2 rounded-full">
+                                <div className="bg-emerald-100 text-emerald-700 p-2 rounded-full">
                                     <Shield size={20}/>
                                 </div>
                                 <span className="font-bold text-slate-800 text-sm">想更懂急救與防護</span>
@@ -1372,77 +1297,20 @@
                     </div>
                 </div>
 
-                {/* 溫室省工摘要 */}
-                <div className="bg-emerald-50 rounded-3xl p-8 mb-10">
-                    <h3 className="text-2xl font-bold text-emerald-900 mb-6 text-center">
-                        三個方向，讓你少流一點「傻汗」
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">動線設計</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                減少來回搬運的距離，善用小推車、滑軌、搬運機。
-                                能用輪子就不要用肩膀。
-                            </p>
-                        </div>
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">機具投資</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                無人機、坐駕式割草機、一人可操作的小型搬運設備，
-                                都是在保護「你未來十年的身體」。
-                            </p>
-                        </div>
-                        <div className="bg白 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                            <Badge color="green">高溫策略</Badge>
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                                調整工作時間，在清晨與傍晚做重體力工作，
-                                中午改做修補、整理紀錄等較輕作業。
-                            </p>
-                        </div>
-                    </div>
-                    <div className="text-center mt-4">
-                        <ActionButton variant="secondary" onClick={() => setPage('greenhouse')}>
-                            詳細看「溫室與省工機具」建議
-                        </ActionButton>
-                    </div>
-                </div>
-
-                {/* 三大體檢面向縮圖 */}
-                <div className="bg白 rounded-3xl p-8 shadow-sm border border-slate-100">
-                    <h3 className="text-2xl font-bold mb-6 text-slate-800 text-center">三個角度檢查看看你的場子</h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {auditCategories.map(cat => (
-                            <div key={cat.id} className="border border-slate-100 rounded-2xl p-5 bg-slate-50">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <div className={`p-2 rounded-full bg-${cat.color}-100 text-${cat.color}-700`}>
-                                        {cat.icon}
-                                    </div>
-                                    <span className="font-bold text-slate-800 text-sm">{cat.title}</span>
-                                </div>
-                                <ul className="text-xs text-slate-600 space-y-1">
-                                    {cat.items.slice(0, 3).map((item, i) => (
-                                        <li key={i}>• {item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="text-center mt-4">
-                        <ActionButton onClick={() => setPage('audit')}>
-                            開始使用「農場體檢」清單
-                        </ActionButton>
-                    </div>
+                {/* 引導到細部主題頁 */}
+                <GreenhousePage />
+                <div className="mt-10">
+                    <AuditPage />
                 </div>
             </div>
         );
 
         const SeniorFarmerHubPage = ({ setPage }) => (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
-                {/* 小 Hero */}
-                <div className="bg-gradient-to-r from-orange-50 via-rose-50 to-amber-100 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-orange-100">
+                <div className="bg-gradient-to-r from-amber-50 via-amber-100 to-rose-50 rounded-3xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center gap-6 border border-amber-100">
                     <div className="flex-1">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 flex items-center gap-3">
-                            <span className="inline-flex p-2 rounded-2xl bg-orange-500 text白">
+                            <span className="inline-flex p-2 rounded-2xl bg-amber-500 text-white">
                                 <Heart size={24}/>
                             </span>
                             資深農友專區
@@ -1458,7 +1326,7 @@
                             ← 回首頁看看其他資訊
                         </button>
                     </div>
-                    <div className="w-32 h-32 md:w-40 md:h-40 bg白/70 rounded-2xl shadow-sm flex items-center justify-center border border-orange-100">
+                    <div className="w-32 h-32 md:w-40 md:h-40 bg-white/70 rounded-2xl shadow-sm flex items-center justify-center border border-amber-100">
                         <img src="https://images.pexels.com/photos/1268103/pexels-photo-1268103.jpeg?auto=compress&cs=tinysrgb&w=400" alt="senior farmer" className="w-full h-full object-cover rounded-2xl"/>
                     </div>
                 </div>
@@ -1469,7 +1337,7 @@
                     subtitle="腰、膝、肩、脖子和你的權益，都應該被好好對待。"
                 />
 
-                <div className="bg白 rounded-3xl p-8 shadow-sm border border-slate-100 mb-10 grid md:grid-cols-2 gap-8">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-10 grid md:grid-cols-2 gap-8">
                     <div>
                         <h3 className="text-xl font-bold text-slate-800 mb-3">哪裡最常在叫？</h3>
                         <p className="text-sm text-slate-600 mb-4 leading-relaxed">
@@ -1506,7 +1374,7 @@
                         做了這麼多年，該拿的保障不要錯過
                     </h3>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg白 rounded-2xl p-6 shadow-sm border border-emerald-100">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-emerald-100">
                             <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
                                 <Shield size={18} className="text-emerald-600"/> 農民職災保險檢查一下
                             </h4>
@@ -1521,7 +1389,7 @@
                                 → 去「保險與經濟安全」看怎麼選
                             </button>
                         </div>
-                        <div className="bg白 rounded-2xl p-6 shadow-sm border border-emerald-100">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-emerald-100">
                             <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
                                 <DollarSign size={18} className="text-emerald-600"/> 作物收入保險可以試試看
                             </h4>
@@ -1539,7 +1407,7 @@
                     </div>
                 </div>
 
-                <div className="bg白 rounded-3xl p-8 shadow-sm border border-slate-100">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
                     <h3 className="text-2xl font-bold mb-4 text-slate-800 text-center">什麼時候該考慮看「職業醫學科」？</h3>
                     <p className="text-sm text-slate-600 mb-6 text-center max-w-2xl mx-auto leading-relaxed">
                         如果你已經調整姿勢、做伸展、貼藥布，但還是痛了好幾個月，
@@ -1640,16 +1508,16 @@
             return (
                 <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-emerald-200">
                     {/* Navbar */}
-                    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-2' : 'bg-emerald-900 text白 py-3'}`}>
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-2' : 'bg-emerald-900 text-white py-3'}`}>
                         <div className="max-w-[1400px] mx-auto px-4">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center cursor-pointer gap-2 shrink-0" onClick={() => setPage('home')}>
                                     <img 
                                         src="Logo.PNG"
                                         alt="Logo" 
-                                        className="w-16 h-16 object-contain bg白 rounded-lg"
+                                        className="w-16 h-16 object-contain bg-white rounded-lg"
                                     />
-                                    <span className={`font-extrabold text-xl tracking-tight hidden sm:block ${scrolled ? 'text-emerald-900' : 'text白'}`}>
+                                    <span className={`font-extrabold text-xl tracking-tight hidden sm:block ${scrolled ? 'text-emerald-900' : 'text-white'}`}>
                                         {t.title}
                                     </span>
                                 </div>
@@ -1662,8 +1530,8 @@
                                             onClick={() => setPage(item.id)} 
                                             className={`px-3 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
                                                 page === item.id 
-                                                    ? (scrolled ? 'bg-emerald-100 text-emerald-700' : 'bg白/20 text白') 
-                                                    : (scrolled ? 'text-slate-500 hover:bg-slate-100' : 'text-emerald-100 hover:text白 hover:bg白/10')
+                                                    ? (scrolled ? 'bg-emerald-100 text-emerald-700' : 'bg-white/20 text-white') 
+                                                    : (scrolled ? 'text-slate-500 hover:bg-slate-100' : 'text-emerald-100 hover:text-white hover:bg-white/10')
                                             }`}
                                         >
                                             {item.label}
@@ -1673,19 +1541,21 @@
                                     {/* 角色專區下拉 */}
                                     <div className="relative">
                                         <button
-                                            onClick={() => setRoleMenuOpen((v) => !v)}
+                                            type="button"
+                                            onClick={() => setRoleMenuOpen(v => !v)}
                                             className={`px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 ${
-                                                scrolled ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg白/10 text白 hover:bg白/20'
+                                                scrolled ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'
                                             }`}
                                         >
                                             <User size={14}/> 角色專區
                                             {roleMenuOpen ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
                                         </button>
                                         {roleMenuOpen && (
-                                            <div className="absolute right-0 mt-2 w-56 bg白 rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50">
                                                 {roleItems.map((r) => (
                                                     <button
                                                         key={r.id}
+                                                        type="button"
                                                         onClick={() => goRole(r.id)}
                                                         className="w-full flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50"
                                                     >
@@ -1702,7 +1572,7 @@
                                 <div className="flex items-center gap-2 lg:hidden">
                                     <button
                                         onClick={() => setMenuOpen(!menuOpen)}
-                                        className={`p-2 ${scrolled ? 'text-slate-800' : 'text白'}`}
+                                        className={`p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}
                                     >
                                         {menuOpen ? <X size={24}/> : <Menu size={24}/>}
                                     </button>
@@ -1712,9 +1582,8 @@
 
                         {/* Mobile Nav */}
                         {menuOpen && (
-                            <div className="lg:hidden absolute top-full left-0 w-full bg白 border-t border-slate-100 shadow-xl animate-fade-in">
+                            <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl animate-fade-in z-40">
                                 <div className="p-4 space-y-3">
-                                    {/* 角色專區快捷 */}
                                     <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-100">
                                         <div className="flex items-center gap-2 mb-2">
                                             <User size={16} className="text-emerald-700"/>
@@ -1724,8 +1593,9 @@
                                             {roleItems.map(r => (
                                                 <button
                                                     key={r.id}
+                                                    type="button"
                                                     onClick={() => goRole(r.id)}
-                                                    className="flex-1 min-w-[45%] bg白 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 border border-emerald-100 flex items-center gap-1"
+                                                    className="flex-1 min-w-[45%] bg-white rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 border border-emerald-100 flex items-center gap-1"
                                                 >
                                                     {r.icon}
                                                     <span className="truncate">{r.label}</span>
@@ -1733,8 +1603,6 @@
                                             ))}
                                         </div>
                                     </div>
-
-                                    {/* 一般導航 */}
                                     {navItems.map(item => (
                                         <button
                                             key={item.id}
@@ -1763,8 +1631,8 @@
                     <footer className="bg-slate-900 text-slate-400 py-16 mt-12">
                         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
                             <div className="col-span-1 md:col-span-2">
-                                <div className="flex items-center gap-2 text白 font-bold text-2xl mb-6">
-                                    <img src="Logo.PNG" className="w-16 h-16 object-contain bg白 rounded-md" alt="logo"/> 
+                                <div className="flex items-center gap-2 text-white font-bold text-2xl mb-6">
+                                    <img src="Logo.PNG" className="w-16 h-16 object-contain bg-white rounded-md" alt="logo"/> 
                                     {t.title}
                                 </div>
                                 <p className="text-sm leading-relaxed max-w-sm">
@@ -1772,7 +1640,7 @@
                                 </p>
                             </div>
                             <div>
-                                <h4 className="text白 font-bold mb-6">聯絡我們</h4>
+                                <h4 className="text-white font-bold mb-6">聯絡我們</h4>
                                 <ul className="space-y-3 text-sm">
                                     <li>指導單位：國家科學委員會</li>
                                     <li>計畫主持單位：國立中正大學</li>
