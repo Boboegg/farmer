@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>尊嚴農業 - 知識中心 (多元融合)</title>
+    <title>尊嚴農業 - 知識中心</title>
     
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,6 +25,7 @@
         .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
         @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .animate-bounce-slow { animation: bounce-slow 3s infinite; }
+
         .body-btn { transition: all 0.3s; }
         .body-btn:hover { transform: scale(1.1); }
         .body-btn.active { background-color: #10b981; color: white; border-color: #059669; box-shadow: 0 0 0 4px #a7f3d0; }
@@ -57,7 +58,6 @@
             );
         };
 
-        // icon list 合併＋擴充
         const iconList = [
             'Shield', 'Sun', 'AlertTriangle', 'Activity', 'Sprout', 
             'Users', 'BookOpen', 'Phone', 'Download', 'ChevronDown', 
@@ -81,7 +81,8 @@
             CheckCircle2, FlaskConical, User
         } = Icons;
 
-        // --- 1. 多語言字典 (以你舊版為主，補一些新增 nav) ---
+        // --- 1. 資料庫（先專心做好繁中，不做多語） ---
+
         const translations = {
             zh: {
                 title: "尊嚴農業",
@@ -93,8 +94,8 @@
                     home: "首頁",
                     start: "從事農業",
                     greenhouse: "溫室機具",
-                    safety: "急救與圖卡",     // 融合懶人包
-                    audit: "農場體檢",        // 新增：澳洲元素
+                    safety: "急救與圖卡",
+                    audit: "農場體檢",
                     health: "健康促進",
                     insurance: "保險經濟",
                     forum: "交流園地",
@@ -118,84 +119,9 @@
                     heatSub: "注意！流不出汗是最危險的訊號",
                     pestSub: "別硬撐！這會傷到神經"
                 }
-            },
-            en: {
-                title: "Dignified Agri",
-                subtitle: "Knowledge Hub",
-                heroDesc: "Connecting government resources, medical expertise, and local experience for sustainable agriculture.",
-                todayRisk: "Today's Heat Risk",
-                high: "High",
-                nav: {
-                    home: "Home",
-                    start: "Start Farming",
-                    greenhouse: "Greenhouse",
-                    safety: "Emergency & Cards",
-                    audit: "Farm Audit",
-                    health: "Health Promo",
-                    insurance: "Insurance",
-                    forum: "Community",
-                    video: "Videos",
-                    resources: "Downloads"
-                },
-                identity: {
-                    new: "New Farmer",
-                    young: "Young / Working",
-                    senior: "Senior Farmer",
-                    enter: "Enter"
-                },
-                section: {
-                    forum: "Latest Discussions",
-                    video: "Featured Videos",
-                    more: "View More"
-                },
-                redCard: {
-                    heatTitle: "Red Card 1: Heat Stroke",
-                    pestTitle: "Red Card 2: Pesticide Poisoning",
-                    heatSub: "Warning! No sweating is a danger sign.",
-                    pestSub: "Don't endure it! Seek help immediately."
-                }
-            },
-            id: {
-                title: "Pertanian Bermartabat",
-                subtitle: "Pusat Pengetahuan",
-                heroDesc: "Menghubungkan sumber daya pemerintah, medis, dan pengalaman lokal untuk pertanian berkelanjutan.",
-                todayRisk: "Risiko Panas Hari Ini",
-                high: "Tinggi",
-                nav: {
-                    home: "Beranda",
-                    start: "Mulai Bertani",
-                    greenhouse: "Rumah Kaca",
-                    safety: "Panduan Darurat",
-                    audit: "Audit Lahan",
-                    health: "Kesehatan",
-                    insurance: "Asuransi",
-                    forum: "Komunitas",
-                    video: "Video",
-                    resources: "Unduhan"
-                },
-                identity: {
-                    new: "Petani Baru",
-                    young: "Petani Muda",
-                    senior: "Petani Senior",
-                    enter: "Masuk"
-                },
-                section: {
-                    forum: "Diskusi Terbaru",
-                    video: "Video Pilihan",
-                    more: "Lihat Selengkapnya"
-                },
-                redCard: {
-                    heatTitle: "Kartu Merah 1: Sengatan Panas",
-                    pestTitle: "Kartu Merah 2: Keracunan Pestisida",
-                    heatSub: "Peringatan! Tidak berkeringat adalah tanda bahaya.",
-                    pestSub: "Segera cari pertolongan medis!"
-                }
             }
         };
 
-        // --- 2. 資料庫 ---
-
-        // 急救資料
         const safetyData = {
             heat: {
                 level: "High Risk",
@@ -227,18 +153,17 @@
             }
         };
 
-        // 韓國風格：視覺化懶人包
         const visualCards = [
             { id: 1, title: "防護衣穿脫順序", tag: "避免二次沾染", color: "bg-blue-600", content: "脫手套前要先沖水，避免農藥沾到內層衣物。" },
             { id: 2, title: "正確搬運姿勢", tag: "保護腰椎", color: "bg-emerald-600", content: "重物要貼近身體，利用大腿力量站起，腰背挺直。" },
             { id: 3, title: "預防熱衰竭", tag: "夏季保命", color: "bg-orange-500", content: "每20分鐘喝一杯水，不要等到口渴才喝。" }
         ];
 
-        // 韓國風格：Body Map 資料
+        // 身體地圖運動資料
         const bodyMapData = {
             neck: {
                 title: "頸部放鬆",
-                desc: "適合：低頭採收族、長時間看地圖 / 手機的人。",
+                desc: "適合：低頭採收族、長時間看地圖或手機的人。",
                 steps: [
                     "下巴微微內收，感覺脖子後面拉長。",
                     "頭部緩慢左右轉動，各停留 5 秒。",
@@ -277,9 +202,61 @@
             }
         };
 
+        const auditCategories = [
+            {
+                id: 'machine',
+                title: '農機具安全',
+                icon: <Tractor/>,
+                color: 'blue',
+                items: [
+                    "轉動軸是否有黃色護蓋？",
+                    "是否有防翻覆保護架 (ROPS)？",
+                    "燈光與煞車是否正常？",
+                    "上下機時是否使用扶手與踏板？"
+                ]
+            },
+            {
+                id: 'chem',
+                title: '化學品管理',
+                icon: <FlaskConical/>,
+                color: 'purple',
+                items: [
+                    "農藥櫃是否上鎖，且遠離兒童？",
+                    "農藥是否有清楚的分類與標示？",
+                    "是否備有防護衣、手套與護目鏡？",
+                    "是否有可用的清水或沖洗設備？"
+                ]
+            },
+            {
+                id: 'env',
+                title: '作業環境',
+                icon: <Sun/>,
+                color: 'orange',
+                items: [
+                    "是否有高溫休息與補水計畫？",
+                    "田間是否有坑洞、電線等危險標示？",
+                    "是否避免獨自作業，或有回報機制？",
+                    "雨天、夜間作業是否有足夠照明？"
+                ]
+            }
+        ];
+
         const qaData = [
-            { category: "保險迷思", q: "我有農保了，還需要健保嗎？", a: "要！健保是看醫生用的，農保是職業身分保險。強烈建議加保「農民職災保險」，每月只要一杯飲料錢，工作受傷保障多更多。" },
-            { category: "職災認定", q: "我在田裡暈倒，算是職業災害嗎？", a: "算！但要有證據。就醫時一定要跟醫生說「我是在幾點幾分、在哪個田裡工作時暈倒的」，留下紀錄才能申請給付。" },
+            {
+                category: "保險迷思",
+                q: "我有農保了，還需要健保嗎？",
+                a: "需要！健保是「看醫生用的保險」，農保是你的「職業身分保險」。兩個用途不同。建議另外加保「農民職災保險」，每月大概只要一杯飲料錢，萬一工作受傷或中暑，給付會差很多。"
+            },
+            {
+                category: "職災認定",
+                q: "我在田裡暈倒，算是職業災害嗎？",
+                a: "多數情況下算，但要有證據。就醫時一定要主動跟醫師說：「我是幾點幾分、在哪個田裡工作時暈倒的。」請醫師幫忙寫在病歷裡。之後申請農民職災保險或其他補助時，這些紀錄就是關鍵。"
+            },
+            {
+                category: "實務經驗",
+                q: "發生意外當下，我第一個步驟應該是什麼？",
+                a: "先顧安全再顧保險。先離開危險環境、確保呼吸順暢，儘快就醫或叫救護車。同行的伙伴可以幫忙拍照、記下時間與地點，這些紀錄之後都能幫助釐清是否屬於職業災害。"
+            }
         ];
 
         const videoData = [
@@ -298,43 +275,6 @@
             { title: "貓牛式 (救救你的腰)", target: "長時間彎腰拔草的人", steps: ["手扶田埂，身體微彎", "吸氣時抬頭挺胸 (像牛)", "吐氣時低頭看肚臍 (像貓)", "重複 10 次"] },
             { title: "抱膝伸展 (放鬆下背)", target: "搬重物腰痠的人", steps: ["平躺下來", "雙手抱膝往胸口拉", "停留 30 秒", "感覺下背放鬆"] },
             { title: "毛巾轉肩 (放鬆肩膀)", target: "噴藥、手舉高的人", steps: ["拿毛巾兩端伸直", "慢慢往上舉高", "感覺胸口拉開", "維持 10 秒"] }
-        ];
-
-        // 澳洲風格：系統性審核清單
-        const auditCategories = [
-            {
-                id: 'machine',
-                title: '農機具安全',
-                icon: <Tractor />,
-                color: 'blue',
-                items: [
-                    "轉動軸是否有黃色護蓋？",
-                    "是否有防翻覆保護架 (ROPS)？",
-                    "燈光與煞車是否正常？"
-                ]
-            },
-            {
-                id: 'chem',
-                title: '化學品管理',
-                icon: <FlaskConical />,
-                color: 'purple',
-                items: [
-                    "農藥櫃是否上鎖，且遠離兒童？",
-                    "農藥是否有清楚的分類與標示？",
-                    "是否備有防護衣、手套與沖洗設備？"
-                ]
-            },
-            {
-                id: 'env',
-                title: '作業環境',
-                icon: <Sun />,
-                color: 'orange',
-                items: [
-                    "是否有高溫休息與補水計畫？",
-                    "田間是否有坑洞、電線等危險標示？",
-                    "獨自作業是否有回報／聯絡機制？"
-                ]
-            }
         ];
 
         // --- 3. UI Components ---
@@ -470,7 +410,6 @@
 
         // --- 4. 頁面組件 ---
 
-        // Home Page (使用舊多語系 + 新首頁卡片風格)
         const HomePage = ({ setPage, lang, currentDate }) => (
             <div className="animate-fade-in pb-12">
                 {/* Dashboard */}
@@ -513,21 +452,21 @@
                                 icon: <Sprout size={32}/>, 
                                 desc: "看清風險，真實評論揭露。", 
                                 color: "from-blue-500 to-blue-600", 
-                                page: "startFarming" 
+                                page: "newFarmerHub" 
                             },
                             { 
                                 title: lang.identity.young,
                                 icon: <Tractor size={32}/>, 
-                                desc: "溫室職安與省工機具對策。", 
+                                desc: "溫室職安、農場體檢與省工機具。", 
                                 color: "from-emerald-500 to-emerald-600", 
-                                page: "greenhouse" 
+                                page: "youngFarmerHub" 
                             },
                             { 
                                 title: lang.identity.senior,
                                 icon: <Heart size={32}/>, 
-                                desc: "痠痛改善與職災給付申請。", 
+                                desc: "痠痛改善、長期健康與職災給付。", 
                                 color: "from-orange-500 to-orange-600", 
-                                page: "healthPromo" 
+                                page: "seniorFarmerHub" 
                             }
                         ].map((item, i) => (
                             <div 
@@ -671,13 +610,12 @@
             </div>
         );
 
-        // Safety Page：急救 + 韓國視覺懶人包
         const SafetyPage = ({ lang }) => (
             <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
                 <SectionHeader 
                     icon={Shield} 
                     title="急救與安全懶人包"
-                    subtitle="SOS Guide & Visual Cards"
+                    subtitle="SOS 指南與視覺化圖卡，關鍵時刻一看就懂。"
                 />
                 
                 {/* 急救紅卡 */}
@@ -686,7 +624,7 @@
                     <EmergencyCard data={safetyData.pesticide} type="pesticide" lang={lang} />
                 </div>
 
-                {/* 韓國風格視覺圖卡 */}
+                {/* 視覺圖卡 */}
                 <div className="border-t border-slate-200 pt-12">
                     <h3 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
                         <BookOpen className="text-blue-500"/> 安全圖卡懶人包 (Visual Guides)
@@ -724,10 +662,9 @@
             </div>
         );
 
-        // 農場體檢 (Audit) - 澳洲風格
         const AuditPage = () => {
             const [checked, setChecked] = useState({});
-            const toggle = (id) => setChecked(prev => ({ ...prev, [id]: !prev[id] }));
+            const toggle = (id) => setChecked(prev => ({...prev, [id]: !prev[id]}));
 
             return (
                 <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
@@ -739,7 +676,7 @@
                     <div className="space-y-6">
                         {auditCategories.map(cat => (
                             <div key={cat.id} className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100">
-                                <div className={`p-4 flex items-center gap-3 bg-${cat.color}-50 border-b border-${cat.color}-100`}>
+                                <div className={`bg-${cat.color}-50 p-4 flex items-center gap-3 border-b border-${cat.color}-100`}>
                                     <div className={`text-${cat.color}-600`}>{cat.icon}</div>
                                     <h3 className={`font-bold text-xl text-${cat.color}-900`}>{cat.title}</h3>
                                 </div>
@@ -754,14 +691,14 @@
                                                 className={`p-4 rounded-xl border-2 cursor-pointer flex items-center gap-3 transition-colors ${
                                                     isChecked
                                                         ? `border-${cat.color}-500 bg-${cat.color}-50`
-                                                        : "border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40"
+                                                        : `border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40`
                                                 }`}
                                             >
                                                 <div
                                                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                                                         isChecked
                                                             ? `bg-${cat.color}-500 border-${cat.color}-500 text-white`
-                                                            : "border-slate-300 bg-white"
+                                                            : `border-slate-300 bg-white`
                                                     }`}
                                                 >
                                                     {isChecked && <CheckCircle2 size={16}/>}
@@ -778,60 +715,7 @@
             );
         };
 
-        const EconomicsPage = () => (
-            <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                <SectionHeader 
-                    icon={DollarSign} 
-                    title="保險與經濟安全" 
-                    subtitle="搞懂權益，增加你的財務韌性。"
-                />
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-12">
-                    <h3 className="text-2xl font-bold mb-8 text-center text-slate-800">保險決策樹：我該保什麼？</h3>
-                    <div className="grid md:grid-cols-2 gap-8">
-                        <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
-                            <h4 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
-                                <Users size={24}/> 擔心「人」受傷
-                            </h4>
-                            <ul className="space-y-4">
-                                <li className="bg-white p-4 rounded-xl shadow-sm">
-                                    <span className="font-bold block text-slate-800 mb-1">1. 農民健康保險 (基本)</span>
-                                    <span className="text-sm text-slate-500">生育、身心障礙、喪葬津貼。</span>
-                                </li>
-                                <li className="bg-blue-600 text-white p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-blue-100">
-                                    <span className="font-bold block flex items-center justify-between mb-1">
-                                        2. 農民職災保險 (必保!) <Heart size={16} className="fill-current"/>
-                                    </span>
-                                    <span className="text-sm opacity-90">
-                                        每月只要約15元。含受傷給付、就醫津貼。CP值最高！
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="bg-green-50/50 rounded-2xl p-6 border border-green-100">
-                            <h4 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
-                                <Sprout size={24}/> 擔心「作物」沒收成
-                            </h4>
-                            <ul className="space-y-4">
-                                <li className="bg-white p-4 rounded-xl shadow-sm">
-                                    <span className="font-bold block text-slate-800 mb-1">1. 天然災害救助</span>
-                                    <span className="text-sm text-slate-500">需達損害標準 (如20%)，補貼成本用。</span>
-                                </li>
-                                <li className="bg-green-100 p-4 rounded-xl shadow-sm border border-green-200">
-                                    <span className="font-bold block text-green-800 mb-1">2. 作物收入保險</span>
-                                    <span className="text-sm text-green-700">
-                                        保障收入！若低於基準就理賠。<br/>
-                                        <span className="text-xs bg-white px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">
-                                            關鍵字：奧林匹克平均法
-                                        </span>
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-
+        // 原本 StartFarmingPage 保留（會在角色專區中連結）
         const StartFarmingPage = () => (
             <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
                 <SectionHeader 
@@ -839,6 +723,7 @@
                     title="從事農業：真實面揭露" 
                     subtitle="前輩的真心話。看清風險，才能走得長遠。"
                 />
+                
                 <div className="space-y-6 mb-12">
                     <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400">
                         <div className="flex items-center gap-2 mb-3">
@@ -945,7 +830,6 @@
             </div>
         );
 
-        // Health：Body Map + 原本三招伸展整合
         const HealthPromoPage = () => {
             const [selectedPart, setSelectedPart] = useState('back');
             const currentEx = bodyMapData[selectedPart];
@@ -958,7 +842,7 @@
                         subtitle="每天 3 分鐘，預防職業傷害。"
                     />
 
-                    {/* Body Map */}
+                    {/* 互動式人體地圖 */}
                     <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-12 grid md:grid-cols-2 gap-8">
                         <div className="relative h-80 bg-slate-100 rounded-2xl flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]">
                             <button
@@ -994,6 +878,7 @@
                                 <span className="font-bold">膝蓋</span>
                             </button>
                         </div>
+
                         <div className="flex flex-col justify-center">
                             <h3 className="text-2xl font-bold text-emerald-800 mb-2">{currentEx.title}</h3>
                             <p className="text-slate-500 mb-6">{currentEx.desc}</p>
@@ -1012,7 +897,7 @@
                         </div>
                     </div>
 
-                    {/* 原本三招：補充版 */}
+                    {/* 原本三招 */}
                     <div className="grid md:grid-cols-3 gap-6 mb-12">
                         {exerciseData.map((ex, i) => (
                             <div key={i} className="bg-white p-6 rounded-2xl shadow-md border-t-4 border-emerald-500">
@@ -1027,18 +912,130 @@
                         ))}
                     </div>
 
-                    {/* 資深農友區 */}
+                    {/* 資深農友專區 */}
                     <div className="bg-orange-50 p-8 rounded-3xl text-center">
                         <h3 className="text-2xl font-bold text-orange-900 mb-4">資深農友專區</h3>
                         <p className="text-orange-800 mb-6 max-w-2xl mx-auto">
                             如果痛太久，請不要只貼藥布，建議至<b>「職業醫學科」</b>就診。
                         </p>
-                        <ActionButton
-                            variant="secondary"
+                        <button
+                            className="bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm px-6 py-3 rounded-xl font-bold"
                             onClick={() => window.open('https://www.ntuh.gov.tw/EOM-CMOID/Fpage.action?muid=4091&fid=3918', '_blank')}
                         >
                             尋找台大雲林分院職業醫學科
-                        </ActionButton>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const EconomicsPage = () => {
+            const injuryFlowSteps = [
+                {
+                    title: "1. 先就醫，保留所有單據",
+                    desc: "不管是不是大傷，一律先看醫生。掛號單、診斷書、收據都先留好，之後申請保險或補助都會用到。"
+                },
+                {
+                    title: "2. 一定要跟醫師說「是在工作時受傷」",
+                    desc: "清楚說明：在哪裡、做什麼工作、什麼時間點受傷，請醫師在病歷上紀錄，未來申請職災給付時比較不會被認定為一般意外。"
+                },
+                {
+                    title: "3. 聯繫農會 / 雇主 / 公所協助申請",
+                    desc: "包含農民職災保險、勞保職災或其他補助，通常都有文件流程。讓熟悉制度的單位幫忙，可以少走很多冤枉路。"
+                },
+                {
+                    title: "4. 後續復健與追蹤",
+                    desc: "如果仍然疼痛或影響工作能力，一定要回診追蹤，必要時可轉介「職業醫學科」，評估是否需要調整工作型態或進一步申請相關給付。"
+                }
+            ];
+
+            return (
+                <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
+                    <SectionHeader 
+                        icon={DollarSign} 
+                        title="保險與經濟安全" 
+                        subtitle="搞懂權益，增加你的財務韌性。"
+                    />
+                    
+                    {/* 保險決策樹 */}
+                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 mb-12">
+                        <h3 className="text-2xl font-bold mb-8 text-center text-slate-800">
+                            保險決策樹：我該保什麼？
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
+                                <h4 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+                                    <Users size={24}/> 擔心「人」受傷
+                                </h4>
+                                <ul className="space-y-4">
+                                    <li className="bg-white p-4 rounded-xl shadow-sm">
+                                        <span className="font-bold block text-slate-800 mb-1">
+                                            1. 農民健康保險 (基本)
+                                        </span>
+                                        <span className="text-sm text-slate-500">
+                                            提供生育、身心障礙、喪葬津貼等基本保障。
+                                        </span>
+                                    </li>
+                                    <li className="bg-blue-600 text-white p-4 rounded-xl shadow-lg transform scale-105 ring-4 ring-blue-100">
+                                        <span className="font-bold block flex items-center justify-between mb-1">
+                                            2. 農民職災保險 (必保!) <Heart size={16} className="fill-current"/>
+                                        </span>
+                                        <span className="text-sm opacity-90">
+                                            每月約一杯飲料錢，卻多了職災醫療與補償。發生中暑、跌倒、農機傷害時，可以大幅減輕經濟壓力。
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="bg-green-50/50 rounded-2xl p-6 border border-green-100">
+                                <h4 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                                    <Sprout size={24}/> 擔心「作物」沒收成
+                                </h4>
+                                <ul className="space-y-4">
+                                    <li className="bg-white p-4 rounded-xl shadow-sm">
+                                        <span className="font-bold block text-slate-800 mb-1">
+                                            1. 天然災害救助
+                                        </span>
+                                        <span className="text-sm text-slate-500">
+                                            颱風、豪雨、寒害等達到一定損害比例時，可申請政府救助，主要是補貼生產成本。
+                                        </span>
+                                    </li>
+                                    <li className="bg-green-100 p-4 rounded-xl shadow-sm border border-green-200">
+                                        <span className="font-bold block text-green-800 mb-1">
+                                            2. 作物收入保險
+                                        </span>
+                                        <span className="text-sm text-green-700">
+                                            不是只看「損失多少公斤」，而是保障「整體收入」。若實際收入低於基準，就可以啟動理賠。<br/>
+                                            <span className="text-xs bg-white px-2 py-1 rounded mt-2 inline-block border shadow-sm font-bold">
+                                                關鍵字：奧林匹克平均法（排除極端高低價，計算較公平）
+                                            </span>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 職災就醫流程 */}
+                    <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200">
+                        <h3 className="text-2xl font-bold mb-6 text-slate-800">
+                            職災就醫與申請流程 (懶人版)
+                        </h3>
+                        <ol className="space-y-4">
+                            {injuryFlowSteps.map((step, idx) => (
+                                <li
+                                    key={idx}
+                                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex gap-3"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                        {idx + 1}
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-slate-800 mb-1">{step.title}</div>
+                                        <div className="text-sm text-slate-600 leading-relaxed">{step.desc}</div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
                     </div>
                 </div>
             );
@@ -1138,18 +1135,361 @@
             </div>
         );
 
+        // --- 角色專區頁面 ---
+
+        const NewFarmerHubPage = ({ setPage }) => (
+            <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                <SectionHeader
+                    icon={Sprout}
+                    title="新手務農專區"
+                    subtitle="先看清風險，再決定怎麼走。給準備踏入農業的你。"
+                />
+
+                {/* 區塊一：前輩真心話（沿用 StartFarming 的兩則故事） */}
+                <div className="space-y-6 mb-10">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="flex text-yellow-400">
+                                <span className="text-xl">★★</span>
+                                <span className="text-slate-200 text-xl">★★★</span>
+                            </div>
+                            <span className="font-bold text-slate-800 text-lg">收入真的不穩定</span>
+                        </div>
+                        <p className="text-slate-600 italic text-lg leading-relaxed">
+                            "大家都說青農返鄉很棒，但前三年真的要有『吃老本』的心理準備。建議新手一定要準備好預備金，
+                            或者先從兼業（斜槓）開始，不要一次全壓身家。"
+                        </p>
+                        <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 嘉義青農的心聲</p>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-red-400">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="flex text-yellow-400">
+                                <span className="text-xl">★</span>
+                                <span className="text-slate-200 text-xl">★★★★</span>
+                            </div>
+                            <span className="font-bold text-slate-800 text-lg">身體壞得比想像快</span>
+                        </div>
+                        <p className="text-slate-600 italic text-lg leading-relaxed">
+                            "我以為我年輕力壯，搬鳳梨都自己來。結果五年腰就壞了。不要以為年輕就是本錢，護具和姿勢最重要，
+                            不然賺的錢都拿去看醫生。"
+                        </p>
+                        <p className="text-right text-sm text-slate-400 mt-4 font-bold">- 鳳梨農 吳先生</p>
+                    </div>
+                </div>
+
+                {/* 區塊二：新手必懂三件事 */}
+                <div className="bg-emerald-50 rounded-3xl p-8 mb-10">
+                    <h3 className="text-2xl font-bold text-emerald-900 mb-6 text-center">新手必懂的三件事</h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">1. 錢怎麼來、怎麼流</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                不只是賣多少、成本多少，還要算進「你自己的工資」。
+                                建議先用簡單的記帳表，把每一筆肥料、油錢、租金都記起來。
+                            </p>
+                            <button
+                                onClick={() => setPage('economics')}
+                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                                → 看「保險與經濟安全」怎麼幫你分散風險
+                            </button>
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">2. 身體就是你的本錢</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                長期彎腰、搬重物、曝曬，五年十年後都會回到自己身上。
+                                一開始就養成「先暖身再下田」、「固定伸展」的習慣，反而可以做得比較久。
+                            </p>
+                            <button
+                                onClick={() => setPage('healthPromo')}
+                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                                → 看「健康促進與伸展」三分鐘護身操
+                            </button>
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">3. 出事時，要會自保</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                熱中暑、跌倒、農藥中毒，都是「工作中的風險」。
+                                先搞懂農民職災保險、就醫時要說什麼，出事才不會兩手一攤。
+                            </p>
+                            <button
+                                onClick={() => setPage('safety')}
+                                className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                                → 看「急救與安全懶人包」與紅卡
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 區塊三：官方資源快速入口 */}
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                    <h3 className="text-2xl font-bold mb-6 text-slate-800 text-center">可以立刻用的官方資源</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <a href="https://www.moa.gov.tw/" target="_blank" rel="noreferrer" className="bg-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group">
+                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <Users/>
+                            </div>
+                            <div>
+                                <div className="font-bold text-emerald-900 text-lg">百大青農計畫</div>
+                                <div className="text-sm text-slate-500">找陪伴師教技術與行銷，一開始不用自己摸索。</div>
+                            </div>
+                        </a>
+                        <a href="https://www.boaf.gov.tw/" target="_blank" rel="noreferrer" className="bg-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all flex items-center gap-4 group">
+                            <div className="bg-emerald-100 p-3 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <DollarSign/>
+                            </div>
+                            <div>
+                                <div className="font-bold text-emerald-900 text-lg">青年從農貸款</div>
+                                <div className="text-sm text-slate-500">前 5 年免息，減少前期壓力，不用一次砸光存款。</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const YoungFarmerHubPage = ({ setPage }) => (
+            <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                <SectionHeader
+                    icon={Tractor}
+                    title="青農 / 在職專區"
+                    subtitle="讓科技和制度幫你分擔，不要只靠硬撐。"
+                />
+
+                {/* 區塊一：今天想改善什麼？ */}
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-10">
+                    <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center">
+                        今天你最想改善的是哪一塊？
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <button
+                            onClick={() => setPage('greenhouse')}
+                            className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
+                        >
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-emerald-100 text-emerald-700 p-2 rounded-full">
+                                    <Sun size={20}/>
+                                </div>
+                                <span className="font-bold text-slate-800 text-sm">溫室太熱 / 工作太操</span>
+                            </div>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                                看看怎麼改通風、排休息、調整工作節奏，避免中暑和慢性疲勞。
+                            </p>
+                        </button>
+
+                        <button
+                            onClick={() => setPage('audit')}
+                            className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
+                        >
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-blue-100 text-blue-700 p-2 rounded-full">
+                                    <ClipboardCheck size={20}/>
+                                </div>
+                                <span className="font-bold text-slate-800 text-sm">想檢查看看農場安全</span>
+                            </div>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                                用「農場體檢」清單，快速看出哪裡需要加護欄、加標示、加護具。
+                            </p>
+                        </button>
+
+                        <button
+                            onClick={() => setPage('safety')}
+                            className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all"
+                        >
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-red-100 text-red-700 p-2 rounded-full">
+                                    <Shield size={20}/>
+                                </div>
+                                <span className="font-bold text-slate-800 text-sm">想更懂急救與防護</span>
+                            </div>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                                熱中暑、農藥中毒、跌倒割傷，一張紅卡就知道怎麼做、要打給誰。
+                            </p>
+                        </button>
+                    </div>
+                </div>
+
+                {/* 區塊二：溫室與省工機具精華卡 */}
+                <div className="bg-emerald-50 rounded-3xl p-8 mb-10">
+                    <h3 className="text-2xl font-bold text-emerald-900 mb-6 text-center">
+                        三個方向，讓你少流一點「傻汗」
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">動線設計</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                減少來回搬運的距離，善用小推車、滑軌、搬運機。
+                                能用輪子就不要用肩膀。
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">機具投資</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                無人機、坐駕式割草機、一人可操作的小型搬運設備，
+                                都是在保護「你未來十年的身體」。
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                            <Badge color="green">高溫策略</Badge>
+                            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                                調整工作時間，在清晨與傍晚做重體力工作，
+                                中午改做修補、整理紀錄等較輕作業。
+                            </p>
+                        </div>
+                    </div>
+                    <div className="text-center mt-4">
+                        <ActionButton variant="secondary" onClick={() => setPage('greenhouse')}>
+                            詳細看「溫室與省工機具」建議
+                        </ActionButton>
+                    </div>
+                </div>
+
+                {/* 區塊三：三大體檢面向縮圖 */}
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                    <h3 className="text-2xl font-bold mb-6 text-slate-800 text-center">三個角度檢查看看你的場子</h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {auditCategories.map(cat => (
+                            <div key={cat.id} className="border border-slate-100 rounded-2xl p-5 bg-slate-50">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className={`p-2 rounded-full bg-${cat.color}-100 text-${cat.color}-700`}>
+                                        {cat.icon}
+                                    </div>
+                                    <span className="font-bold text-slate-800 text-sm">{cat.title}</span>
+                                </div>
+                                <ul className="text-xs text-slate-600 space-y-1">
+                                    {cat.items.slice(0, 3).map((item, i) => (
+                                        <li key={i}>• {item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-center mt-4">
+                        <ActionButton onClick={() => setPage('audit')}>
+                            開始使用「農場體檢」清單
+                        </ActionButton>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const SeniorFarmerHubPage = ({ setPage }) => (
+            <div className="max-w-5xl mx-auto px-4 py-12 animate-fade-in">
+                <SectionHeader
+                    icon={Heart}
+                    title="資深農友專區"
+                    subtitle="陪你把身體顧好，把該有的權益顧好。"
+                />
+
+                {/* 區塊一：常見痠痛地圖 */}
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-10 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-3">哪裡最常在叫？</h3>
+                        <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+                            腰、膝蓋、肩膀、脖子，是最常聽到資深農友說「這裡不太舒服」的地方。
+                            很多時候不是一天兩天造成，而是幾十年累積下來的。
+                        </p>
+                        <ul className="space-y-2 text-sm text-slate-600">
+                            <li>• 長期彎腰 → 下背痛、坐骨神經痛</li>
+                            <li>• 常常扛重物 → 膝蓋、髖關節退化</li>
+                            <li>• 手舉高噴藥 → 肩膀卡卡、夜晚痛醒</li>
+                            <li>• 低頭分級、修剪 → 頸部僵硬、頭痛</li>
+                        </ul>
+                        <div className="mt-4">
+                            <ActionButton variant="secondary" onClick={() => setPage('healthPromo')}>
+                                看「健康促進與伸展」怎麼幫忙
+                            </ActionButton>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <div className="relative h-64 w-64 bg-emerald-50 rounded-full flex items-center justify-center">
+                            <div className="w-40 h-40 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-bold">
+                                身體地圖
+                            </div>
+                            <span className="absolute top-2 text-xs text-slate-600">頸部</span>
+                            <span className="absolute left-2 text-xs text-slate-600">肩膀</span>
+                            <span className="absolute bottom-4 text-xs text-slate-600">膝蓋</span>
+                            <span className="absolute right-1/2 mt-10 text-xs text-slate-600">下背</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 區塊二：權益與保險提醒 */}
+                <div className="bg-emerald-50 rounded-3xl p-8 mb-10">
+                    <h3 className="text-2xl font-bold text-emerald-900 mb-6 text-center">
+                        做了這麼多年，該拿的保障不要錯過
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-emerald-100">
+                            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <Shield size={18} className="text-emerald-600"/> 農民職災保險檢查一下
+                            </h4>
+                            <p className="text-sm text-slate-600 leading-relaxed mb-3">
+                                已經務農好幾十年，卻還沒有把「職災保險」補上，是很可惜的。
+                                中暑、跌倒、刀傷、農機傷害，只要是「工作中發生」，都有可能啟動給付。
+                            </p>
+                            <button
+                                onClick={() => setPage('economics')}
+                                className="text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                                → 去「保險與經濟安全」看怎麼選
+                            </button>
+                        </div>
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-emerald-100">
+                            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <DollarSign size={18} className="text-emerald-600"/> 作物收入保險可以試試看
+                            </h4>
+                            <p className="text-sm text-slate-600 leading-relaxed mb-3">
+                                價格大起大落的時代，靠「平均價格」計算的收入保險，反而可以幫你把多年經驗變成穩定收入。
+                                不一定每年賺最多，但可以少賠一點。
+                            </p>
+                            <button
+                                onClick={() => setPage('economics')}
+                                className="text-xs font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                                → 了解「奧林匹克平均法」是什麼
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 區塊三：何時該看職業醫學科 */}
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                    <h3 className="text-2xl font-bold mb-4 text-slate-800 text-center">什麼時候該考慮看「職業醫學科」？</h3>
+                    <p className="text-sm text-slate-600 mb-6 text-center max-w-2xl mx-auto leading-relaxed">
+                        如果你已經調整姿勢、做伸展、貼藥布，但還是痛了好幾個月，
+                        或者痛到影響睡眠、走路、工作步調，就不只是「老毛病」，而是值得找專科醫師好好談談的狀況。
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-4 mb-6">
+                        <Badge color="orange">超過 3 個月的慢性疼痛</Badge>
+                        <Badge color="orange">痛到影響睡眠或走路</Badge>
+                        <Badge color="orange">工作一做就痛，一停就好</Badge>
+                    </div>
+                    <div className="text-center">
+                        <ActionButton
+                            variant="secondary"
+                            onClick={() => setPage('healthPromo')}
+                        >
+                            看看「健康促進」頁面下方的就醫建議
+                        </ActionButton>
+                    </div>
+                </div>
+            </div>
+        );
+
         // --- 5. 主程式 ---
 
         function App() {
             const [page, setPage] = useState('home');
             const [menuOpen, setMenuOpen] = useState(false);
             const [scrolled, setScrolled] = useState(false);
-
-            const [currentLang, setCurrentLang] = useState('zh');
-            const [showLangMenu, setShowLangMenu] = useState(false);
-            const t = translations[currentLang];
-
             const [currentDate, setCurrentDate] = useState('');
+            const t = translations['zh']; // 目前先固定繁中
 
             useEffect(() => {
                 window.scrollTo(0, 0);
@@ -1161,43 +1501,45 @@
                 window.addEventListener('scroll', handleScroll);
 
                 const date = new Date();
-                const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-                setCurrentDate(date.toLocaleDateString('zh-TW', options));
+                setCurrentDate(date.toLocaleDateString('zh-TW', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                }));
 
                 return () => window.removeEventListener('scroll', handleScroll);
             }, []);
 
-            const changeLang = (lang) => {
-                setCurrentLang(lang);
-                setShowLangMenu(false);
-            };
-
             const navItems = [
-                { id: 'home', label: t.nav.home },
+                { id: 'home',         label: t.nav.home },
                 { id: 'startFarming', label: t.nav.start },
-                { id: 'greenhouse', label: t.nav.greenhouse },
-                { id: 'safety', label: t.nav.safety },
-                { id: 'audit', label: t.nav.audit },
-                { id: 'healthPromo', label: t.nav.health },
-                { id: 'economics', label: t.nav.insurance },
-                { id: 'forum', label: t.nav.forum },
-                { id: 'videos', label: t.nav.video },
-                { id: 'resources', label: t.nav.resources },
+                { id: 'greenhouse',   label: t.nav.greenhouse },
+                { id: 'safety',       label: t.nav.safety },
+                { id: 'audit',        label: t.nav.audit },
+                { id: 'healthPromo',  label: t.nav.health },
+                { id: 'economics',    label: t.nav.insurance },
+                { id: 'forum',        label: t.nav.forum },
+                { id: 'videos',       label: t.nav.video },
+                { id: 'resources',    label: t.nav.resources },
             ];
 
             const renderPage = () => {
                 switch (page) {
-                    case 'home': return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
-                    case 'startFarming': return <StartFarmingPage />;
-                    case 'greenhouse': return <GreenhousePage />;
-                    case 'safety': return <SafetyPage lang={t} />;
-                    case 'audit': return <AuditPage />;
-                    case 'healthPromo': return <HealthPromoPage />;
-                    case 'economics': return <EconomicsPage />;
-                    case 'forum': return <ForumPage />;
-                    case 'videos': return <VideosPage />;
-                    case 'resources': return <ResourcesPage />;
-                    default: return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                    case 'home':           return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
+                    case 'newFarmerHub':   return <NewFarmerHubPage setPage={setPage} />;
+                    case 'youngFarmerHub': return <YoungFarmerHubPage setPage={setPage} />;
+                    case 'seniorFarmerHub':return <SeniorFarmerHubPage setPage={setPage} />;
+                    case 'startFarming':   return <StartFarmingPage />;
+                    case 'greenhouse':     return <GreenhousePage />;
+                    case 'safety':         return <SafetyPage lang={t} />;
+                    case 'audit':          return <AuditPage />;
+                    case 'healthPromo':    return <HealthPromoPage />;
+                    case 'economics':      return <EconomicsPage />;
+                    case 'forum':          return <ForumPage />;
+                    case 'videos':         return <VideosPage />;
+                    case 'resources':      return <ResourcesPage />;
+                    default:               return <HomePage setPage={setPage} lang={t} currentDate={currentDate} />;
                 }
             };
 
@@ -1235,26 +1577,8 @@
                                     ))}
                                 </div>
 
-                                {/* Lang + Mobile Menu */}
+                                {/* Mobile Menu 按鈕 */}
                                 <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <button 
-                                            onClick={() => setShowLangMenu(!showLangMenu)}
-                                            className={`flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs transition-colors ${
-                                                scrolled ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'
-                                            }`}
-                                        >
-                                            <Globe size={16}/> {currentLang.toUpperCase()}
-                                        </button>
-                                        {showLangMenu && (
-                                            <div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in text-slate-800">
-                                                <button onClick={() => changeLang('zh')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">繁體中文</button>
-                                                <button onClick={() => changeLang('en')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">English</button>
-                                                <button onClick={() => changeLang('id')} className="block w-full text-left px-4 py-3 hover:bg-emerald-50 text-sm font-bold">Indonesia</button>
-                                            </div>
-                                        )}
-                                    </div>
-
                                     <button
                                         onClick={() => setMenuOpen(!menuOpen)}
                                         className={`lg:hidden p-2 ${scrolled ? 'text-slate-800' : 'text-white'}`}
